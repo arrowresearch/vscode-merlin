@@ -1,0 +1,78 @@
+{
+  "name": "vscode-merlin",
+  "description": "VS Code Merlin Extension",
+  "author": "Andrey Popp <8mayday@gmail.com>",
+  "publisher": "andreypopp",
+  "license": "MIT",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ocaml/melrin"
+  },
+  "engines": {
+    "vscode": "^1.23.0"
+  },
+  "activationEvents": [
+    "onLanguage:reason",
+    "onLanguage:ocaml"
+  ],
+  "main": "./client/out/extension",
+  "contributes": {
+    "languages": [
+      {
+        "id": "reason",
+        "aliases": [
+          "Reason"
+        ],
+        "extensions": [
+          ".re",
+          ".rei"
+        ],
+        "configuration": "./language.reason.json"
+      },
+      {
+        "id": "ocaml",
+        "aliases": [
+          "OCaml"
+        ],
+        "extensions": [
+          ".ml",
+          ".mli"
+        ],
+        "configuration": "./language/ocaml.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "Merlin configuration",
+      "properties": {}
+    },
+    "grammars": [
+      {
+        "language": "ocaml",
+        "scopeName": "source.ocaml",
+        "path": "./syntax/ocaml.json"
+      },
+      {
+        "language": "reason",
+        "scopeName": "source.reason",
+        "path": "./syntax/reason.json"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+    "compile": "tsc -b",
+    "watch": "tsc -b -w",
+    "postinstall": "cd client && npm install && cd ..",
+    "test": "sh ./scripts/e2e.sh",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "^5.2.0",
+    "@types/node": "^8.0.0",
+    "tslint": "^5.11.0",
+    "vsce": "^1.54.0",
+    "typescript": "^3.1.3"
+  }
+}
