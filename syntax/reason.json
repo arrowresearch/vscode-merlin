@@ -1,10 +1,7 @@
 {
   "name": "Reason",
   "scopeName": "source.reason",
-  "fileTypes": [
-    "re",
-    "rei"
-  ],
+  "fileTypes": ["re", "rei"],
   "patterns": [
     { "include": "#structure-expression-block-item" },
     { "include": "#value-expression" }
@@ -20,9 +17,7 @@
           "beginCaptures": {
             "1": { "name": "keyword.control.less" }
           },
-          "patterns": [
-            { "include": "#attribute-identifier" }
-          ]
+          "patterns": [{ "include": "#attribute-identifier" }]
         },
         { "include": "#attribute-payload" }
       ]
@@ -48,7 +43,9 @@
           "begin": "(:)",
           "end": "(?=\\])",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             { "include": "#structure-expression" },
@@ -78,11 +75,11 @@
         "1": { "name": "keyword.other" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#value-expression" }
-      ]
+      "patterns": [{ "include": "#value-expression" }]
     },
     "class-item-method": {
       "begin": "\\b(method)\\b",
@@ -91,7 +88,9 @@
         "1": { "name": "storage.type" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#module-item-let-value-bind-name-params-type-body" }
@@ -101,24 +100,20 @@
       "name": "comment",
       "patterns": [
         { "include": "#comment-block-doc" },
-        {	"include": "#comment-block"	}
+        { "include": "#comment-block" }
       ]
     },
     "comment-block": {
       "begin": "/\\*",
       "end": "\\*/",
       "name": "comment.block",
-      "patterns": [
-        { "include": "#comment" }
-      ]
+      "patterns": [{ "include": "#comment" }]
     },
     "comment-block-doc": {
       "begin": "/\\*\\*(?!/)",
       "end": "\\*/",
       "name": "comment.block.documentation",
-      "patterns": [
-        { "include": "#comment" }
-      ]
+      "patterns": [{ "include": "#comment" }]
     },
     "condition-lhs": {
       "begin": "(?<![#\\-:!?.@*/&%^+<=>|~$\\\\])([\\?])(?![#\\-:!?.@*/&%^+<=>|~$\\\\])",
@@ -144,18 +139,13 @@
           "beginCaptures": {
             "1": { "name": "keyword.control.less" }
           },
-          "patterns": [
-            { "include": "#attribute-identifier" }
-          ]
+          "patterns": [{ "include": "#attribute-identifier" }]
         },
         { "include": "#attribute-payload" }
       ]
     },
     "jsx": {
-      "patterns": [
-        { "include": "#jsx-head" },
-        { "include": "#jsx-tail" }
-      ]
+      "patterns": [{ "include": "#jsx-head" }, { "include": "#jsx-tail" }]
     },
     "jsx-attributes": {
       "patterns": [
@@ -164,18 +154,20 @@
           "end": "(?<![=])(?=[/>[:lower:]])",
           "comment": "meta.separator",
           "beginCaptures": {
-            "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" },
+            "1": {
+              "name": "markup.inserted constant.language support.property-value entity.name.filename"
+            },
             "2": { "name": "keyword.control.less" }
           },
-          "patterns": [
-            { "include": "#value-expression-atomic-with-paths" }
-          ]
+          "patterns": [{ "include": "#value-expression-atomic-with-paths" }]
         },
         {
           "match": "(\\b([[:lower:]][[:word:]]*)\\b[[:space:]]*+)",
           "captures": {
             "1": { "comment": "meta.separator" },
-            "2": { "name": "markup.inserted constant.language support.property-value entity.name.filename" }
+            "2": {
+              "name": "markup.inserted constant.language support.property-value entity.name.filename"
+            }
           }
         }
       ]
@@ -251,11 +243,11 @@
           "begin": "([\\(])",
           "end": "([\\)])",
           "captures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           },
-          "patterns": [
-            { "include": "#module-path-extended" }
-          ]
+          "patterns": [{ "include": "#module-path-extended" }]
         }
       ]
     },
@@ -291,11 +283,11 @@
       "begin": "(?=\\b[[:upper:]])",
       "end": "([\\.])|(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#module-path-extended" }
-      ]
+      "patterns": [{ "include": "#module-path-extended" }]
     },
     "module-path-simple": {
       "patterns": [
@@ -306,7 +298,9 @@
           "begin": "([\\.])",
           "end": "(?<=[[:word:]\\)])|(?=[^\\.[:upper:]/])",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             {
@@ -325,11 +319,11 @@
       "begin": "(?=\\b[[:upper:]])",
       "end": "([\\.])|(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#module-path-simple" }
-      ]
+      "patterns": [{ "include": "#module-path-simple" }]
     },
     "module-item-class-type": {
       "comment": "FIXME: proper parsing",
@@ -339,18 +333,20 @@
         "1": { "name": "keyword.other" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         {
           "begin": "(?:\\G|^)[[:space:]]*\\b(type)\\b",
           "end": "(?==)",
           "beginCaptures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           },
-          "patterns": [
-            { "include": "#module-item-type-bind-name-tyvars" }
-          ]
+          "patterns": [{ "include": "#module-item-type-bind-name-tyvars" }]
         },
         {
           "begin": "(=)",
@@ -374,11 +370,11 @@
         "1": { "name": "keyword.other" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#module-item-type-bind-body-item" }
-      ]
+      "patterns": [{ "include": "#module-item-type-bind-body-item" }]
     },
     "module-item-external": {
       "begin": "\\b(external)\\b",
@@ -387,7 +383,9 @@
         "1": { "name": "storage.type" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#module-item-let-value-bind-name-or-pattern" },
@@ -409,9 +407,15 @@
                 {
                   "match": "(?:(%)(.*?)|(caml.*?))(?=\"|(?:[^\\\\\\n]$))",
                   "captures": {
-                    "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" },
-                    "2": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
-                    "3": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"}
+                    "1": {
+                      "name": "entity.other.attribute-name.css constant.language constant.numeric"
+                    },
+                    "2": {
+                      "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                    },
+                    "3": {
+                      "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                    }
                   }
                 }
               ]
@@ -427,11 +431,11 @@
         "1": { "name": "keyword.control.include" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#signature-expression" }
-      ]
+      "patterns": [{ "include": "#signature-expression" }]
     },
     "module-item-let": {
       "begin": "\\b(let)\\b",
@@ -440,7 +444,9 @@
         "1": { "name": "storage.type" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#module-item-let-module" },
@@ -451,7 +457,9 @@
       "begin": "(?:\\G|^)[[:space:]]*\\b(module)\\b",
       "end": "(?=[;}]|\\b(class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|type|val|with)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.control storage.type message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.control storage.type message.error"
+        }
       },
       "patterns": [
         { "include": "#comment" },
@@ -476,9 +484,7 @@
       "beginCaptures": {
         "1": { "name": "keyword.control.less" }
       },
-      "patterns": [
-        { "include": "#structure-expression" }
-      ]
+      "patterns": [{ "include": "#structure-expression" }]
     },
     "module-item-let-module-bind-name-params": {
       "begin": "\\b([[:upper:]][[:word:]]*)\\b",
@@ -505,11 +511,11 @@
       "begin": "(:)",
       "end": "(?=[;}=]|\\b(and|class|constraint|exception|external|include|inherit|let|method|nonrec|open|private|rec|type|val)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#signature-expression" }
-      ]
+      "patterns": [{ "include": "#signature-expression" }]
     },
     "module-item-let-module-param": {
       "begin": "(?=\\()",
@@ -527,11 +533,11 @@
           "begin": "(:)",
           "end": "(?=\\))",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
-          "patterns": [
-            { "include": "#signature-expression" }
-          ]
+          "patterns": [{ "include": "#signature-expression" }]
         }
       ]
     },
@@ -568,9 +574,7 @@
       "beginCaptures": {
         "1": { "name": "keyword.control.less" }
       },
-      "patterns": [
-        { "include": "#value-expression" }
-      ]
+      "patterns": [{ "include": "#value-expression" }]
     },
     "module-item-let-value-bind-name-or-pattern": {
       "begin": "(?<=[^[:word:]]and|^and|[^[:word:]]external|^external|[^[:word:]]let|^let|[^[:word:]]method|^method|[^[:word:]]rec|^rec)[[:space:]]*",
@@ -605,14 +609,14 @@
               "begin": "(=)",
               "end": "(\\?)|(?<=[^[:space:]=][[:space:]])(?=[[:space:]]*+[^\\.])",
               "beginCaptures": {
-                "1": { "name": "markup.inserted keyword.control.less message.error" }
+                "1": {
+                  "name": "markup.inserted keyword.control.less message.error"
+                }
               },
               "endCaptures": {
                 "1": { "name": "storage.type" }
               },
-              "patterns": [
-                { "include": "#value-expression-atomic-with-paths" }
-              ]
+              "patterns": [{ "include": "#value-expression-atomic-with-paths" }]
             }
           ]
         },
@@ -632,11 +636,11 @@
           "begin": "(?<![:])(:)[[:space:]]*(?![[:space:]]*[:\\)])",
           "end": "(?=[;}=]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|val|with)\\b)",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
-          "patterns": [
-            { "include": "#type-expression-atomic" }
-          ]
+          "patterns": [{ "include": "#type-expression-atomic" }]
         }
       ]
     },
@@ -664,21 +668,23 @@
       "begin": "(?<![:])(:)(?![[:space:]]*[:\\)])",
       "end": "(?==[^>]|[;}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|val|with)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         {
           "begin": "\\b(type)\\b",
           "end": "([\\.])",
           "beginCaptures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           },
           "endCaptures": {
             "1": { "name": "entity.name.function" }
           },
-          "patterns": [
-            { "include": "#pattern-variable" }
-          ]
+          "patterns": [{ "include": "#pattern-variable" }]
         },
         { "include": "#type-expression" }
       ]
@@ -697,7 +703,9 @@
           "begin": "(\\b[[:lower:]][[:word:]]*\\b)?[[:space:]]*(::)",
           "end": "(?<=[[:space:]])",
           "beginCaptures": {
-            "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" },
+            "1": {
+              "name": "markup.inserted constant.language support.property-value entity.name.filename"
+            },
             "2": { "name": "keyword.control" }
           },
           "patterns": [
@@ -706,14 +714,14 @@
               "begin": "(=)",
               "end": "(\\?)|(?<=[^[:space:]=][[:space:]])(?=[[:space:]]*+[^\\.])",
               "beginCaptures": {
-                "1": { "name": "markup.inserted keyword.control.less message.error" }
+                "1": {
+                  "name": "markup.inserted keyword.control.less message.error"
+                }
               },
               "endCaptures": {
                 "1": { "name": "storage.type" }
               },
-              "patterns": [
-                { "include": "#value-expression-atomic-with-paths" }
-              ]
+              "patterns": [{ "include": "#value-expression-atomic-with-paths" }]
             }
           ]
         }
@@ -748,11 +756,11 @@
           "begin": "\\b(type)\\b",
           "end": "(?=\\))",
           "beginCaptures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           },
-          "patterns": [
-            { "include": "#pattern-variable" }
-          ]
+          "patterns": [{ "include": "#pattern-variable" }]
         }
       ]
     },
@@ -774,7 +782,9 @@
         "1": { "name": "storage.type message.error" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#module-item-let-module-and" },
@@ -789,14 +799,18 @@
         "1": { "name": "keyword.control message.error" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         {
           "begin": "(?:\\G|^)[[:space:]]*\\b(type)\\b",
           "end": "(?==)",
           "beginCaptures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           },
           "patterns": [
             { "include": "#comment" },
@@ -828,7 +842,9 @@
         "1": { "name": "keyword.control.open" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#comment" },
@@ -843,7 +859,9 @@
         "1": { "name": "keyword.other" }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#module-item-type-and" },
@@ -857,11 +875,11 @@
       "end": "(?=[;\\)}]|\\b(class|exception|external|include|inherit|let|method|nonrec|open|private|type|val|with)\\b)",
       "beginCaptures": {
         "1": { "name": "keyword.other" },
-        "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+        "2": {
+          "name": "entity.other.attribute-name.css constant.language constant.numeric"
+        }
       },
-      "patterns": [
-        { "include": "#module-item-type-bind-name-tyvars-body" }
-      ]
+      "patterns": [{ "include": "#module-item-type-bind-name-tyvars-body" }]
     },
     "module-item-type-bind": {
       "comment": "FIXME: only allow module paths before type variables",
@@ -877,9 +895,7 @@
       "beginCaptures": {
         "1": { "name": "keyword.control.less" }
       },
-      "patterns": [
-        { "include": "#module-item-type-bind-body-item" }
-      ]
+      "patterns": [{ "include": "#module-item-type-bind-body-item" }]
     },
     "module-item-type-bind-body-item": {
       "patterns": [
@@ -887,14 +903,18 @@
           "match": "(=)(?!>)|\\b(private)\\b",
           "captures": {
             "1": { "name": "keyword.control.less" },
-            "2": { "name": "variable.other.class.js variable.interpolation storage.modifier message.error" }
+            "2": {
+              "name": "variable.other.class.js variable.interpolation storage.modifier message.error"
+            }
           }
         },
         {
           "comment": "FIXME: specialized version of variant rule that also scans for (",
           "match": "\\b([[:upper:]][[:word:]]*)\\b(?![[:space:]]*[\\.\\(])",
           "captures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           }
         },
         {
@@ -908,7 +928,9 @@
           "begin": "(\\|)(?![#\\-:!?.@*/&%^+<=>|~$\\\\])[[:space:]]*",
           "end": "(?=[;\\)}]|\\|(?![#\\-:!?.@*/&%^+<=>|~$\\\\])|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             { "include": "#value-expression-constructor" },
@@ -926,8 +948,12 @@
           "comment": "FIXME: remove this once the pretty printer no longer outputs 'of'",
           "match": "(:)|(\\|(?![#\\-:!?.@*/&%^+<=>|~$\\\\]))|\\b(of)\\b",
           "captures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
-            "2": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            },
+            "2": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            },
             "3": { "name": "keyword.other" }
           }
         },
@@ -951,10 +977,14 @@
           "comment": "FIXME: add separate type-variable rule",
           "match": "([+\\-])?(?:(_)|(')([[:lower:]][[:word:]]*)\\b)(?!\\.[[:upper:]])",
           "captures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            },
             "2": { "name": "comment" },
             "3": { "name": "comment" },
-            "4": { "name": "variable.parameter string.other.link variable.language" }
+            "4": {
+              "name": "variable.parameter string.other.link variable.language"
+            }
           }
         }
       ]
@@ -974,25 +1004,29 @@
       "beginCaptures": {
         "1": { "name": "keyword.control storage.modifier message.error" }
       },
-      "patterns": [
-        { "include": "#module-item-type-bind-name-tyvars-body" }
-      ]
+      "patterns": [{ "include": "#module-item-type-bind-name-tyvars-body" }]
     },
     "module-item-type-constraint": {
       "comment": "FIXME: proper parsing",
       "begin": "\\b(constraint)\\b",
       "end": "(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation storage.modifier message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation storage.modifier message.error"
+        }
       },
       "patterns": [
         {
           "comment": "FIXME: add separate type-variable rule",
           "match": "([+\\-])?(')([_[:lower:]][[:word:]]*)\\b(?!\\.[[:upper:]])",
           "captures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            },
             "2": { "name": "comment" },
-            "3": { "name": "variable.parameter string.other.link variable.language" }
+            "3": {
+              "name": "variable.parameter string.other.link variable.language"
+            }
           }
         },
         {
@@ -1006,11 +1040,11 @@
       "begin": "\\G|(;)",
       "end": "(?=[;}]|\\b(class|constraint|exception|external|include|let|module|nonrec|open|private|type|val|with)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#class-item-method" }
-      ]
+      "patterns": [{ "include": "#class-item-method" }]
     },
     "operator": {
       "patterns": [
@@ -1043,7 +1077,9 @@
       "captures": {
         "1": { "comment": "meta.separator" },
         "2": { "name": "punctuation.definition.tag.begin.js" },
-        "3": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "3": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       }
     },
     "operator-infix-custom-hash": {
@@ -1072,7 +1108,9 @@
         {
           "match": "[[:space:]]*+(?:(\\|(?![#\\-:!?.@*/&%^+<=>|~$\\\\]))|\\b(as)\\b|(\\.\\.\\.?))[[:space:]]*+",
           "captures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            },
             "2": { "name": "keyword.other" },
             "3": { "name": "keyword.control" }
           }
@@ -1099,18 +1137,20 @@
       "beginCaptures": {
         "1": { "name": "keyword.other" }
       },
-      "patterns": [
-        { "include": "#value-expression" }
-      ]
+      "patterns": [{ "include": "#value-expression" }]
     },
     "pattern-list-or-array": {
       "begin": "(\\[\\|?)(?![@%])",
       "end": "(\\|?\\])",
       "beginCaptures": {
-        "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+        "1": {
+          "name": "entity.other.attribute-name.css constant.language constant.numeric"
+        }
       },
       "endCaptures": {
-        "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+        "1": {
+          "name": "entity.other.attribute-name.css constant.language constant.numeric"
+        }
       },
       "patterns": [
         { "include": "#value-expression-literal-list-or-array-separator" },
@@ -1129,11 +1169,11 @@
       "begin": "\\(|(,)",
       "end": "(?=(?:[,:\\)]))|(?=[;}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#pattern" }
-      ]
+      "patterns": [{ "include": "#pattern" }]
     },
     "record-path": {
       "begin": "\\b[[:lower:]][[:word:]]*\\b",
@@ -1147,12 +1187,16 @@
       "begin": "(\\.)",
       "end": "(\\))|\\b([[:upper:]][[:word:]]*)\\b|\\b([[:lower:]][[:word:]]*)\\b|(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|with)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "endCaptures": {
         "1": { "name": "keyword.control" },
         "2": { "name": "support.class entity.name.class" },
-        "3": { "name": "markup.inserted constant.language support.property-value entity.name.filename" }
+        "3": {
+          "name": "markup.inserted constant.language support.property-value entity.name.filename"
+        }
       },
       "patterns": [
         { "include": "#comment" },
@@ -1167,7 +1211,9 @@
             {
               "match": "\\b([[:lower:]][[:word:]]*)\\b(?=[^\\)]*([\\.]))",
               "captures": {
-                "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" },
+                "1": {
+                  "name": "markup.inserted constant.language support.property-value entity.name.filename"
+                },
                 "2": { "name": "keyword.other" }
               }
             },
@@ -1178,7 +1224,9 @@
             {
               "match": "\\b([[:lower:]][[:word:]]*)\\b[[:space:]]*",
               "captures": {
-                "1": { "name": "variable.parameter string.other.link variable.language" }
+                "1": {
+                  "name": "variable.parameter string.other.link variable.language"
+                }
               }
             },
             { "include": "#value-expression" }
@@ -1199,10 +1247,14 @@
       "end": "(,)|(?=})",
       "beginCaptures": {
         "1": { "name": "comment" },
-        "2": { "name": "markup.inserted constant.language support.property-value entity.name.filename" }
+        "2": {
+          "name": "markup.inserted constant.language support.property-value entity.name.filename"
+        }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#comment" },
@@ -1210,11 +1262,11 @@
           "begin": "\\G(:)",
           "end": "(?=[,}])",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
-          "patterns": [
-            { "include": "#pattern" }
-          ]
+          "patterns": [{ "include": "#pattern" }]
         }
       ]
     },
@@ -1250,9 +1302,7 @@
             {
               "begin": "(?=\\()",
               "end": "(?=[;]|=>)",
-              "patterns": [
-                { "include": "#module-item-let-module-param" }
-              ]
+              "patterns": [{ "include": "#module-item-let-module-param" }]
             },
             {
               "begin": "(=>)",
@@ -1260,9 +1310,7 @@
               "beginCaptures": {
                 "1": { "name": "markup.inserted keyword.control.less" }
               },
-              "patterns": [
-                { "include": "#structure-expression" }
-              ]
+              "patterns": [{ "include": "#structure-expression" }]
             }
           ]
         },
@@ -1270,9 +1318,15 @@
           "begin": "\\b(module)\\b[[:space:]]*\\b(type)\\b([[:space:]]*\\b(of)\\b)?",
           "end": "(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
           "beginCaptures": {
-            "1": { "name": "markup.inserted keyword.other variable.other.readwrite.instance" },
-            "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" },
-            "3": { "name": "markup.inserted keyword.other variable.other.readwrite.instance" }
+            "1": {
+              "name": "markup.inserted keyword.other variable.other.readwrite.instance"
+            },
+            "2": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            },
+            "3": {
+              "name": "markup.inserted keyword.other variable.other.readwrite.instance"
+            }
           },
           "patterns": [
             { "include": "#comment" },
@@ -1295,7 +1349,9 @@
           "begin": "\\b(and|with)\\b",
           "end": "(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|nonrec|open|private|val|with)\\b)",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation storage.modifier message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation storage.modifier message.error"
+            }
           },
           "patterns": [
             { "include": "#comment" },
@@ -1304,7 +1360,9 @@
               "begin": "\\b(type)\\b",
               "end": "(?=[;\\)}]|\\b(class|constraint|exception|external|include|inherit|let|method|nonrec|open|private|val|with)\\b)",
               "beginCaptures": {
-                "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+                "1": {
+                  "name": "entity.other.attribute-name.css constant.language constant.numeric"
+                }
               },
               "patterns": [
                 { "include": "#module-item-type-and" },
@@ -1320,7 +1378,9 @@
                   "begin": "\\b(module)\\b",
                   "end": "(?=:?=|[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|nonrec|open|private|type|val|with)\\b)",
                   "beginCaptures": {
-                    "1": { "name": "markup.inserted keyword.control storage.type variable.other.readwrite.instance" }
+                    "1": {
+                      "name": "markup.inserted keyword.control storage.type variable.other.readwrite.instance"
+                    }
                   },
                   "patterns": [
                     { "include": "#comment" },
@@ -1335,12 +1395,12 @@
                   "begin": "(:=)|(=)",
                   "end": "(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|nonrec|open|private|type|val|with)\\b)",
                   "beginCaptures": {
-                    "1": { "name": "markup.inserted keyword.control.less message.error" },
+                    "1": {
+                      "name": "markup.inserted keyword.control.less message.error"
+                    },
                     "2": { "name": "markup.inserted keyword.control.less" }
                   },
-                  "patterns": [
-                    { "include": "#structure-expression" }
-                  ]
+                  "patterns": [{ "include": "#structure-expression" }]
                 }
               ]
             }
@@ -1380,11 +1440,11 @@
               "begin": "(:)",
               "end": "(?=[\\)])|(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val)\\b)",
               "beginCaptures": {
-                "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+                "1": {
+                  "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                }
               },
-              "patterns": [
-                { "include": "#signature-expression" }
-              ]
+              "patterns": [{ "include": "#signature-expression" }]
             }
           ]
         },
@@ -1395,9 +1455,7 @@
     "structure-expression-block": {
       "begin": "{",
       "end": "}",
-      "patterns": [
-        { "include": "#structure-expression-block-item" }
-      ]
+      "patterns": [{ "include": "#structure-expression-block-item" }]
     },
     "structure-expression-block-item": {
       "patterns": [
@@ -1418,11 +1476,11 @@
       "begin": "(?<![#\\-:!?.@*/&%^+<=>|~$\\\\])([:])(?![#\\-:!?.@*/&%^+<=>|~$\\\\])",
       "end": "(?=\\))|(?=[,;}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#type-expression" }
-      ]
+      "patterns": [{ "include": "#type-expression" }]
     },
     "type-expression": {
       "patterns": [
@@ -1467,7 +1525,9 @@
       "begin": "\\b([_[:lower:]][[:word:]]*)\\b(::)",
       "end": "(?<==>)",
       "beginCaptures": {
-        "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" },
+        "1": {
+          "name": "markup.inserted constant.language support.property-value entity.name.filename"
+        },
         "2": { "name": "keyword.control" }
       },
       "patterns": [
@@ -1492,7 +1552,9 @@
           "begin": "(\\.\\.)",
           "end": "(?=>)",
           "beginCaptures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           }
         },
         {
@@ -1500,7 +1562,9 @@
           "begin": "(?=[_[:lower:]])",
           "end": "(,)|(?=>)",
           "endCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             {
@@ -1511,7 +1575,9 @@
                 {
                   "match": "\\b([_[:lower:]][[:word:]]*)\\b",
                   "captures": {
-                    "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" }
+                    "1": {
+                      "name": "markup.inserted constant.language support.property-value entity.name.filename"
+                    }
                   }
                 }
               ]
@@ -1521,11 +1587,11 @@
               "begin": "(:)",
               "end": "(?=[,>])",
               "beginCaptures": {
-                "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+                "1": {
+                  "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                }
               },
-              "patterns": [
-                { "include": "#type-expression" }
-              ]
+              "patterns": [{ "include": "#type-expression" }]
             }
           ]
         }
@@ -1560,14 +1626,18 @@
       "end": "(\\])",
       "captures": {
         "1": { "name": "entity.name.function" },
-        "2": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "2": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         {
           "begin": "(\\|)?(?![#\\-:!?.@*/&%^+<=>|~$\\\\])[[:space:]]*",
           "end": "(?=[;)}\\]]|\\|(?![#\\-:!?.@*/&%^+<=>|~$\\\\])|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             { "include": "#value-expression-constructor" },
@@ -1576,7 +1646,9 @@
               "captures": {
                 "1": { "name": "keyword.control.less" },
                 "2": { "name": "keyword.other" },
-                "3": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+                "3": {
+                  "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                }
               }
             },
             { "include": "#value-expression-constructor-polymorphic" },
@@ -1588,18 +1660,20 @@
     "type-expression-record": {
       "begin": "{",
       "end": "}",
-      "patterns": [
-        { "include": "#type-expression-record-item" }
-      ]
+      "patterns": [{ "include": "#type-expression-record-item" }]
     },
     "type-expression-record-field-sans-modifier": {
       "begin": "\\b([_[:lower:]][[:word:]]*)\\b",
       "end": "(,)|(?=[,}])",
       "beginCaptures": {
-        "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" }
+        "1": {
+          "name": "markup.inserted constant.language support.property-value entity.name.filename"
+        }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         { "include": "#comment" },
@@ -1607,11 +1681,11 @@
           "begin": "(:)",
           "end": "(?=[,}])",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
-          "patterns": [
-            { "include": "#type-expression" }
-          ]
+          "patterns": [{ "include": "#type-expression" }]
         }
       ]
     },
@@ -1621,7 +1695,9 @@
           "begin": "\\b(mutable)\\b",
           "end": "(?<=[,])|(?=})",
           "beginCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation storage.modifier message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation storage.modifier message.error"
+            }
           },
           "patterns": [
             { "include": "#type-expression-record-field-sans-modifier" }
@@ -1641,7 +1717,9 @@
       "match": "(')([_[:lower:]][[:word:]]*)\\b(?!\\.[[:upper:]])",
       "captures": {
         "1": { "name": "comment" },
-        "2": { "name": "variable.parameter string.other.link variable.language" }
+        "2": {
+          "name": "variable.parameter string.other.link variable.language"
+        }
       }
     },
     "value-expression": {
@@ -1686,9 +1764,7 @@
     "value-expression-block": {
       "begin": "{",
       "end": "}",
-      "patterns": [
-        { "include": "#value-expression-block-item" }
-      ]
+      "patterns": [{ "include": "#value-expression-block-item" }]
     },
     "value-expression-block-item": {
       "patterns": [
@@ -1700,9 +1776,7 @@
     "value-expression-block-look": {
       "begin": "(?![[:space:]]*($|\\.\\.\\.|([[:upper:]][[:word:]]*\\.)*([[:lower:]][[:word:]]*)[[:space:]]*(?:,|:(?![=]))))",
       "end": "(?=})",
-      "patterns": [
-        { "include": "#value-expression-block-item" }
-      ]
+      "patterns": [{ "include": "#value-expression-block-item" }]
     },
     "value-expression-block-or-record-or-object": {
       "begin": "{",
@@ -1725,14 +1799,20 @@
     "value-expression-constructor": {
       "match": "\\b([[:upper:]][[:word:]]*)\\b(?![[:space:]]*[\\.])",
       "captures": {
-        "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+        "1": {
+          "name": "entity.other.attribute-name.css constant.language constant.numeric"
+        }
       }
     },
     "value-expression-constructor-polymorphic": {
       "match": "(`)([[:alpha:]][[:word:]]*)\\b(?!\\.)",
       "captures": {
-        "1": { "name": "constant.other.symbol keyword.control.less variable.parameter" },
-        "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+        "1": {
+          "name": "constant.other.symbol keyword.control.less variable.parameter"
+        },
+        "2": {
+          "name": "entity.other.attribute-name.css constant.language constant.numeric"
+        }
       }
     },
     "value-expression-for": {
@@ -1799,14 +1879,16 @@
       "end": "(\\|(?![#\\-:!?.@*/&%^+<=>|~$\\\\]))|(?==>)|(?=[;\\)}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
       "applyEndPatternLast": true,
       "beginCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "endCaptures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
-      "patterns": [
-        { "include": "#module-item-let-value-param" }
-      ]
+      "patterns": [{ "include": "#module-item-let-value-param" }]
     },
     "value-expression-fun-pattern-match-rule-rhs": {
       "begin": "(=>)",
@@ -1814,9 +1896,7 @@
       "beginCaptures": {
         "1": { "name": "keyword.control.less" }
       },
-      "patterns": [
-        { "include": "#value-expression" }
-      ]
+      "patterns": [{ "include": "#value-expression" }]
     },
     "value-expression-if-then-else": {
       "begin": "\\b(if)\\b",
@@ -1833,9 +1913,7 @@
           "beginCaptures": {
             "1": { "name": "keyword.control.conditional" }
           },
-          "patterns": [
-            { "include": "#value-expression" }
-          ]
+          "patterns": [{ "include": "#value-expression" }]
         },
         { "include": "#value-expression-atomic-with-paths" }
       ]
@@ -1851,13 +1929,13 @@
       "begin": "\\b([_[:lower:]][[:word:]]*)\\b[[:space:]]*(::)(\\?)?",
       "end": "(?![[:space:]])",
       "beginCaptures": {
-        "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" },
+        "1": {
+          "name": "markup.inserted constant.language support.property-value entity.name.filename"
+        },
         "2": { "name": "keyword.control" },
         "3": { "name": "storage.type" }
       },
-      "patterns": [
-        { "include": "#value-expression" }
-      ]
+      "patterns": [{ "include": "#value-expression" }]
     },
     "value-expression-literal": {
       "patterns": [
@@ -1897,7 +1975,9 @@
     "value-expression-literal-list-or-array-separator": {
       "match": "(,)|(\\.\\.\\.)",
       "captures": {
-        "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
+        "1": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        },
         "2": { "name": "keyword.control" }
       }
     },
@@ -1908,7 +1988,9 @@
           "captures": {
             "1": { "name": "keyword.control.less" },
             "2": { "name": "constant.numeric" },
-            "3": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
+            "3": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            },
             "4": { "name": "constant.numeric" },
             "5": { "name": "keyword.control.less" },
             "6": { "name": "keyword.control.less" },
@@ -1921,7 +2003,9 @@
             "1": { "name": "keyword.control.less" },
             "2": { "name": "keyword.control.less" },
             "3": { "name": "constant.numeric" },
-            "4": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" },
+            "4": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            },
             "5": { "name": "constant.numeric" },
             "6": { "name": "keyword.control.less" },
             "7": { "name": "keyword.control.less" },
@@ -1953,7 +2037,9 @@
           "end": "(?<=\")|(\\|)([_[:lower:]]*)?(})|(?=[^[:space:]\"{])",
           "endCaptures": {
             "1": { "name": "keyword.control.flow message.error" },
-            "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" },
+            "2": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            },
             "3": { "name": "keyword.control.flow message.error" }
           },
           "patterns": [
@@ -1963,20 +2049,18 @@
               "comment": "meta.separator",
               "beginCaptures": {
                 "1": { "name": "keyword.control.flow message.error" },
-                "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" },
+                "2": {
+                  "name": "entity.other.attribute-name.css constant.language constant.numeric"
+                },
                 "3": { "name": "keyword.control.flow message.error" }
               },
-              "patterns": [
-                { "include": "source.js" }
-              ]
+              "patterns": [{ "include": "source.js" }]
             },
             {
               "begin": "\"",
               "end": "\"",
               "comment": "meta.separator",
-              "patterns": [
-                { "include": "source.js" }
-              ]
+              "patterns": [{ "include": "source.js" }]
             }
           ]
         },
@@ -1986,12 +2070,16 @@
           "name": "string.double string.regexp",
           "beginCaptures": {
             "1": { "name": "keyword.control.flow message.error" },
-            "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" },
+            "2": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            },
             "3": { "name": "keyword.control.flow message.error" }
           },
           "endCaptures": {
             "1": { "name": "keyword.control.flow message.error" },
-            "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" },
+            "2": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            },
             "3": { "name": "keyword.control.flow message.error" }
           }
         },
@@ -1999,9 +2087,7 @@
           "begin": "\"",
           "end": "\"",
           "name": "string.double string.regexp",
-          "patterns": [
-            { "include": "#value-expression-literal-string-escape" }
-          ]
+          "patterns": [{ "include": "#value-expression-literal-string-escape" }]
         }
       ]
     },
@@ -2016,15 +2102,21 @@
           "match": "(@)([ \\[\\],.]|\\\\n)",
           "captures": {
             "1": { "name": "keyword.control.less" },
-            "2": { "name": "entity.other.attribute-name.css constant.language constant.numeric" }
+            "2": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            }
           }
         },
         {
           "comment": "FIXME: don't highlight in external strings",
           "match": "(%)([ads])?",
           "captures": {
-            "1": { "name": "entity.other.attribute-name.css constant.language constant.numeric" },
-            "2": { "name": "variable.other.readwrite.instance string.other.link variable.language" }
+            "1": {
+              "name": "entity.other.attribute-name.css constant.language constant.numeric"
+            },
+            "2": {
+              "name": "variable.other.readwrite.instance string.other.link variable.language"
+            }
           }
         }
       ]
@@ -2037,15 +2129,12 @@
       "comment": "FIXME: is there a better way than listing all the keywords?",
       "begin": "(?:\\G|^)[[:space:]]*(?=method)",
       "end": "(?=})",
-      "patterns": [
-        { "include": "#object-item" }
-      ]
+      "patterns": [{ "include": "#object-item" }]
     },
     "value-expression-parens": {
       "begin": "(?=\\()",
       "end": "(\\))|(?=[;}]|\\b(and|class|constraint|exception|external|include|inherit|let|method|module|nonrec|open|private|rec|type|val|with)\\b)",
-      "endCaptures": {
-      },
+      "endCaptures": {},
       "patterns": [
         { "include": "#condition-lhs" },
         { "include": "#value-expression-parens-lhs" },
@@ -2056,7 +2145,9 @@
       "begin": "(\\()|(,)",
       "end": "(?=[?,:\\)]|\\b(and|as|class|constraint|exception|external|include|inherit|let|method|nonrec|open|private|rec|type|val|with)\\b)",
       "beginCaptures": {
-        "2": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+        "2": {
+          "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+        }
       },
       "patterns": [
         {
@@ -2065,9 +2156,7 @@
           "beginCaptures": {
             "1": { "name": "keyword.other message.error" }
           },
-          "patterns": [
-            { "include": "#module-path-simple" }
-          ]
+          "patterns": [{ "include": "#module-path-simple" }]
         },
         { "include": "#value-expression" }
       ]
@@ -2081,7 +2170,9 @@
             "1": { "name": "keyword.control" }
           },
           "endCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             { "include": "#comment" },
@@ -2100,11 +2191,11 @@
               "begin": "(:)",
               "end": "(?=[,}])",
               "beginCaptures": {
-                "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+                "1": {
+                  "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                }
               },
-              "patterns": [
-                { "include": "#value-expression" }
-              ]
+              "patterns": [{ "include": "#value-expression" }]
             }
           ]
         },
@@ -2115,7 +2206,9 @@
             "1": { "name": "support.class entity.name.class" }
           },
           "endCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             { "include": "#module-path-simple-prefix" },
@@ -2123,11 +2216,11 @@
               "begin": "(:)",
               "end": "(?=[,}])",
               "beginCaptures": {
-                "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+                "1": {
+                  "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                }
               },
-              "patterns": [
-                { "include": "#value-expression" }
-              ]
+              "patterns": [{ "include": "#value-expression" }]
             }
           ]
         },
@@ -2135,21 +2228,25 @@
           "begin": "\\b([[:lower:]][[:word:]]*)\\b",
           "end": "(,)|(?=})",
           "beginCaptures": {
-            "1": { "name": "markup.inserted constant.language support.property-value entity.name.filename" }
+            "1": {
+              "name": "markup.inserted constant.language support.property-value entity.name.filename"
+            }
           },
           "endCaptures": {
-            "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+            "1": {
+              "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+            }
           },
           "patterns": [
             {
               "begin": "(:)",
               "end": "(?=[,}])",
               "beginCaptures": {
-                "1": { "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error" }
+                "1": {
+                  "name": "variable.other.class.js variable.interpolation keyword.operator keyword.control message.error"
+                }
               },
-              "patterns": [
-                { "include": "#value-expression" }
-              ]
+              "patterns": [{ "include": "#value-expression" }]
             }
           ]
         }
@@ -2189,9 +2286,7 @@
         {
           "begin": "\\G[[:space:]]*+{",
           "end": "}[[:space:]]*+",
-          "patterns": [
-            { "include": "#value-expression-block-item" }
-          ]
+          "patterns": [{ "include": "#value-expression-block-item" }]
         },
         { "include": "#value-expression-atomic-with-paths" }
       ]
@@ -2205,10 +2300,7 @@
     "value-expression-switch-pattern-match-rule-lhs": {
       "begin": "(?=\\|(?![#\\-:!?.@*/&%^+<=>|~$\\\\]))",
       "end": "(?==>|[;\\)}])",
-      "patterns": [
-        { "include": "#pattern-guard" },
-        { "include": "#pattern" }
-      ]
+      "patterns": [{ "include": "#pattern-guard" }, { "include": "#pattern" }]
     },
     "value-expression-switch-pattern-match-rule-rhs": {
       "begin": "(=>)",
@@ -2216,9 +2308,7 @@
       "beginCaptures": {
         "1": { "name": "keyword.control.less" }
       },
-      "patterns": [
-        { "include": "#value-expression-block-item" }
-      ]
+      "patterns": [{ "include": "#value-expression-block-item" }]
     },
     "value-expression-try": {
       "begin": "\\b(try)\\b",
@@ -2242,9 +2332,7 @@
         {
           "begin": "\\G[[:space:]]*+{",
           "end": "}[[:space:]]*+",
-          "patterns": [
-            { "include": "#value-expression-block-item" }
-          ]
+          "patterns": [{ "include": "#value-expression-block-item" }]
         },
         { "include": "#value-expression-atomic-with-paths" }
       ]
@@ -2271,9 +2359,7 @@
     "value-expression-record-look": {
       "begin": "(?=\\.\\.\\.|([[:upper:]][[:word:]]*\\.)*([[:lower:]][[:word:]]*)[[:space:]]*[,:}])",
       "end": "(?=})",
-      "patterns": [
-        { "include": "#value-expression-record-item" }
-      ]
+      "patterns": [{ "include": "#value-expression-record-item" }]
     }
   }
 }

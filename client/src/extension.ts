@@ -5,7 +5,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import {promisify} from "util";
+import { promisify } from "util";
 import { workspace, ExtensionContext } from "vscode";
 
 let exists = promisify(fs.exists);
@@ -21,9 +21,9 @@ let client: LanguageClient;
 
 async function isEsyProject() {
   let root = workspace.rootPath;
-  if (await exists(path.join(root, 'package.json'))) {
+  if (await exists(path.join(root, "package.json"))) {
     return true;
-  } else if (await exists(path.join(root, 'esy.json'))) {
+  } else if (await exists(path.join(root, "esy.json"))) {
     return true;
   } else {
     return false;
@@ -34,16 +34,17 @@ async function getCommandForWorkspace() {
   if (await isEsyProject()) {
     let command = process.platform === "win32" ? "esy.cmd" : "esy";
     let args = ["exec-command", "--include-current-env", "ocamlmerlin-lsp"];
-    return {command, args};
+    return { command, args };
   } else {
-    let command = process.platform === "win32" ? "ocamlmerlin-lsp.exe" : "ocamlmerlin-lsp";
+    let command =
+      process.platform === "win32" ? "ocamlmerlin-lsp.exe" : "ocamlmerlin-lsp";
     let args = [];
-    return {command, args};
+    return { command, args };
   }
 }
 
 export async function activate(context: ExtensionContext) {
-  let {command, args} = await getCommandForWorkspace();
+  let { command, args } = await getCommandForWorkspace();
 
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
@@ -54,7 +55,7 @@ export async function activate(context: ExtensionContext) {
       options: {
         env: {
           ...process.env,
-          OCAMLRUNPARAM: 'b',
+          OCAMLRUNPARAM: "b",
           MERLIN_LOG: "-"
         }
       }
@@ -66,7 +67,7 @@ export async function activate(context: ExtensionContext) {
       options: {
         env: {
           ...process.env,
-          OCAMLRUNPARAM: 'b',
+          OCAMLRUNPARAM: "b",
           MERLIN_LOG: "-"
         }
       }
