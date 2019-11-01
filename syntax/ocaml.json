@@ -1548,7 +1548,7 @@
           "patterns": [{ "include": "#comment" }]
         },
         {
-          "begin": "(?:(?<=(?:[^[:word:]]and|^and|[^[:word:]]let|^let))(?![[:word:]]))|(let)",
+          "begin": "(?:(?<=(?:[^[:word:]]and|^and|[^[:word:]]let|^let))(?![[:word:]]))|(let)(?![a-zA-Z0-9_'])",
           "end": "\\b(?:(and)|(in))\\b|(?=\\}|\\)|\\]|\\b(?:end|class|exception|external|include|inherit|initializer|let|method|module|open|type|val)\\b)",
           "beginCaptures": { "1": { "name": "storage.type markup.underline" } },
           "endCaptures": {
