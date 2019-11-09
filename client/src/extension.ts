@@ -6,7 +6,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
-import { workspace, ExtensionContext } from "vscode";
+import { workspace, ExtensionContext, commands } from "vscode";
 
 let exists = promisify(fs.exists);
 
@@ -87,16 +87,27 @@ export async function activate(context: ExtensionContext) {
     }
   };
 
+  let createClient = () => {
+    return new LanguageClient(
+      "merlin-language-server",
+      "Merlin Language Server",
+      serverOptions,
+      clientOptions
+    );
+  };
+
   // Create the language client and start the client.
-  client = new LanguageClient(
-    "languageServerExample",
-    "Merlin Language Server",
-    serverOptions,
-    clientOptions
-  );
+  client = createClient();
 
   // Start the client. This will also launch the server
   client.start();
+
+  commands.registerCommand('merlin-language-server.restart', () => {
+    if (client) {
+      client.stop();
+    }
+    activate(context);
+  });
 }
 
 export function deactivate(): Thenable<void> | undefined {

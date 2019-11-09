@@ -1,0 +1,74 @@
+{
+  "name": "sample-esy",
+  "version": "0.1.0",
+  "description": "Starter Reason Esy Pesy Project",
+  "esy": {
+    "build": "refmterr dune build -p #{self.name}",
+    "NOTE": "Optional release Section. Customizes result of `esy release`",
+    "release": {
+      "releasedBinaries": [
+        "SampleEsyApp.exe"
+      ]
+    },
+    "buildEnv": {
+      "ODOC_SYNTAX": "re"
+    }
+  },
+  "buildDirs": {
+    "test": {
+      "imports": [
+        "Library = require('sample-esy/library')",
+        "Rely = require('rely/lib')"
+      ],
+      "flags": [
+        "-linkall",
+        "-g",
+        "-w",
+        "-9"
+      ]
+    },
+    "testExe": {
+      "imports": [
+        "Test = require('sample-esy/test')"
+      ],
+      "bin": {
+        "RunSampleEsyTests.exe": "RunSampleEsyTests.re"
+      }
+    },
+    "library": {
+      "imports": [
+        "Console = require('console/lib')",
+        "Pastel = require('pastel/lib')"
+      ]
+    },
+    "bin": {
+      "imports": [
+        "Library = require('sample-esy/library')"
+      ],
+      "bin": {
+        "SampleEsyApp.exe": "SampleEsyApp.re"
+      }
+    }
+  },
+  "scripts": {
+    "start": "esy x SampleEsyApp.exe",
+    "test": "esy x RunSampleEsyTests.exe",
+    "doc": "esy dune build @doc",
+    "doc-path": "esy echo #{self.target_dir}/default/_doc/_html/index.html"
+  },
+  "dependencies": {
+    "@opam/dune": "*",
+    "@reason-native/console": "*",
+    "@reason-native/pastel": "*",
+    "@reason-native/rely": "*",
+    "@esy-ocaml/reason": "*",
+    "refmterr": "*",
+    "ocaml": "~4.7.0"
+  },
+  "devDependencies": {
+    "@opam/merlin": "*",
+    "ocaml": "~4.7.0",
+    "@opam/odoc": "*",
+    "@pesy/esy-pesy": "0.1.0-alpha.2"
+  }
+}

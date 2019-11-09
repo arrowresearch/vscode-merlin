@@ -1,0 +1,10 @@
+(executable (name SampleEsyApp)
+    (modules (:standard \ SampleEsyBinPesyModules))
+    (public_name SampleEsyApp.exe) (libraries sample-esy.bin.pesy-modules)
+    (flags -open SampleEsyBinPesyModules))
+(library (public_name sample-esy.bin.pesy-modules)
+    (name SampleEsyBinPesyModules) (modules SampleEsyBinPesyModules)
+    (libraries sample-esy.library))
+(rule
+    (with-stdout-to SampleEsyBinPesyModules.re
+        (run echo "module Library = SampleEsyLibrary;")))
