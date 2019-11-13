@@ -61,10 +61,10 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "cd client && npm run update-vscode && cd .. && npm run compile",
+    "vscode:prepublish": "cd client && yarn update-vscode && cd .. && yarn compile",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
-    "postinstall": "cd client && npm install && cd ..",
+    "postinstall": "cd client && yarn install && cd ..",
     "test": "sh ./scripts/e2e.sh",
     "package": "vsce package"
   },
