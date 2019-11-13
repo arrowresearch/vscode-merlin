@@ -20,6 +20,20 @@ steps:
     versionSpec: '8.x'
   displayName: 'Install Node.js'
 
+- script: 'npm install -g esy@0.5.0 --unsafe-perm'
+  displayName: 'npm install -g esy'
+
+- bash: |
+    sudo add-apt-repository ppa:avsm/ppa
+    sudo apt update
+    sudo apt install opam
+  displayName: "Installing ocaml and opam (Linux)"
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
+
+- script: "brew install ocaml opam"
+  displayName: "Installing ocaml and opam (MacOS)"
+  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+  
 - bash: |
     /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
     echo ">>> Started xvfb"

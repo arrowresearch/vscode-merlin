@@ -68,6 +68,7 @@
   "devDependencies": {
     "@opam/merlin": "*",
     "ocaml": "~4.7.0",
+    "@opam/merlin-lsp": "ocaml/merlin:merlin-lsp.opam#c6a0382",
     "@opam/odoc": "*",
     "@pesy/esy-pesy": "0.1.0-alpha.2"
   }
