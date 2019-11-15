@@ -45,7 +45,7 @@ steps:
     npm i && npm run compile
     echo ">>> Compiled vscode-test"
     echo ">>> Run sample integration test"
-    npm test
+    node ./test/runTest.js
   displayName: Run Tests
   timeoutInMinutes: 360
   env:
