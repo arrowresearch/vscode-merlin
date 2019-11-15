@@ -47,5 +47,6 @@ steps:
     echo ">>> Run sample integration test"
     npm test
   displayName: Run Tests
+  timeoutInMinutes: 360
   env:
     DISPLAY: ':99.0'
