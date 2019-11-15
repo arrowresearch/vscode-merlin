@@ -14,7 +14,7 @@ suite("Sample esy project", () => {
   let projectPath = path.join(os.tmpdir(), "sample-esy");
 
   suiteSetup(function() {
-    this.timeout(100000);
+    this.timeout(10000000);
     fs.copySync(sampleEsySrc, projectPath);
     cp.execSync("esy", { cwd: projectPath });
   });
