@@ -67,10 +67,12 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile && npm run test",
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
-    "test": "node ./test/runTest.js",
+    "test:esy": "node ./test/runEsyTests.js",
+    "test:opam": "node ./test/runOpamTests.js",
+    "test": "npm run test:esy && npm run test:opam",
     "package": "vsce package"
   },
   "devDependencies": {
