@@ -20,11 +20,11 @@ suite("Basic tests", () => {
 
     await vscode.commands.executeCommand("vscode.openFolder", projectUri);
     let reasonDocument = await vscode.workspace.openTextDocument(
-      Uri.file(path.join(projectPath, "library", "Util.re"))
+      Uri.file(path.join(projectPath, "bin", "SampleEsyApp.re"))
     );
 
     let ocamlDocument = await vscode.workspace.openTextDocument(
-      Uri.file(path.join(projectPath, "library", "CamlUtil.ml"))
+      Uri.file(path.join(projectPath, "bin", "CamlUtil.ml"))
     );
 
     assert.equal(
@@ -47,7 +47,7 @@ suite("Basic tests", () => {
 
     await delay(500);
     let diagnostics = await vscode.languages.getDiagnostics(
-      Uri.file(path.join(projectPath, "library", "Util.re"))
+      Uri.file(path.join(projectPath, "bin", "SampleEsyApp.re"))
     );
     assert.equal(diagnostics.length, 1, "There should only be one diagnostic");
     assert.equal(diagnostics[0].message, "Warning 26: unused variable foo.");
@@ -57,9 +57,9 @@ suite("Basic tests", () => {
       "Severity of this diagnostic should be 1 (Warning). It was " +
         diagnostics[0].severity
     );
-    assert.equal(diagnostics[0].range.start.line, 1);
+    assert.equal(diagnostics[0].range.start.line, 3);
     assert.equal(diagnostics[0].range.start.character, 6);
-    assert.equal(diagnostics[0].range.end.line, 1);
+    assert.equal(diagnostics[0].range.end.line, 3);
     assert.equal(diagnostics[0].range.end.character, 9);
 
     // TODO: the plugin could support build related tasks

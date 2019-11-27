@@ -1,2 +1,6 @@
-Console.log("Running Test Program:");
-let () = print_endline(Library.Util.hello());
+print_endline("Hello");
+
+let blah = () => {
+  let foo = "Something";
+  ();
+};
