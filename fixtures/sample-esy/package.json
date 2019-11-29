@@ -1,0 +1,22 @@
+{
+  "name": "sample-esy",
+  "version": "0.1.0",
+  "description": "Starter Reason Esy Pesy Project",
+  "esy": {
+    "build": "dune build -p sample-esy"
+  },
+  "scripts": {
+    "start": "esy x SampleEsyApp.exe",
+    "test": "esy x RunSampleEsyTests.exe"
+  },
+  "dependencies": {
+    "@opam/dune": "*",
+    "@esy-ocaml/reason": "*",
+    "ocaml": "~4.7.0"
+  },
+  "devDependencies": {
+    "@opam/merlin": "*",
+    "ocaml": "~4.7.0",
+    "@opam/merlin-lsp": "ocaml/merlin:merlin-lsp.opam#c6a0382"
+  }
+}
