@@ -6,6 +6,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
+import { execSync } from "child_process";
 import { workspace, ExtensionContext, commands } from "vscode";
 
 let exists = promisify(fs.exists);
@@ -21,13 +22,19 @@ let client: LanguageClient;
 
 async function isEsyProject() {
   let root = workspace.rootPath;
-  if (await exists(path.join(root, "package.json"))) {
-    return true;
-  } else if (await exists(path.join(root, "esy.json"))) {
-    return true;
-  } else {
-    return false;
+  let esyStatus;
+  try {
+    esyStatus = JSON.parse(execSync('esy status', { cwd: path.join(root, 'package.json') }).toString());
+  } catch (e) {
+    if (e instanceof SyntaxError) {
+      console.log('[Plugin Error] Running esy status returned non JSON output', e);
+    } else {
+      console.log('[Plugin Error] Unknown error while trying to figure if its a valid esy project', e);
+    }
+  } finally {
+    esyStatus = { isProject: false };
   }
+  return !!esyStatus.isProject;
 }
 
 async function getCommandForWorkspace() {
