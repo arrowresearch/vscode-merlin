@@ -1,6 +1,7 @@
 .DS_Store
 out
 node_modules
+.eslintcache
 client/server
 .vscode-test
 *.vsix

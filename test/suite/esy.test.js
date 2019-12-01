@@ -1,42 +1,42 @@
-const assert = require("assert");
-const path = require("path");
-const vscode = require("vscode");
-const os = require("os");
-const cp = require("child_process");
-const fs = require("fs-extra");
+const assert = require('assert');
+const path = require('path');
+const vscode = require('vscode');
+const os = require('os');
+const cp = require('child_process');
+const fs = require('fs-extra');
 const { Uri } = vscode;
 
-let root = path.dirname(path.dirname(__dirname));
-let fixtureSrcDir = path.join(root, "fixtures");
+const root = path.dirname(path.dirname(__dirname));
+const fixtureSrcDir = path.join(root, 'fixtures');
 
-suite("Basic tests", () => {
-  test("Esy", async () => {
-    let sampleEsySrc = path.join(fixtureSrcDir, "sample-esy");
-    let projectPath = path.join(os.tmpdir(), "sample-esy");
-    let projectUri = Uri.file(projectPath);
+suite('Basic tests', () => {
+  test('Esy', async () => {
+    const sampleEsySrc = path.join(fixtureSrcDir, 'sample-esy');
+    const projectPath = path.join(os.tmpdir(), 'sample-esy');
+    const projectUri = Uri.file(projectPath);
 
     fs.copySync(sampleEsySrc, projectPath);
-    cp.execSync("esy", { cwd: projectPath });
+    cp.execSync('esy', { cwd: projectPath });
 
-    await vscode.commands.executeCommand("vscode.openFolder", projectUri);
-    let reasonDocument = await vscode.workspace.openTextDocument(
-      Uri.file(path.join(projectPath, "bin", "SampleEsyApp.re"))
+    await vscode.commands.executeCommand('vscode.openFolder', projectUri);
+    const reasonDocument = await vscode.workspace.openTextDocument(
+      Uri.file(path.join(projectPath, 'bin', 'SampleEsyApp.re')),
     );
 
-    let ocamlDocument = await vscode.workspace.openTextDocument(
-      Uri.file(path.join(projectPath, "bin", "CamlUtil.ml"))
+    const ocamlDocument = await vscode.workspace.openTextDocument(
+      Uri.file(path.join(projectPath, 'bin', 'CamlUtil.ml')),
     );
 
     assert.equal(
       reasonDocument.languageId,
-      "reason",
-      "Must be identified as a Reason document"
+      'reason',
+      'Must be identified as a Reason document',
     );
 
     assert.equal(
       ocamlDocument.languageId,
-      "ocaml",
-      "Must be identified as an OCaml document"
+      'ocaml',
+      'Must be identified as an OCaml document',
     );
 
     function delay(timeout) {
@@ -46,16 +46,16 @@ suite("Basic tests", () => {
     }
 
     await delay(500);
-    let diagnostics = await vscode.languages.getDiagnostics(
-      Uri.file(path.join(projectPath, "bin", "SampleEsyApp.re"))
+    const diagnostics = await vscode.languages.getDiagnostics(
+      Uri.file(path.join(projectPath, 'bin', 'SampleEsyApp.re')),
     );
-    assert.equal(diagnostics.length, 1, "There should only be one diagnostic");
-    assert.equal(diagnostics[0].message, "Warning 26: unused variable foo.");
+    assert.equal(diagnostics.length, 1, 'There should only be one diagnostic');
+    assert.equal(diagnostics[0].message, 'Warning 26: unused variable foo.');
     assert.equal(
       diagnostics[0].severity,
       1,
-      "Severity of this diagnostic should be 1 (Warning). It was " +
-        diagnostics[0].severity
+      'Severity of this diagnostic should be 1 (Warning). It was ' +
+        diagnostics[0].severity,
     );
     assert.equal(diagnostics[0].range.start.line, 3);
     assert.equal(diagnostics[0].range.start.character, 6);
@@ -69,7 +69,7 @@ suite("Basic tests", () => {
     // ];
     // const tasks = await vscode.tasks.fetchTasks();
 
-    console.log("Cleaning up (esy)...");
+    console.log('Cleaning up (esy)...');
     try {
       fs.removeSync(projectPath);
     } catch (e) {}
