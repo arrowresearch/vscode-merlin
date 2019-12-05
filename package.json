@@ -9,6 +9,7 @@
     "type": "git",
     "url": "https://github.com/ocaml/melrin"
   },
+  "postinstall": "postinstall.js",
   "engines": {
     "vscode": "^1.23.0"
   },

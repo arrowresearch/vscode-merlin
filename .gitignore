@@ -4,3 +4,5 @@ node_modules
 client/server
 .vscode-test
 *.vsix
+*~
+_downloads

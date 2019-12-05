@@ -8,7 +8,6 @@ import * as path from "path";
 import { promisify } from "util";
 import { execSync } from "child_process";
 import { workspace, ExtensionContext, commands } from "vscode";
-
 let exists = promisify(fs.exists);
 
 import {
@@ -24,7 +23,7 @@ async function isEsyProject() {
   let root = workspace.rootPath;
   let esyStatus;
   try {
-    esyStatus = JSON.parse(execSync('esy status', { cwd: path.join(root, 'package.json') }).toString());
+    esyStatus = JSON.parse(execSync('esy status', { cwd: root }).toString());
   } catch (e) {
     if (e instanceof SyntaxError) {
       console.log('[Plugin Error] Running esy status returned non JSON output', e);
@@ -51,6 +50,10 @@ async function getCommandForWorkspace() {
 }
 
 export async function activate(context: ExtensionContext) {
+
+  process.env.PATH = path.resolve(__dirname, '..', '..', '_downloads', 'package', 'node_modules',
+    '.bin') + path.delimiter + process.env.PATH;
+
   let { command, args } = await getCommandForWorkspace();
 
   // If the extension is launched in debug mode then the debug server options are used
