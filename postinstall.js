@@ -1,9 +1,11 @@
 let path = require("path");
 let cp = require("child_process");
 let fs = require("fs");
-
+console.log("Running post install.....");
 if (!fs.existsSync("_downloads")) {
-  fs.mkdirSync("_downloads");
+  console.log(
+    "Could not find _downloads folder where merlin and reason are supposed to be installed."
+  );
 }
 
 cp.execSync("npm i --prefix _downloads -g esy");

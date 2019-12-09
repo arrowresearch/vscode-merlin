@@ -6,7 +6,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { promisify } from "util";
-import { execSync } from "child_process";
+import { execSync, exec } from "child_process";
 import { workspace, ExtensionContext, commands } from "vscode";
 let exists = promisify(fs.exists);
 
@@ -17,35 +17,99 @@ import {
   TransportKind
 } from "vscode-languageclient";
 
+type options = { cwd: string };
+type esyStatus = { isProject: boolean };
+
 let client: LanguageClient;
 
-async function isEsyProject() {
+let log = (...m) => {
+  console.log('[Plugin Error]', ...m);
+};
+
+let run = (cmd: string, options: options): Promise<{ stdout: string, stderr: string }> => {
+  return new Promise((resolve, reject) => {
+    let childProcess = exec(cmd, options, (err, stdout, stderr) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({
+          stdout: stdout.toString(),
+          stderr: stderr.toString()
+        });
+      }
+    });
+  });
+};
+
+
+let PackageManager = (function() {
+
+  /* Private variables */
+  let $private = {
+    esy: 'esy',
+    opam: 'opam',
+    global: 'bash'
+  };
+
+  return {
+    init: function() {
+      return {
+        esy: function esy(cmdString: string, options: options) {
+          let cmdStringTokens = cmdString.split(/\s+/);
+          return run([$private.esy, "--include$-current-env"].concat(cmdStringTokens).join(' '), options)
+        },
+        opam: function opam(cmdString: string, options: options) {
+          let cmdStringTokens = cmdString.split(/\s+/);
+          return run([$private.opam, 'exec'].concat(cmdStringTokens).join(' '), options)
+        },
+        global: function global(cmdString: string, options: options) {
+          return run(cmdString, options);
+        }
+      }
+    }
+  }
+}())
+
+let { esy, opam, global } = PackageManager.init();
+
+async function getEsyStatus(): Promise<esyStatus> {
   let root = workspace.rootPath;
   let esyStatus;
   try {
-    esyStatus = JSON.parse(execSync('esy status', { cwd: root }).toString());
+    let { stdout, stderr } = await run('esy status', { cwd: root });
+    esyStatus = JSON.parse(stdout);
   } catch (e) {
     if (e instanceof SyntaxError) {
-      console.log('[Plugin Error] Running esy status returned non JSON output', e);
+      log('Running esy status returned non JSON output', e);
     } else {
-      console.log('[Plugin Error] Unknown error while trying to figure if its a valid esy project', e);
+      log('Unknown error while trying to figure if its a valid esy project', e);
     }
-  } finally {
-    esyStatus = { isProject: false };
+    return { isProject: false };
   }
-  return !!esyStatus.isProject;
+  return esyStatus;
 }
 
 async function getCommandForWorkspace() {
-  if (await isEsyProject()) {
+
+  let esyStatus = await getEsyStatus();
+  if (esyStatus.isProject) {
+
+    // All npm and opam projects are valid esy projects too! Picking
+    // the right package manager is important - we don't want to run
+    // `esy` for a user who never intended to. Example: bsb/npm
+    // users. Similarly, opam users wouldn't want prompts to run
+    // `esy`. Why is prompting `esy i` even necessary in the first
+    // place? `esy ocamlmerlin-lsp` needs projects to install/solve deps
     let command = process.platform === "win32" ? "esy.cmd" : "esy";
-    let args = ["exec-command", "--include-current-env", "ocamlmerlin-lsp"];
+    let args = ["exec-command", , "ocamlmerlin-lsp"];
     return { command, args };
   } else {
-    let command =
-      process.platform === "win32" ? "ocamlmerlin-lsp.exe" : "ocamlmerlin-lsp";
-    let args = [];
-    return { command, args };
+    // let command =
+    //   process.platform === "win32" ? "ocamlmerlin-lsp.exe" : "ocamlmerlin-lsp";
+    // let args = [];
+    // return { command, args };
+    log("Running esy status returned the current folder as not a valid esy project. Any invalid esy project can never be a valid opam or bsb project");
+    log("Looking for global LSP installations");
   }
 }
 

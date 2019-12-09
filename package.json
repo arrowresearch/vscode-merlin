@@ -9,7 +9,6 @@
     "type": "git",
     "url": "https://github.com/ocaml/melrin"
   },
-  "postinstall": "postinstall.js",
   "engines": {
     "vscode": "^1.23.0"
   },
@@ -35,7 +34,7 @@
           ".re",
           ".rei"
         ],
-        "configuration": "./language.reason.json"
+        "configuration": "./language/reason.json"
       },
       {
         "id": "ocaml",
@@ -68,6 +67,7 @@
     ]
   },
   "scripts": {
+    "postinstall": "postinstall.js",
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -b",
     "watch": "tsc -b -w",
@@ -77,14 +77,14 @@
     "package": "vsce package"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.0",
-    "@types/node": "^8.0.0",
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^8.10.59",
     "fs-extra": "^8.1.0",
     "mocha": "^6.2.2",
-    "prettier": "^1.18.2",
-    "tslint": "^5.11.0",
-    "typescript": "^3.1.3",
-    "vsce": "^1.69.0",
+    "prettier": "^1.19.1",
+    "tslint": "^5.20.1",
+    "typescript": "^3.7.3",
+    "vsce": "^1.70.0",
     "vscode": "^1.1.36",
     "vscode-test": "^1.2.3"
   },
