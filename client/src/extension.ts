@@ -70,7 +70,7 @@ async function getCommandForWorkspace() {
 
         // Running esy i && esy b
         log('Creating esy.json and setting up toolchain');
-        await run('esy')
+        await run('esy', { cwd: root })
 
         // It could be an esy or npm
         let command = process.platform === "win32" ? "esy.cmd" : "esy";
