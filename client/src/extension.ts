@@ -5,42 +5,18 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { promisify } from "util";
-import { execSync, exec } from "child_process";
 import { workspace, ExtensionContext, commands } from "vscode";
-let exists = promisify(fs.exists);
 
 import {
   LanguageClient,
   LanguageClientOptions,
   ServerOptions,
-  TransportKind
 } from "vscode-languageclient";
 
-type options = { cwd: string };
-type esyStatus = { isProject: boolean };
+import { log, run, options } from './utils';
+import { getEsyStatus } from './esy-utils';
 
 let client: LanguageClient;
-
-let log = (...m) => {
-  console.log('[Plugin Error]', ...m);
-};
-
-let run = (cmd: string, options: options): Promise<{ stdout: string, stderr: string }> => {
-  return new Promise((resolve, reject) => {
-    let childProcess = exec(cmd, options, (err, stdout, stderr) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve({
-          stdout: stdout.toString(),
-          stderr: stderr.toString()
-        });
-      }
-    });
-  });
-};
-
 
 let PackageManager = (function() {
 
@@ -72,26 +48,11 @@ let PackageManager = (function() {
 
 let { esy, opam, global } = PackageManager.init();
 
-async function getEsyStatus(): Promise<esyStatus> {
-  let root = workspace.rootPath;
-  let esyStatus;
-  try {
-    let { stdout, stderr } = await run('esy status', { cwd: root });
-    esyStatus = JSON.parse(stdout);
-  } catch (e) {
-    if (e instanceof SyntaxError) {
-      log('Running esy status returned non JSON output', e);
-    } else {
-      log('Unknown error while trying to figure if its a valid esy project', e);
-    }
-    return { isProject: false };
-  }
-  return esyStatus;
-}
 
 async function getCommandForWorkspace() {
 
-  let esyStatus = await getEsyStatus();
+  let root = workspace.rootPath;
+  let esyStatus = await getEsyStatus(root);
   if (esyStatus.isProject) {
 
     // All npm and opam projects are valid esy projects too! Picking
@@ -102,6 +63,12 @@ async function getCommandForWorkspace() {
     // place? `esy ocamlmerlin-lsp` needs projects to install/solve deps
     let command = process.platform === "win32" ? "esy.cmd" : "esy";
     let args = ["exec-command", , "ocamlmerlin-lsp"];
+
+    if (fs.existsSync('./package-lock.json') ||
+      fs.existsSync('./yarn.lock')) {
+      // This is an npm/bsb project
+      // So, we'll use the bundled ocamlmerlin-lsp, ocamlmerlin-reason
+    }
     return { command, args };
   } else {
     // let command =
