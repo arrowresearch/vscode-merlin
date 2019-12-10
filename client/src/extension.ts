@@ -6,6 +6,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import { workspace, ExtensionContext, commands } from "vscode";
+import * as semver from 'semver';
 
 import {
   LanguageClient,
@@ -15,39 +16,10 @@ import {
 
 import { log, run, options } from './utils';
 import { getEsyStatus } from './esy-utils';
+import { ToolNotFound, OpamNotFound, EsyNotFound, OpamOnWindowsError } from './errors';
+import { promisify } from "util";
 
 let client: LanguageClient;
-
-let PackageManager = (function() {
-
-  /* Private variables */
-  let $private = {
-    esy: 'esy',
-    opam: 'opam',
-    global: 'bash'
-  };
-
-  return {
-    init: function() {
-      return {
-        esy: function esy(cmdString: string, options: options) {
-          let cmdStringTokens = cmdString.split(/\s+/);
-          return run([$private.esy, "--include$-current-env"].concat(cmdStringTokens).join(' '), options)
-        },
-        opam: function opam(cmdString: string, options: options) {
-          let cmdStringTokens = cmdString.split(/\s+/);
-          return run([$private.opam, 'exec'].concat(cmdStringTokens).join(' '), options)
-        },
-        global: function global(cmdString: string, options: options) {
-          return run(cmdString, options);
-        }
-      }
-    }
-  }
-}())
-
-let { esy, opam, global } = PackageManager.init();
-
 
 async function getCommandForWorkspace() {
 
@@ -61,15 +33,80 @@ async function getCommandForWorkspace() {
     // users. Similarly, opam users wouldn't want prompts to run
     // `esy`. Why is prompting `esy i` even necessary in the first
     // place? `esy ocamlmerlin-lsp` needs projects to install/solve deps
-    let command = process.platform === "win32" ? "esy.cmd" : "esy";
-    let args = ["exec-command", , "ocamlmerlin-lsp"];
 
-    if (fs.existsSync('./package-lock.json') ||
-      fs.existsSync('./yarn.lock')) {
-      // This is an npm/bsb project
-      // So, we'll use the bundled ocamlmerlin-lsp, ocamlmerlin-reason
+    let manifestFile = esyStatus.rootPackageConfigPath;
+    // Looking for manifest file. If it is not a json file, it's an opam project
+    if (/\.json$/.test(manifestFile)) {
+
+      let manifest;
+      try {
+        manifest = fs.readFileSync(manifestFile).toString();
+      } catch (e) {
+        return Promise.reject(e);
+      }
+
+      try {
+        manifest = JSON.parse(manifest);
+      } catch (e) {
+        return Promise.reject(e);
+      }
+
+      if (/esy\.json$/.test(manifestFile) || !!manifest.esy) {
+        // Esy is indeed being used to manage this project
+      } else {
+        // Esy may not have been used. Let's drop and esy.json with the an appropriate compiler, reason and merlin-lsp
+        // Note that this check (npm vs esy) needs to be done only once. Since all npm projects will eventually end up having an esy.json with the toolchain
+        let ocaml;
+        if (manifest.dependencies && manifest.dependencies['bs-platform'] && semver.lt(manifest.dependencies['bs-platform'], '6.x')) {
+          ocaml = '4.2.x';
+        } else {
+          ocaml = '4.6.x';
+        }
+        let reason = "*";
+        let merlinLsp = "ocaml/merlin:merlin-lsp.opam#f030d5da7a"
+
+        // Creating esy.json
+        fs.writeFileSync(path.join(root, 'esy.json'), JSON.stringify({ dependencies: { ocaml, reason, "merlin-lsp": merlinLsp } }));
+
+        // Running esy i && esy b
+        log('Creating esy.json and setting up toolchain');
+        await run('esy')
+
+        // It could be an esy or npm
+        let command = process.platform === "win32" ? "esy.cmd" : "esy";
+        let args = ["exec-command", '--include-current-env', "ocamlmerlin-lsp"];
+        return Promise.resolve({ command, args });
+      }
+    } else {
+      try {
+        // Check if opam is installed on the system
+        try {
+          await run('command -v opam')
+        } catch (e) {
+          return Promise.reject(new OpamNotFound())
+        }
+
+        // Check if ocamlmerlin-lsp and ocamlmerlin-reason are installed
+        try {
+          await run('opam exec command -- -v ocamlmerlin-lsp')
+        } catch (e) {
+          throw new ToolNotFound('opam', 'ocamlmerlin-lsp');
+        }
+        try {
+          await run('opam exec command -- -v ocamlmerlin-reason');
+        } catch (e) {
+          throw new ToolNotFound('opam', 'ocamlmerlin-reason')
+        }
+        if (process.platform === "win32") {
+          return Promise.reject(new OpamOnWindowsError());
+        } else {
+          return Promise.resolve({ command: 'opam', args: ['exec', 'ocamlmerlin-lsp'] })
+        }
+      } catch (e) {
+        return Promise.reject(e);
+      }
     }
-    return { command, args };
+
   } else {
     // let command =
     //   process.platform === "win32" ? "ocamlmerlin-lsp.exe" : "ocamlmerlin-lsp";
@@ -82,7 +119,7 @@ async function getCommandForWorkspace() {
 
 export async function activate(context: ExtensionContext) {
 
-  process.env.PATH = path.resolve(__dirname, '..', '..', '_downloads', 'package', 'node_modules',
+  process.env.PATH = path.resolve(__dirname, '..', '..', 'node_modules',
     '.bin') + path.delimiter + process.env.PATH;
 
   let { command, args } = await getCommandForWorkspace();

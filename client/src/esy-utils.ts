@@ -1,6 +1,6 @@
 import { run, options, log } from './utils';
 
-export type esyStatus = { isProject: boolean };
+export type esyStatus = { isProject: boolean, rootPackageConfigPath: string | null };
 
 export async function getEsyStatus(root: string): Promise<esyStatus> {
   let esyStatus: esyStatus;
@@ -13,7 +13,7 @@ export async function getEsyStatus(root: string): Promise<esyStatus> {
     } else {
       log('Unknown error while trying to figure if its a valid esy project', e);
     }
-    return { isProject: false };
+    return { isProject: false, rootPackageConfigPath: null };
   }
   return esyStatus;
 }

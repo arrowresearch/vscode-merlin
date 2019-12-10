@@ -91,6 +91,7 @@
   "dependencies": {
     "esy": "0.5.x",
     "rimraf": "^3.0.0",
+    "semver": "^6.3.0",
     "vscode-languageclient": "^5.2.1"
   }
 }
