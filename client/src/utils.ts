@@ -18,5 +18,5 @@ export function run(cmd: string, options?: options): Promise<{ stdout: string, s
 };
 
 export function log(...m) {
-  console.log('[Plugin Error]', ...m);
+  console.log('[Plugin]', ...m);
 };

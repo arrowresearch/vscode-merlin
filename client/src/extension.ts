@@ -21,7 +21,7 @@ import { promisify } from "util";
 
 let client: LanguageClient;
 
-async function getCommandForWorkspace() {
+async function getCommandForWorkspace(): Promise<{ command: string, args: string[] }> {
 
   let root = workspace.rootPath;
   let esyStatus = await getEsyStatus(root);
@@ -35,6 +35,7 @@ async function getCommandForWorkspace() {
     // place? `esy ocamlmerlin-lsp` needs projects to install/solve deps
 
     let manifestFile = esyStatus.rootPackageConfigPath;
+
     // Looking for manifest file. If it is not a json file, it's an opam project
     if (/\.json$/.test(manifestFile)) {
 
@@ -53,10 +54,11 @@ async function getCommandForWorkspace() {
 
       if (/esy\.json$/.test(manifestFile) || !!manifest.esy) {
         // Esy is indeed being used to manage this project
+        log('Ensuring toolchain is up-to-date by running `esy`');
       } else {
         // Esy may not have been used. Let's drop and esy.json with the an appropriate compiler, reason and merlin-lsp
         // Note that this check (npm vs esy) needs to be done only once. Since all npm projects will eventually end up having an esy.json with the toolchain
-        let ocaml;
+        let ocaml: string;
         if (manifest.dependencies && manifest.dependencies['bs-platform'] && semver.lt(manifest.dependencies['bs-platform'], '6.x')) {
           ocaml = '4.2.x';
         } else {
@@ -66,17 +68,18 @@ async function getCommandForWorkspace() {
         let merlinLsp = "ocaml/merlin:merlin-lsp.opam#f030d5da7a"
 
         // Creating esy.json
-        fs.writeFileSync(path.join(root, 'esy.json'), JSON.stringify({ dependencies: { ocaml, reason, "merlin-lsp": merlinLsp } }));
+        fs.writeFileSync(path.join(root, 'esy.json'), JSON.stringify({ dependencies: { ocaml, "@esy-ocaml/reason": reason, "merlin-lsp": merlinLsp } }));
 
         // Running esy i && esy b
         log('Creating esy.json and setting up toolchain');
-        await run('esy', { cwd: root })
-
-        // It could be an esy or npm
-        let command = process.platform === "win32" ? "esy.cmd" : "esy";
-        let args = ["exec-command", '--include-current-env', "ocamlmerlin-lsp"];
-        return Promise.resolve({ command, args });
       }
+      await run('esy', { cwd: root })
+      log('Toolchain has been setup!');
+
+      // It could be an esy or npm
+      let command = process.platform === "win32" ? "esy.cmd" : "esy";
+      let args = ["exec-command", '--include-current-env', "ocamlmerlin-lsp"];
+      return Promise.resolve({ command, args });
     } else {
       try {
         // Check if opam is installed on the system
@@ -90,7 +93,7 @@ async function getCommandForWorkspace() {
         try {
           await run('opam exec command -- -v ocamlmerlin-lsp')
         } catch (e) {
-          throw new ToolNotFound('opam', 'ocamlmerlin-lsp');
+          return Promise.reject(new ToolNotFound('opam', 'ocamlmerlin-lsp'));
         }
         try {
           await run('opam exec command -- -v ocamlmerlin-reason');
@@ -114,6 +117,7 @@ async function getCommandForWorkspace() {
     // return { command, args };
     log("Running esy status returned the current folder as not a valid esy project. Any invalid esy project can never be a valid opam or bsb project");
     log("Looking for global LSP installations");
+    return Promise.reject(new Error('TODO'))
   }
 }
 
