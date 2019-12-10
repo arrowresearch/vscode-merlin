@@ -16,7 +16,7 @@
     "onLanguage:reason",
     "onLanguage:ocaml"
   ],
-  "main": "./client/out/extension",
+  "main": "./out/src/extension",
   "contributes": {
     "commands": [
       {

@@ -1,6 +1,6 @@
 const { ok, fail } = require("assert");
-const { run } = require("../../client/out/utils.js");
-const EsyUtils = require("../../client/out/esy-utils.js");
+const { run } = require("../../out/utils.js");
+const EsyUtils = require("../../out/esy-utils.js");
 const rimraf = require("rimraf");
 const fs = require("fs");
 const path = require("path");

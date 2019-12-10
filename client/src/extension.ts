@@ -5,7 +5,7 @@
 
 import * as fs from "fs";
 import * as path from "path";
-import { workspace, ExtensionContext, commands } from "vscode";
+import { window, ProgressLocation, workspace, ExtensionContext, commands } from "vscode";
 import * as semver from 'semver';
 
 import {
@@ -21,7 +21,7 @@ import { promisify } from "util";
 
 let client: LanguageClient;
 
-async function getCommandForWorkspace(): Promise<{ command: string, args: string[] }> {
+async function getCommandForWorkspace(context): Promise<{ command: string, args: string[] }> {
 
   let root = workspace.rootPath;
   let esyStatus = await getEsyStatus(root);
@@ -73,7 +73,24 @@ async function getCommandForWorkspace(): Promise<{ command: string, args: string
         // Running esy i && esy b
         log('Creating esy.json and setting up toolchain');
       }
-      await run('esy', { cwd: root })
+      window.withProgress({
+        location: ProgressLocation.Notification,
+        title: "Setting up toolchain...",
+        cancellable: true
+      }, (progress, token) => {
+        token.onCancellationRequested(() => {
+          console.log("User canceled the long running operation");
+        });
+
+        progress.report({ increment: 0 });
+
+        setTimeout(() => {
+          progress.report({ increment: 10 });
+        }, 1000);
+
+
+        return run('esy', { cwd: root })
+      });
       log('Toolchain has been setup!');
 
       // It could be an esy or npm
@@ -126,7 +143,7 @@ export async function activate(context: ExtensionContext) {
   process.env.PATH = path.resolve(__dirname, '..', '..', 'node_modules',
     '.bin') + path.delimiter + process.env.PATH;
 
-  let { command, args } = await getCommandForWorkspace();
+  let { command, args } = await getCommandForWorkspace(context);
 
   // If the extension is launched in debug mode then the debug server options are used
   // Otherwise the run options are used
