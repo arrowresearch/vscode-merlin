@@ -6,3 +6,5 @@ client/server
 *.vsix
 *~
 _downloads
+.merlin
+lib/
