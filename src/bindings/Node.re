@@ -8,7 +8,7 @@ external processEnv: Js.Dict.t(string) = "env";
 module Error = {
   type t;
   [@bs.new] external make: string => t = "Error";
-  let ofPromiseError = [%raw
+  let ofPromiseError: Js.Promise.error => string = [%raw
     error => "return error.message || 'Unknown error'"
   ];
 };

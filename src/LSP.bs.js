@@ -5,8 +5,11 @@ var Esy = require("./Esy.bs.js");
 var $$Node = require("./bindings/Node.bs.js");
 var Path = require("path");
 var Block = require("bs-platform/lib/js/block.js");
+var Curry = require("bs-platform/lib/js/curry.js");
 var Utils = require("./Utils.bs.js");
-var Vscode = require("vscode");
+var Vscode = require("./bindings/Vscode.bs.js");
+var Vscode$1 = require("vscode");
+var Belt_HashMapString = require("bs-platform/lib/js/belt_HashMapString.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function detect(folder) {
@@ -69,7 +72,7 @@ function make(folder) {
                 setupPromise = typeof projectType === "number" ? Promise.resolve(/* () */0) : (
                     projectType.tag ? (
                         projectType[/* readyForDev */0] ? Promise.resolve(/* () */0) : Esy.setup(Path.join(folder, "package.json")).then((function (param) {
-                                  return Vscode.window.withProgress({
+                                  return Vscode$1.window.withProgress({
                                               location: 15,
                                               title: "Setting up toolchain..."
                                             }, (function (progress) {
@@ -85,7 +88,7 @@ function make(folder) {
                                               }));
                                 }))
                       ) : (
-                        projectType[/* readyForDev */0] ? Promise.resolve(/* () */0) : Vscode.window.withProgress({
+                        projectType[/* readyForDev */0] ? Promise.resolve(/* () */0) : Vscode$1.window.withProgress({
                                 location: 15,
                                 title: "Setting up toolchain..."
                               }, (function (progress) {
@@ -176,8 +179,76 @@ var Client = {
 
 var LanguageClient = { };
 
+function start(context, commands, createClient) {
+  var workspaceFolders = Belt_HashMapString.make(1);
+  var startClient = function ($$document) {
+    var uri = $$document.uri;
+    if (uri.scheme === "file") {
+      var folder = Vscode$1.workspace.getWorkspaceFolder(uri);
+      if (folder !== undefined) {
+        var folder$1 = folder;
+        if (Belt_HashMapString.has(workspaceFolders, folder$1.uri.fsPath)) {
+          return Promise.resolve(/* () */0);
+        } else {
+          return Curry._2(createClient, $$document, folder$1).then((function (client) {
+                        if (client.tag) {
+                          return Vscode$1.window.showErrorMessage("Error: " + (String(client[0]) + ""));
+                        } else {
+                          var client$1 = client[0];
+                          Belt_HashMapString.set(workspaceFolders, Vscode.Folder.key(folder$1), client$1);
+                          return Promise.resolve(client$1.start());
+                        }
+                      }));
+        }
+      } else {
+        return Promise.resolve(/* () */0);
+      }
+    } else {
+      return Promise.resolve(/* () */0);
+    }
+  };
+  Vscode$1.workspace.onDidOpenTextDocument((function ($$document) {
+          startClient($$document);
+          return /* () */0;
+        }));
+  var openTasks = Promise.all(Vscode$1.workspace.textDocuments.map(startClient)).then((function (param) {
+          return Promise.resolve(/* () */0);
+        }));
+  Vscode$1.workspace.onDidChangeWorkspaceFolders((function ($$event) {
+          $$event.removed.forEach((function (folder) {
+                  var match = Belt_HashMapString.get(workspaceFolders, Vscode.Folder.key(folder));
+                  if (match !== undefined) {
+                    Belt_HashMapString.remove(workspaceFolders, Vscode.Folder.key(folder));
+                    return match.stop();
+                  } else {
+                    return /* () */0;
+                  }
+                }));
+          return /* () */0;
+        }));
+  commands.forEach((function (param) {
+          Vscode$1.commands.registerCommand(param[0], param[1]);
+          return /* () */0;
+        }));
+  context.subscriptions.push({
+        dispose: (function () {
+            Belt_HashMapString.forEach(workspaceFolders, (function (param, client) {
+                    return client.stop();
+                  }));
+            return Belt_HashMapString.clear(workspaceFolders);
+          })
+      });
+  return openTasks;
+}
+
+var MultiWorkspace = {
+  FoldersMap: /* alias */0,
+  start: start
+};
+
 exports.ProjectType = ProjectType;
 exports.Server = Server;
 exports.Client = Client;
 exports.LanguageClient = LanguageClient;
+exports.MultiWorkspace = MultiWorkspace;
 /* Esy Not a pure module */

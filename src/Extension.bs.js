@@ -3,21 +3,21 @@
 
 var LSP = require("./LSP.bs.js");
 var $$Node = require("./bindings/Node.bs.js");
-var Vscode = require("vscode");
+var Block = require("bs-platform/lib/js/block.js");
 var VscodeLanguageclient = require("vscode-languageclient");
 
 function createClient(id, name, folder) {
-  return LSP.Server.make(folder).then((function (serverOptions) {
-                return Promise.resolve(new VscodeLanguageclient.LanguageClient(id, name, serverOptions, LSP.Client.make(/* () */0)));
+  return LSP.Server.make(folder.uri.fsPath).then((function (serverOptions) {
+                return Promise.resolve(/* Ok */Block.__(0, [new VscodeLanguageclient.LanguageClient(id, name, serverOptions, LSP.Client.make(/* () */0))]));
               }));
 }
 
-function activate(_context) {
-  return createClient("merlin-language-server", "Merlin Language Server", Vscode.workspace.rootPath).then((function (client) {
-                  return Promise.resolve(client.start());
-                })).catch((function (e) {
-                var message = $$Node.$$Error.ofPromiseError(e);
-                return Vscode.window.showErrorMessage("Error: " + (String(message) + ""));
+function activate(context) {
+  return LSP.MultiWorkspace.start(context, /* array */[], (function (_document, folder) {
+                return createClient("merlin-language-server", "Merlin Language Server", folder).catch((function (e) {
+                              var message = $$Node.$$Error.ofPromiseError(e);
+                              return Promise.resolve(/* Error */Block.__(1, [message]));
+                            }));
               }));
 }
 
