@@ -255,3 +255,80 @@ module LanguageClient = {
     t =
     "LanguageClient";
 };
+
+module MultiWorkspace = {
+  module FoldersMap = Belt.HashMap.String;
+  let start = (~context, ~commands, ~createClient): Js.Promise.t(unit) => {
+    let workspaceFolders = FoldersMap.make(~hintSize=1);
+    let startClient = (document: TextDocument.event) => {
+      let uri = document.uri;
+      if (uri.scheme === "file") {
+        let folder = Workspace.getWorkspaceFolder(uri);
+        switch (folder) {
+        | Some(folder)
+            when FoldersMap.has(workspaceFolders, folder.uri.fsPath) =>
+          Js.Promise.resolve()
+        | Some(folder) =>
+          createClient(document, folder)
+          |> Js.Promise.then_(client =>
+               switch (client) {
+               | Ok(client) =>
+                 FoldersMap.set(
+                   workspaceFolders,
+                   Folder.key(folder),
+                   client,
+                 );
+                 client.LanguageClient.start(.) |> Js.Promise.resolve;
+               | Error(message) =>
+                 Window.showErrorMessage({j|Error: $message|j})
+               }
+             )
+        | None => Js.Promise.resolve()
+        };
+      } else {
+        Js.Promise.resolve();
+      };
+    };
+    Workspace.onDidOpenTextDocument(document =>
+      startClient(document) |> ignore
+    );
+    let openTasks =
+      Workspace.textDocuments
+      |> Js.Array.map(startClient)
+      |> Js.Promise.all
+      |> Js.Promise.then_(_ => Js.Promise.resolve());
+    Workspace.onDidChangeWorkspaceFolders(event => {
+      event.removed
+      |> Js.Array.forEach(folder => {
+           switch (FoldersMap.get(workspaceFolders, Folder.key(folder))) {
+           | Some(client) =>
+             FoldersMap.remove(workspaceFolders, Folder.key(folder));
+             client.LanguageClient.stop(.);
+           | None => ()
+           }
+         })
+    });
+
+    commands
+    |> Js.Array.forEach(((cmd, handler)) => {
+         Commands.register(~command=cmd, ~handler)
+       });
+
+    ExtensionContext.(
+      Js.Array.push(
+        {
+          dispose:
+            (.) => {
+              FoldersMap.forEach(workspaceFolders, (_, client) => {
+                client.LanguageClient.stop(.)
+              });
+              FoldersMap.clear(workspaceFolders);
+            },
+        },
+        context.subscriptions,
+      )
+    )
+    |> ignore;
+    openTasks;
+  };
+};

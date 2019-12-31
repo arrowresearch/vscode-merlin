@@ -11,6 +11,18 @@
         "--extensionTestsPath=${workspaceFolder}/test/suite/index.js"
       ],
       "outFiles": ["${workspaceFolder}/out/test/**/*.js"]
-    }
+    },
+    {
+			"name": "Run Extension",
+			"type": "extensionHost",
+			"request": "launch",
+			"runtimeExecutable": "${execPath}",
+			"args": [
+				"--extensionDevelopmentPath=${workspaceFolder}"
+			],
+			"outFiles": [
+				"${workspaceFolder}/src/**/*.bs.js"
+			]
+		}
   ]
 }
