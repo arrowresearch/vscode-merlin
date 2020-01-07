@@ -127,7 +127,7 @@ let processDeps = (dependenciesJson, folder) => {
         | Some(bsPlatformVersionJson) =>
           switch (Js.Json.classify(bsPlatformVersionJson)) {
           | JSONString(bsPlatformVersion) =>
-            if (Semver.satisfies(bsPlatformVersion, ">=6.0.0")) {
+            if (bsPlatformVersion->Semver.minVersion->Semver.satisfies(">=6.0.0")) {
               dropAnEsyJSON(~folder, ~compilerVersion="4.6.x");
             } else {
               dropAnEsyJSON(~folder, ~compilerVersion="4.2.x");
