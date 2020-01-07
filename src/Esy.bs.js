@@ -12,6 +12,7 @@ var Js_dict = require("bs-platform/lib/js/js_dict.js");
 var Js_json = require("bs-platform/lib/js/js_json.js");
 var Filename = require("bs-platform/lib/js/filename.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
+var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var Caml_option = require("bs-platform/lib/js/caml_option.js");
 var Caml_exceptions = require("bs-platform/lib/js/caml_exceptions.js");
 var Caml_js_exceptions = require("bs-platform/lib/js/caml_js_exceptions.js");
@@ -222,6 +223,14 @@ function processDeps(dependenciesJson, folder) {
   }
 }
 
+function getSubDict(dict, key) {
+  return Belt_Option.flatMap(Js_dict.get(dict, key), Js_json.decodeObject);
+}
+
+function mergeDicts(dict1, dict2) {
+  return Js_dict.fromArray(Js_dict.entries(dict2).concat(Js_dict.entries(dict1)));
+}
+
 function setup(manifestPath) {
   var folder = Curry._1(Filename.dirname, manifestPath);
   return $$Node.Fs.readFile(manifestPath).then((function (manifest) {
@@ -234,19 +243,22 @@ function setup(manifestPath) {
                             ]);
                 } else {
                   var dict = match[0];
-                  var match$1 = Js_dict.get(dict, "dependencies");
+                  var match$1 = getSubDict(dict, "dependencies");
+                  var match$2 = getSubDict(dict, "devDependencies");
                   if (match$1 !== undefined) {
-                    return processDeps(Caml_option.valFromOption(match$1), folder);
-                  } else {
-                    var match$2 = Js_dict.get(dict, "devDependencies");
+                    var dependenciesJson = Caml_option.valFromOption(match$1);
                     if (match$2 !== undefined) {
-                      return processDeps(Caml_option.valFromOption(match$2), folder);
+                      return processDeps(mergeDicts(dependenciesJson, Caml_option.valFromOption(match$2)), folder);
                     } else {
-                      return Promise.reject([
-                                  Caml_builtin_exceptions.failure,
-                                  "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property"
-                                ]);
+                      return processDeps(dependenciesJson, folder);
                     }
+                  } else if (match$2 !== undefined) {
+                    return processDeps(Caml_option.valFromOption(match$2), folder);
+                  } else {
+                    return Promise.reject([
+                                Caml_builtin_exceptions.failure,
+                                "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property"
+                              ]);
                   }
                 }
               }));
@@ -264,5 +276,7 @@ exports.nullableString = nullableString;
 exports.getStatus = getStatus;
 exports.dropAnEsyJSON = dropAnEsyJSON;
 exports.processDeps = processDeps;
+exports.getSubDict = getSubDict;
+exports.mergeDicts = mergeDicts;
 exports.setup = setup;
 /* Node Not a pure module */

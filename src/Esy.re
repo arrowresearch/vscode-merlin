@@ -121,7 +121,7 @@ let dropAnEsyJSON = (~compilerVersion, ~folder) => {
 let processDeps = (dependenciesJson, folder) => {
   Js.Promise.(
     Js.Json.(
-      switch (classify(dependenciesJson)) {
+      switch (dependenciesJson->object_->classify) {
       | JSONObject(dependenciesDict) =>
         switch (Js.Dict.get(dependenciesDict, "bs-platform")) {
         | Some(bsPlatformVersionJson) =>
@@ -158,6 +158,12 @@ let processDeps = (dependenciesJson, folder) => {
   );
 };
 
+let getSubDict = (dict, key) =>
+  dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeObject);
+
+let mergeDicts = (dict1, dict2) =>
+  Js.Dict.fromArray(Js.Array.concat(Js.Dict.entries(dict1), Js.Dict.entries(dict2)));
+
 let setup = (~manifestPath) => {
   Js.Promise.(
     Js.Json.(
@@ -168,20 +174,17 @@ let setup = (~manifestPath) => {
              let manifestJson = parseExn(manifest);
              switch (classify(manifestJson)) {
              | JSONObject(dict) =>
-               switch (Js.Dict.get(dict, "dependencies")) {
-               | Some(dependenciesJson) =>
+               switch (getSubDict(dict, "dependencies"), getSubDict(dict, "devDependencies")) {
+               | (Some(dependenciesJson), None) | (None, Some(dependenciesJson)) =>
                  processDeps(dependenciesJson, folder)
-               | None =>
-                 switch (Js.Dict.get(dict, "devDependencies")) {
-                 | Some(dependenciesJson) =>
-                   processDeps(dependenciesJson, folder)
-                 | None =>
+               | (Some(dependenciesJson), Some(devDependenciesJson)) =>
+                  processDeps(mergeDicts(dependenciesJson, devDependenciesJson), folder)
+               | (None, None) =>
                    reject(
                      Failure(
                        "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
                      ),
                    )
-                 }
                }
              | _ =>
                reject(
