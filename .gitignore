@@ -8,3 +8,4 @@ client/server
 _downloads
 .merlin
 lib/
+.bsb.lock
