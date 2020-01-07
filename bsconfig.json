@@ -6,9 +6,6 @@
   },
   "sources": [
     {
-      "dir": "vendor"
-    },
-    {
       "subdirs": true,
       "dir": "src"
     },
