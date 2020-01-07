@@ -79,7 +79,8 @@
     "test:unit": "jest __tests__",
     "test:opam": "node ./test/runOpamTests.js",
     "test": "npm run test:esy && npm run test:opam && npm run test:bsb",
-    "package": "vsce package"
+    "package": "vsce package",
+    "refmt": "find ./src ./fixtures ./__tests__ -type f -name \"*.re\" | xargs bsrefmt --in-place"
   },
   "devDependencies": {
     "@glennsl/bs-jest": "^0.4.9",
