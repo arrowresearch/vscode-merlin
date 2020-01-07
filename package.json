@@ -69,7 +69,9 @@
   "scripts": {
     "clean": "bsb -clean",
     "build": "bsb -make-world",
-    "watch": "tsc -b -w",
+    "watch:bsb": "bsb -make-world -w",
+    "watch:tsc": "tsc -b -w",
+    "watch": "run-p watch:bsb watch:tsc",
     "vscode:prepublish": "npm run build",
     "compile": "tsc -b",
     "test:bsb": "node ./test/runBsbTests.js",
@@ -86,6 +88,7 @@
     "fs-extra": "^8.1.0",
     "jest-cli": "^24.9.0",
     "mocha": "^6.2.2",
+    "npm-run-all": "^4.1.5",
     "prettier": "^1.19.1",
     "tslint": "^5.20.1",
     "typescript": "^3.7.3",
