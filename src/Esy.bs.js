@@ -208,7 +208,7 @@ function processDeps(dependenciesJson, folder) {
                     Caml_builtin_exceptions.failure,
                     "'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!"
                   ]);
-      } else if (Semver.satisfies(match$2[0], ">=6.0.0")) {
+      } else if (Semver.satisfies(Semver.minVersion(match$2[0]), ">=6.0.0")) {
         return dropAnEsyJSON("4.6.x", folder);
       } else {
         return dropAnEsyJSON("4.2.x", folder);
