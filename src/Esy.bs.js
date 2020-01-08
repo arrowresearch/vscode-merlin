@@ -179,7 +179,7 @@ function dropAnEsyJSON(compilerVersion, folder) {
                                                         /* Formatting_lit */Block.__(17, [
                                                             /* Scan_indic */Block.__(2, [/* "o" */111]),
                                                             /* String_literal */Block.__(11, [
-                                                                "pam/merlin-lsp\": \"ocaml/merlin:merlin-lsp.opam#f030d5da7a\"}}",
+                                                                "pam/ocaml-lsp-server\": \"ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157\"}}",
                                                                 /* End_of_format */0
                                                               ])
                                                           ])
@@ -188,7 +188,7 @@ function dropAnEsyJSON(compilerVersion, folder) {
                                               ])
                                           ])
                                       ]),
-                                    "{\"dependencies\": {\"ocaml\": \"%s\", \"@esy-ocaml/reason\": \"*\", \"@opam/merlin-lsp\": \"ocaml/merlin:merlin-lsp.opam#f030d5da7a\"}}"
+                                    "{\"dependencies\": {\"ocaml\": \"%s\", \"@esy-ocaml/reason\": \"*\", \"@opam/ocaml-lsp-server\": \"ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157\"}}"
                                   ]), compilerVersion));
               }));
 }

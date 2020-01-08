@@ -113,7 +113,7 @@ function make(folder) {
                                               command: "opam",
                                               args: /* array */[
                                                 "exec",
-                                                "ocamlmerlin-lsp"
+                                                "ocamllsp"
                                               ],
                                               options: {
                                                 env: process.env
@@ -127,7 +127,7 @@ function make(folder) {
                                             args: /* array */[
                                               "-P",
                                               Path.join(folder, ".vscode", "esy"),
-                                              "ocamlmerlin-lsp"
+                                              "ocamllsp"
                                             ],
                                             options: {
                                               env: process.env
@@ -140,7 +140,7 @@ function make(folder) {
                                             args: /* array */[
                                               "exec-command",
                                               "--include-current-env",
-                                              "ocamlmerlin-lsp"
+                                              "ocamllsp"
                                             ],
                                             options: {
                                               env: process.env

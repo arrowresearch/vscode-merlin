@@ -32,7 +32,7 @@ async function getCommandForWorkspace(context): Promise<{ command: string, args:
     // `esy` for a user who never intended to. Example: bsb/npm
     // users. Similarly, opam users wouldn't want prompts to run
     // `esy`. Why is prompting `esy i` even necessary in the first
-    // place? `esy ocamlmerlin-lsp` needs projects to install/solve deps
+    // place? `esy ocamllsp` needs projects to install/solve deps
 
     let manifestFile = esyStatus.rootPackageConfigPath;
 
@@ -95,7 +95,7 @@ async function getCommandForWorkspace(context): Promise<{ command: string, args:
 
       // It could be an esy or npm
       let command = process.platform === "win32" ? "esy.cmd" : "esy";
-      let args = ["exec-command", '--include-current-env', "ocamlmerlin-lsp"];
+      let args = ["exec-command", '--include-current-env', "ocamllsp"];
       return Promise.resolve({ command, args });
     } else {
       try {
@@ -106,11 +106,11 @@ async function getCommandForWorkspace(context): Promise<{ command: string, args:
           return Promise.reject(new OpamNotFound())
         }
 
-        // Check if ocamlmerlin-lsp and ocamlmerlin-reason are installed
+        // Check if ocamllsp and ocamlmerlin-reason are installed
         try {
-          await run('opam exec command -- -v ocamlmerlin-lsp')
+          await run('opam exec command -- -v ocamllsp')
         } catch (e) {
-          return Promise.reject(new ToolNotFound('opam', 'ocamlmerlin-lsp'));
+          return Promise.reject(new ToolNotFound('opam', 'ocamllsp'));
         }
         try {
           await run('opam exec command -- -v ocamlmerlin-reason');
@@ -120,7 +120,7 @@ async function getCommandForWorkspace(context): Promise<{ command: string, args:
         if (process.platform === "win32") {
           return Promise.reject(new OpamOnWindowsError());
         } else {
-          return Promise.resolve({ command: 'opam', args: ['exec', 'ocamlmerlin-lsp'] })
+          return Promise.resolve({ command: 'opam', args: ['exec', 'ocamllsp'] })
         }
       } catch (e) {
         return Promise.reject(e);
@@ -129,7 +129,7 @@ async function getCommandForWorkspace(context): Promise<{ command: string, args:
 
   } else {
     // let command =
-    //   process.platform === "win32" ? "ocamlmerlin-lsp.exe" : "ocamlmerlin-lsp";
+    //   process.platform === "win32" ? "ocamllsp.exe" : "ocamllsp";
     // let args = [];
     // return { command, args };
     log("Running esy status returned the current folder as not a valid esy project. Any invalid esy project can never be a valid opam or bsb project");

@@ -16,7 +16,7 @@ module ProjectType = {
                 `esy` for a user who never intended to. Example: bsb/npm
                 users. Similarly, opam users wouldn't want prompts to run
                 `esy`. Why is prompting `esy i` even necessary in the first
-                place? `esy ocamlmerlin-lsp` needs projects to install/solve deps*/
+                place? `esy ocamllsp` needs projects to install/solve deps*/
 
              let manifestFile =
                switch (Js.Nullable.toOption(status.rootPackageConfigPath)) {
@@ -176,7 +176,7 @@ module Server = {
                         args: [|
                           "exec-command",
                           "--include-current-env",
-                          "ocamlmerlin-lsp",
+                          "ocamllsp",
                         |],
                         options: {
                           env: processEnv,
@@ -192,7 +192,7 @@ module Server = {
                       } else {
                         resolve({
                           command: "opam",
-                          args: [|"exec", "ocamlmerlin-lsp"|],
+                          args: [|"exec", "ocamllsp"|],
                           options: {
                             env: processEnv,
                           },
@@ -206,7 +206,7 @@ module Server = {
                         args: [|
                           "-P",
                           Path.join([|folder, ".vscode", "esy"|]),
-                          "ocamlmerlin-lsp",
+                          "ocamllsp",
                         |],
                         options: {
                           env: processEnv,
