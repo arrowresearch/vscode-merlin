@@ -9,3 +9,4 @@ _downloads
 .merlin
 lib/
 .bsb.lock
+_esy/
