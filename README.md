@@ -1,11 +1,35 @@
 # VS Code Merlin Extension
 
-**THIS IS WORK IN PROGRESS, DO NOT USE**
+🚧 This is work in progress, use at your own risk 🚧
+
+## Prerequisites
+
+This extension requires global installation of `esy >= 0.6.0` to allow building of [`ocaml-lsp-server`](https://github.com/ocaml/ocaml-lsp#esy) for your projects.
+```
+npm i -g @esy-nightly/esy
+or
+yarn global add @esy-nightly/esy
+```
 
 ## Producing the Extension Package
 
-- Run `npm run package` to produce `*.vsix` extension package.
-- Run `code --install-extension *.vsix` to install the extension with VS Code.
+```bash
+# Clone the repo
+git clone git@github.com:arrowresearch/vscode-merlin.git
+
+# Install dependencies
+cd vscode-merlin
+npm i
+
+# Build from reason
+npm run build
+
+# Produce package
+npm run package
+
+# Install produced package
+code --install-extension vscode-merlin-[VERSION].vsix
+```
 
 ## Running the Extension in Development Mode
 
