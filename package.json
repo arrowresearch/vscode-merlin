@@ -70,7 +70,6 @@
     "clean": "bsb -clean",
     "build": "bsb -make-world",
     "watch": "bsb -make-world -w",
-    "compile": "tsc -b",
     "test:bsb": "node ./test/runBsbTests.js",
     "test:esy": "node ./test/runEsyTests.js",
     "test:unit": "jest __tests__",
