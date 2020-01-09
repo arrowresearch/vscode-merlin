@@ -8,10 +8,11 @@ let register = () => {
         | (None, _)
         | (Some(_), None) => Js.Promise.resolve([||])
         | (Some(textEditor), Some(formatter)) =>
+          let id = Uuid.v4()
           let tempFileName =
             Node.Path.join([|
               Node.Os.tmpdir(),
-              {j|vscode-reasonml-refmt-SOMETHING.ml|j},
+              {j|vscode-reasonml-refmt-$id.ml|j},
             |]);
           Js.Promise.(
             Node.Fs.writeFile(tempFileName, textEditor.document.getText())

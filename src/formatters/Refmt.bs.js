@@ -6,6 +6,7 @@ var $$Node = require("../bindings/Node.bs.js");
 var Path = require("path");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Vscode = require("vscode");
+var V4 = require("uuid/v4");
 var FormatterUtils = require("./FormatterUtils.bs.js");
 
 function register(param) {
@@ -20,7 +21,8 @@ function register(param) {
               if (formatter !== undefined) {
                 var formatter$1 = formatter;
                 var textEditor = match;
-                var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-SOMETHING.re");
+                var id = V4();
+                var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-" + (String(id) + ".re"));
                 return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (f) {
                                   return $$Node.ChildProcess.exec("" + (String(formatter$1) + (" " + (String(tempFileName) + ""))), { });
                                 })).then((function (param) {
