@@ -31,6 +31,14 @@ npm run package
 code --install-extension vscode-merlin-[VERSION].vsix
 ```
 
+## Usage
+- Open any of your projects (esy/bsb/opam are supported)
+- Open any Reason or Ocaml file in it
+- Extension will start initialization, vscode will display progressbar (usually in the bottom left corner)
+- Be mindful, that first initialization can take significant amount of time, as extension will download and compile right version of `ocaml`, `ocaml-lsp` and other dependencies. Future inits in similar project (with the same version of compiler) will be almost instant.
+- If extension fails to initialize for some reason, please [file an issue](https://github.com/arrowresearch/vscode-merlin/issues)
+
+
 ## Running the Extension in Development Mode
 
 - Run `npm install` in this directory. This installs all necessary npm modules
