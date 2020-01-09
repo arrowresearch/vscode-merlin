@@ -38,6 +38,28 @@ module Window = {
   [@bs.module "vscode"] [@bs.scope "window"]
   external showErrorMessage: string => Js.Promise.t('a) = "showErrorMessage";
 
+  type activeTextEditor = {document}
+  and document = {
+    getText: unit => string,
+    lineAt: int => line,
+    lineCount: int,
+    fileName: string,
+  }
+  and line = {range}
+  and range = {
+    start: rangeEdge,
+    [@bs.as "end"]
+    end_: rangeEdge,
+  }
+  and rangeEdge = {character: int};
+
+  /* firstLine.range.start.character,
+     document.lineCount - 1,
+     lastLine.range.end_.character, */
+
+  [@bs.module "vscode"] [@bs.scope "window"] [@bs.val]
+  external activeTextEditor: option(activeTextEditor) = "activeTextEditor";
+
   /* [@bs.deriving {jsConverter: newType}] */
   /* type location = */
   /*   | [@bs.as 15] Notification */
@@ -79,4 +101,30 @@ module ExtensionContext = {
     workspaceState: memento,
     asAbsolutePath: string => string,
   };
+};
+
+module Languages = {
+  type documentSelector = {
+    .
+    "scheme": string,
+    "language": string,
+  };
+
+  [@bs.module "vscode"] [@bs.scope "languages"]
+  external registerDocumentFormattingEditProvider:
+    (documentSelector, 'a) => unit =
+    "registerDocumentFormattingEditProvider";
+};
+
+module Range = {
+  type t;
+  [@bs.module "vscode"] [@bs.new]
+  external create: (int, int, int, int) => t = "Range";
+};
+
+module TextEdit = {
+  type t;
+
+  [@bs.module "vscode"] [@bs.scope "TextEdit"]
+  external replace: (Range.t, string) => t = "replace";
 };

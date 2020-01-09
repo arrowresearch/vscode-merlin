@@ -103,6 +103,9 @@ module Fs = {
   [@bs.module "fs"]
   external createWriteStream: string => Stream.t = "createWriteStream";
 
+  [@bs.module "./fs-stub.js"]
+  external unlink: string => Js.Promise.t(bool) = "unlink";
+
   let rec mkdir = (~p=?, path) => {
     let forceCreate =
       switch (p) {
@@ -243,4 +246,8 @@ module Https = {
         },
       )
     });
+};
+
+module Os = {
+  [@bs.module "os"] external tmpdir: unit => string = "tmpdir";
 };
