@@ -8,7 +8,7 @@ let register = () => {
         | (None, _)
         | (Some(_), None) => Js.Promise.resolve([||])
         | (Some(textEditor), Some(formatter)) =>
-          let id = Uuid.v4()
+          let id = Uuid.v4();
           let tempFileName =
             Node.Path.join([|
               Node.Os.tmpdir(),
@@ -30,7 +30,7 @@ let register = () => {
                  |> resolve;
                })
             |> catch(e => {
-                Node.Fs.unlink(tempFileName) |> ignore;
+                 Node.Fs.unlink(tempFileName) |> ignore;
                  let message = Bindings.Error.ofPromiseError(e);
                  Vscode.Window.showErrorMessage({j|Error: $message|j});
                })
