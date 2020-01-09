@@ -16,7 +16,7 @@ let createClient = (~id, ~name, ~folder) =>
   );
 
 let activate = _context => {
-  /* Refmt.register(); */
+  Refmt.register();
   Ocamlformat.register();
 
   Js.Promise.(

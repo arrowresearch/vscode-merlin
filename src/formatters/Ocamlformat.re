@@ -11,7 +11,7 @@ let register = () => {
           let tempFileName =
             Node.Path.join([|
               Node.Os.tmpdir(),
-              {j|vscode-reasonml-refmt-SOMETHING|j},
+              {j|vscode-reasonml-refmt-SOMETHING.ml|j},
             |]);
           Js.Promise.(
             Node.Fs.writeFile(tempFileName, textEditor.document.getText())

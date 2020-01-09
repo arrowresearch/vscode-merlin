@@ -53,10 +53,6 @@ module Window = {
   }
   and rangeEdge = {character: int};
 
-  /* firstLine.range.start.character,
-     document.lineCount - 1,
-     lastLine.range.end_.character, */
-
   [@bs.module "vscode"] [@bs.scope "window"] [@bs.val]
   external activeTextEditor: option(activeTextEditor) = "activeTextEditor";
 

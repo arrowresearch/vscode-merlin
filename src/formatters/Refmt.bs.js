@@ -11,19 +11,18 @@ var FormatterUtils = require("./FormatterUtils.bs.js");
 function register(param) {
   Vscode.languages.registerDocumentFormattingEditProvider({
         scheme: "file",
-        language: "ocaml"
+        language: "reason"
       }, {
         provideDocumentFormattingEdits: (function (param) {
-            var formatter = "ocamlformat";
+            var formatter = "bsrefmt";
             var match = Vscode.window.activeTextEditor;
             if (match !== undefined) {
               if (formatter !== undefined) {
                 var formatter$1 = formatter;
                 var textEditor = match;
-                var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-SOMETHING.ml");
+                var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-SOMETHING.re");
                 return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (f) {
-                                  var filePath = textEditor.document.fileName;
-                                  return $$Node.ChildProcess.exec("" + (String(formatter$1) + (" --enable-outside-detected-project --name=" + (String(filePath) + (" " + (String(tempFileName) + ""))))), { });
+                                  return $$Node.ChildProcess.exec("" + (String(formatter$1) + (" " + (String(tempFileName) + ""))), { });
                                 })).then((function (param) {
                                 var textRange = FormatterUtils.getFullTextRange(textEditor.document);
                                 $$Node.Fs.unlink(tempFileName);
