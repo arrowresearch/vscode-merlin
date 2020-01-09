@@ -2,7 +2,7 @@ module P = Js.Promise;
 
 let register = () => {
   Vscode.Languages.registerDocumentFormattingEditProvider(
-    {"scheme": "file", "language": "ocaml"},
+    {scheme: "file", language: "ocaml"},
     {
       "provideDocumentFormattingEdits": () => {
         switch (Vscode.Window.activeTextEditor) {

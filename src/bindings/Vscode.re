@@ -101,9 +101,8 @@ module ExtensionContext = {
 
 module Languages = {
   type documentSelector = {
-    .
-    "scheme": string,
-    "language": string,
+    scheme: string,
+    language: string,
   };
 
   [@bs.module "vscode"] [@bs.scope "languages"]
