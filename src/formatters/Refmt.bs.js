@@ -15,28 +15,24 @@ function register(param) {
         language: "reason"
       }, {
         provideDocumentFormattingEdits: (function (param) {
-            var formatter = "bsrefmt";
             var match = Vscode.window.activeTextEditor;
             if (match !== undefined) {
-              if (formatter !== undefined) {
-                var formatter$1 = formatter;
-                var textEditor = match;
-                var id = V4();
-                var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-" + (String(id) + ".re"));
-                return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (f) {
-                                  return $$Node.ChildProcess.exec("" + (String(formatter$1) + (" " + (String(tempFileName) + ""))), { });
-                                })).then((function (param) {
-                                var textRange = FormatterUtils.getFullTextRange(textEditor.document);
-                                $$Node.Fs.unlink(tempFileName);
-                                return Promise.resolve(/* array */[Vscode.TextEdit.replace(textRange, param[0])]);
-                              })).catch((function (e) {
+              var textEditor = match;
+              var id = V4();
+              var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-" + (String(id) + ".re"));
+              return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (param) {
+                                  return FormatterUtils.getFormatterPath("refmt");
+                                })).then((function (formatterPath) {
+                                return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" " + (String(tempFileName) + ""))), { });
+                              })).then((function (param) {
+                              var textRange = FormatterUtils.getFullTextRange(textEditor.document);
                               $$Node.Fs.unlink(tempFileName);
-                              var message = $$Node.$$Error.ofPromiseError(e);
-                              return Vscode.window.showErrorMessage("Error: " + (String(message) + ""));
-                            }));
-              } else {
-                return Promise.resolve(/* array */[]);
-              }
+                              return Promise.resolve(/* array */[Vscode.TextEdit.replace(textRange, param[0])]);
+                            })).catch((function (e) {
+                            $$Node.Fs.unlink(tempFileName);
+                            var message = $$Node.$$Error.ofPromiseError(e);
+                            return Vscode.window.showErrorMessage("Error: " + (String(message) + ""));
+                          }));
             } else {
               return Promise.resolve(/* array */[]);
             }
@@ -45,5 +41,8 @@ function register(param) {
   return /* () */0;
 }
 
+var P = /* alias */0;
+
+exports.P = P;
 exports.register = register;
 /* os Not a pure module */

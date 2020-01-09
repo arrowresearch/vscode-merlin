@@ -3,6 +3,7 @@
 
 var Curry = require("bs-platform/lib/js/curry.js");
 var Vscode = require("vscode");
+var ProjectType = require("../ProjectType.bs.js");
 
 function getFullTextRange($$document) {
   var firstLine = Curry._1($$document.lineAt, 0);
@@ -10,5 +11,21 @@ function getFullTextRange($$document) {
   return new Vscode.Range(0, firstLine.range.start.character, $$document.lineCount - 1 | 0, lastLine.range.end.character);
 }
 
+function getFormatterPath(formatter) {
+  var rootPath = Vscode.workspace.rootPath;
+  return ProjectType.detect(rootPath).then((function (projectType) {
+                var match = process.platform === "win32";
+                var esy = match ? "esy.cmd" : "esy";
+                if (typeof projectType === "number") {
+                  return Promise.resolve("opam exec " + (String(formatter) + ""));
+                } else if (projectType.tag) {
+                  return Promise.resolve("cd " + (String(rootPath) + ("/.vscode/esy && " + (String(esy) + (" " + (String(formatter) + ""))))));
+                } else {
+                  return Promise.resolve("" + (String(esy) + (" " + (String(formatter) + ""))));
+                }
+              }));
+}
+
 exports.getFullTextRange = getFullTextRange;
+exports.getFormatterPath = getFormatterPath;
 /* vscode Not a pure module */
