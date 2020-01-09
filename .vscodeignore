@@ -1,6 +1,7 @@
 __tests__/
 _esy/
 .vscode/
+esy.lock/
 fixtures/
 lib/
 node_modules/
