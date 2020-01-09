@@ -31,6 +31,7 @@ function register(param) {
                                 $$Node.Fs.unlink(tempFileName);
                                 return Promise.resolve(/* array */[Vscode.TextEdit.replace(textRange, param[0])]);
                               })).catch((function (e) {
+                              $$Node.Fs.unlink(tempFileName);
                               var message = $$Node.$$Error.ofPromiseError(e);
                               return Vscode.window.showErrorMessage("Error: " + (String(message) + ""));
                             }));
