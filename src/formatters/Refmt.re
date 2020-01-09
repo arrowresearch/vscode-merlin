@@ -1,6 +1,3 @@
-external provideDocumentFormattingEdits: 'a => unit =
-  "provideDocumentFormattingEdits";
-
 let register = () => {
   Vscode.Languages.registerDocumentFormattingEditProvider(
     {"scheme": "file", "language": "reason"},
