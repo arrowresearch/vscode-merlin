@@ -110,7 +110,7 @@ let dropAnEsyJSON = (~compilerVersion, ~folder) => {
          Fs.writeFile(
            Filename.concat(esyJsonTargetDir, "esy.json"),
            Printf.sprintf(
-             "{\"dependencies\": {\"ocaml\": \"%s\", \"@esy-ocaml/reason\": \"*\", \"@opam/merlin-lsp\": \"ocaml/merlin:merlin-lsp.opam#f030d5da7a\"}}",
+             "{\"dependencies\": {\"ocaml\": \"%s\", \"@esy-ocaml/reason\": \"*\", \"@opam/ocaml-lsp-server\": \"ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157\"}}",
              compilerVersion,
            ),
          )

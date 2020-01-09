@@ -17,6 +17,6 @@
   "devDependencies": {
     "@opam/merlin": "*",
     "ocaml": "~4.7.0",
-    "@opam/merlin-lsp": "ocaml/merlin:merlin-lsp.opam#c6a0382"
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157"
   }
 }
