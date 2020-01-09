@@ -20,8 +20,11 @@ steps:
     versionSpec: '8.x'
   displayName: 'Install Node.js'
 
-- script: 'npm install -g esy@0.5.0 --unsafe-perm'
-  displayName: 'npm install -g esy'
+# Use nightly build while 0.6.* is not released
+# - script: 'npm install -g esy@0.5.0 --unsafe-perm'
+#   displayName: 'npm install -g esy'
+- script: 'npm install -g @esy-nightly/esy --unsafe-perm'
+  displayName: 'npm install -g @esy-nightly/esy'
 
 - bash: |
     sudo add-apt-repository ppa:avsm/ppa
