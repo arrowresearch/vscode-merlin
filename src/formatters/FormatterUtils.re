@@ -1,3 +1,5 @@
+module P = Js.Promise;
+
 let getFullTextRange = (document: Vscode.Window.document) => {
   let firstLine = document.lineAt(0);
   let lastLine = document.lineAt(document.lineCount - 1);
@@ -12,20 +14,14 @@ let getFullTextRange = (document: Vscode.Window.document) => {
 
 let getFormatterPath = formatter => {
   let rootPath = Vscode.Workspace.rootPath;
-  Js.Promise.(
-    ProjectType.(
-      {
-        ProjectType.detect(rootPath)
-        |> then_(projectType => {
-             let esy = Node.processPlatform == "win32" ? "esy.cmd" : "esy";
-             switch (projectType) {
-             | Esy(_) => resolve({j|$esy $formatter|j})
-             | Bsb(_) =>
-               resolve({j|cd $rootPath/.vscode/esy && $esy $formatter|j})
-             | Opam => resolve({j|opam exec $formatter|j})
-             };
-           });
-      }
-    )
-  );
+  ProjectType.detect(rootPath)
+  |> P.then_(projectType => {
+       let esy = Node.processPlatform == "win32" ? "esy.cmd" : "esy";
+       switch (projectType) {
+       | ProjectType.Esy(_) => P.resolve({j|$esy $formatter|j})
+       | Bsb(_) =>
+         P.resolve({j|cd $rootPath/.vscode/esy && $esy $formatter|j})
+       | Opam => P.resolve({j|opam exec $formatter|j})
+       };
+     });
 };

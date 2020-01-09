@@ -26,6 +26,9 @@ function getFormatterPath(formatter) {
               }));
 }
 
+var P = /* alias */0;
+
+exports.P = P;
 exports.getFullTextRange = getFullTextRange;
 exports.getFormatterPath = getFormatterPath;
 /* vscode Not a pure module */
