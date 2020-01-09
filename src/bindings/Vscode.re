@@ -30,6 +30,8 @@ module Workspace = {
     "onDidChangeWorkspaceFolders";
   [@bs.module "vscode"] [@bs.scope "workspace"]
   external textDocuments: array(TextDocument.event) = "textDocuments";
+  [@bs.module "vscode"] [@bs.scope "workspace"]
+  external getConfiguration: string => 'a = "getConfiguration";
 };
 
 module Window = {

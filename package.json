@@ -51,7 +51,16 @@
     "configuration": {
       "type": "object",
       "title": "Merlin configuration",
-      "properties": {}
+      "properties": {
+        "merlin.refmt.width": {
+          "type": [
+            "number",
+            null
+          ],
+          "default": null,
+          "description": "Set the width of lines when formatting code with refmt"
+        }
+      }
     },
     "grammars": [
       {

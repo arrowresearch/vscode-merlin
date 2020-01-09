@@ -1,6 +1,12 @@
 module P = Js.Promise;
 
 let register = () => {
+  let config = Vscode.Workspace.getConfiguration("merlin");
+  let refmtWidthArg = switch(Js.Nullable.toOption(config##refmt##width)) {
+  | None => ""
+  | Some(formatWidth) => "-w " ++ string_of_int(formatWidth)
+  };
+
   Vscode.Languages.registerDocumentFormattingEditProvider(
     {scheme: "file", language: "reason"},
     {
@@ -18,7 +24,7 @@ let register = () => {
           |> P.then_(_ => {FormatterUtils.getFormatterPath("refmt")})
           |> P.then_(formatterPath => {
                Node.ChildProcess.exec(
-                 {j|$formatterPath $tempFileName|j},
+                 {j|$formatterPath $tempFileName $refmtWidthArg|j},
                  Node.ChildProcess.Options.make(),
                )
              })

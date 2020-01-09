@@ -10,6 +10,9 @@ var V4 = require("uuid/v4");
 var FormatterUtils = require("./FormatterUtils.bs.js");
 
 function register(param) {
+  var config = Vscode.workspace.getConfiguration("merlin");
+  var match = config.refmt.width;
+  var refmtWidthArg = (match == null) ? "" : "-w " + String(match);
   Vscode.languages.registerDocumentFormattingEditProvider({
         scheme: "file",
         language: "reason"
@@ -23,7 +26,7 @@ function register(param) {
               return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (param) {
                                   return FormatterUtils.getFormatterPath("refmt");
                                 })).then((function (formatterPath) {
-                                return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" " + (String(tempFileName) + ""))), { });
+                                return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" " + (String(tempFileName) + (" " + (String(refmtWidthArg) + ""))))), { });
                               })).then((function (param) {
                               var textRange = FormatterUtils.getFullTextRange(textEditor.document);
                               $$Node.Fs.unlink(tempFileName);
