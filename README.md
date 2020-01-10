@@ -32,11 +32,35 @@ code --install-extension vscode-merlin-[VERSION].vsix
 ```
 
 ## Usage
-- Open any of your projects (esy/bsb/opam are supported)
-- Open any Reason or OCaml file in it
-- Extension will start initialization, vscode will display progressbar (usually in the bottom left corner)
-- Be mindful, that first initialization can take significant amount of time, as extension will download and compile right version of `ocaml`, `ocaml-lsp` and other dependencies. Future inits in similar project (with the same version of compiler) will be almost instant.
-- If extension fails to initialize for some reason, please [file an issue](https://github.com/arrowresearch/vscode-merlin/issues)
+
+### Bucklescript
+Open any of your projects (esy/bsb/opam are supported) and any of the Reason/Ocaml file in it. Extension will start initialization, vscode will display progressbar (usually in the bottom left corner). After initialization is finished, extension should fully work.
+
+Be mindful, that first initialization can take significant amount of time, as extension will download and compile right version of `ocaml`, `ocaml-lsp` and other dependencies. Future inits in similar project (with the same version of compiler) will be almost instant.
+
+If extension fails to initialize for some reason, please [file an issue](https://github.com/arrowresearch/vscode-merlin/issues)
+
+### Esy
+Update your `esy.json` to include:
+```js
+{
+  "dependencies": {
+    "ocaml": "4.06.1", // Replace version with the one you are using in your project
+    "@esy-ocaml/reason": "*",
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157",
+    "@opam/ocamlformat": "*",
+  }
+},
+```
+
+### Opam
+```bash
+# Pin and install ocaml-lsp-server
+opam pin add ocaml-lsp-server https://github.com/ocaml/ocaml-lsp.git
+
+# Install other dependencies if needed
+opam install ocamlformat reason
+```
 
 
 ## Running the Extension in Development Mode
