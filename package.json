@@ -16,7 +16,7 @@
     "onLanguage:reason",
     "onLanguage:ocaml"
   ],
-  "main": "./src/Extension.bs.js",
+  "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
