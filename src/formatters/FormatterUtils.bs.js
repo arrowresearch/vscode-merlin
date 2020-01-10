@@ -19,7 +19,7 @@ function getFormatterPath(formatter) {
                 if (typeof projectType === "number") {
                   return Promise.resolve("opam exec " + (String(formatter) + ""));
                 } else if (projectType.tag) {
-                  return Promise.resolve("cd " + (String(rootPath) + ("/.vscode/esy && " + (String(esy) + (" " + (String(formatter) + ""))))));
+                  return Promise.resolve("" + (String(esy) + (" -P " + (String(rootPath) + ("/.vscode/esy " + (String(formatter) + ""))))));
                 } else {
                   return Promise.resolve("" + (String(esy) + (" " + (String(formatter) + ""))));
                 }
