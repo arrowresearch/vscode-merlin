@@ -89,7 +89,6 @@
     "vscode-test": "^1.2.3"
   },
   "dependencies": {
-    "@esy-nightly/esy": "*",
     "rimraf": "^3.0.0",
     "semver": "^6.3.0",
     "bs-platform": "^7.0.1",
