@@ -69,7 +69,7 @@
   "scripts": {
     "clean": "bsb -clean",
     "build:bsb": "bsb -make-world",
-    "build:webpack": "webpack --mode development",
+    "build:webpack": "webpack --mode production",
     "build": "npm run build:bsb && npm run build:webpack",
     "watch:bsb": "bsb -make-world -w",
     "watch:webpack": "webpack --mode development --watch",

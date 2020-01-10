@@ -2,22 +2,22 @@
 
 const path = require('path');
 
-const config = {
-  target: 'node',
-  entry: './src/extension.bs.js',
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'extension.js',
-    libraryTarget: 'commonjs2',
-    devtoolModuleFilenameTemplate: '../[resource-path]'
-  },
-  devtool: 'source-map',
-  externals: {
-    vscode: 'commonjs vscode'
-  },
-  resolve: {
-    extensions: ['.js']
-  }
-};
+module.exports = (_env, argv) => {
+  const isProduction = argv.mode == "production";
 
-module.exports = config;
+  return {
+    target: 'node',
+    entry: './src/extension.bs.js',
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'extension.js'
+    },
+    devtool: isProduction ? false : 'source-map',
+    externals: {
+      vscode: 'commonjs vscode'
+    },
+    resolve: {
+      extensions: ['.js']
+    }
+  }
+}
