@@ -14,16 +14,17 @@ function register(param) {
         scheme: "file",
         language: "ocaml"
       }, {
-        provideDocumentFormattingEdits: (function (param) {
+        provideDocumentFormattingEdits: (function ($$document) {
+            var filePath = $$document.fileName;
+            var fileName = Path.basename($$document.fileName);
             var match = Vscode.window.activeTextEditor;
             if (match !== undefined) {
               var textEditor = match;
               var id = V4();
-              var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-" + (String(id) + ".ml"));
+              var tempFileName = Path.join(Os.tmpdir(), "vscode-merlin-ocamlformat-" + (String(id) + ("-" + (String(fileName) + ""))));
               return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (param) {
                                   return FormatterUtils.getFormatterPath("ocamlformat");
                                 })).then((function (formatterPath) {
-                                var filePath = textEditor.document.fileName;
                                 return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" --enable-outside-detected-project --name=" + (String(filePath) + (" " + (String(tempFileName) + ""))))), { });
                               })).then((function (param) {
                               var textRange = FormatterUtils.getFullTextRange(textEditor.document);

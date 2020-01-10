@@ -175,6 +175,8 @@ module ChildProcess = {
 module Path = {
   [@bs.module "path"] [@bs.variadic]
   external join: array(string) => string = "join";
+
+  [@bs.module "path"] external basename: string => string = "basename";
 };
 
 module Response = {

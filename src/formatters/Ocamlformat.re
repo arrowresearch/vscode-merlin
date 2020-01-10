@@ -4,7 +4,9 @@ let register = () => {
   Vscode.Languages.registerDocumentFormattingEditProvider(
     {scheme: "file", language: "ocaml"},
     {
-      "provideDocumentFormattingEdits": () => {
+      "provideDocumentFormattingEdits": (document: Vscode.Window.document) => {
+        let filePath = document.fileName;
+        let fileName = Node.Path.basename(document.fileName);
         switch (Vscode.Window.activeTextEditor) {
         | None => Js.Promise.resolve([||])
         | Some(textEditor) =>
@@ -12,13 +14,12 @@ let register = () => {
           let tempFileName =
             Node.Path.join([|
               Node.Os.tmpdir(),
-              {j|vscode-reasonml-refmt-$id.ml|j},
+              {j|vscode-merlin-ocamlformat-$id-$fileName|j},
             |]);
 
           Node.Fs.writeFile(tempFileName, textEditor.document.getText())
           |> P.then_(_ => {FormatterUtils.getFormatterPath("ocamlformat")})
           |> P.then_(formatterPath => {
-               let filePath = textEditor.document.fileName;
                Node.ChildProcess.exec(
                  {j|$formatterPath --enable-outside-detected-project --name=$filePath $tempFileName|j},
                  Node.ChildProcess.Options.make(),

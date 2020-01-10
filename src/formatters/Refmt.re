@@ -10,7 +10,8 @@ let register = () => {
   Vscode.Languages.registerDocumentFormattingEditProvider(
     {scheme: "file", language: "reason"},
     {
-      "provideDocumentFormattingEdits": () => {
+      "provideDocumentFormattingEdits": (document: Vscode.Window.document) => {
+        let fileName = Node.Path.basename(document.fileName);
         switch (Vscode.Window.activeTextEditor) {
         | None => Js.Promise.resolve([||])
         | Some(textEditor) =>
@@ -18,8 +19,9 @@ let register = () => {
           let tempFileName =
             Node.Path.join([|
               Node.Os.tmpdir(),
-              {j|vscode-reasonml-refmt-$id.re|j},
+              {j|vscode-merlin-refmt-$id-$fileName|j},
             |]);
+          Js.log(tempFileName);
           Node.Fs.writeFile(tempFileName, textEditor.document.getText())
           |> P.then_(_ => {FormatterUtils.getFormatterPath("refmt")})
           |> P.then_(formatterPath => {
@@ -28,7 +30,7 @@ let register = () => {
                  Node.ChildProcess.Options.make(),
                )
              })
-          |> P.then_(((formattedText, error)) => {
+          |> P.then_(((formattedText, _)) => {
                let textRange =
                  FormatterUtils.getFullTextRange(textEditor.document);
                Node.Fs.unlink(tempFileName) |> ignore;

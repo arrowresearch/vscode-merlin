@@ -17,12 +17,14 @@ function register(param) {
         scheme: "file",
         language: "reason"
       }, {
-        provideDocumentFormattingEdits: (function (param) {
+        provideDocumentFormattingEdits: (function ($$document) {
+            var fileName = Path.basename($$document.fileName);
             var match = Vscode.window.activeTextEditor;
             if (match !== undefined) {
               var textEditor = match;
               var id = V4();
-              var tempFileName = Path.join(Os.tmpdir(), "vscode-reasonml-refmt-" + (String(id) + ".re"));
+              var tempFileName = Path.join(Os.tmpdir(), "vscode-merlin-refmt-" + (String(id) + ("-" + (String(fileName) + ""))));
+              console.log(tempFileName);
               return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (param) {
                                   return FormatterUtils.getFormatterPath("refmt");
                                 })).then((function (formatterPath) {
