@@ -49,7 +49,7 @@ suite("Basic tests", () => {
     let diagnostics = await vscode.languages.getDiagnostics(
       Uri.file(path.join(projectPath, "bin", "SampleEsyApp.re"))
     );
-    if (process.platform != "win32" || process.platform != "win64") {
+    if (process.platform != "win32" && process.platform != "win64") {
       assert.equal(
         diagnostics.length,
         1,
