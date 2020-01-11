@@ -1,55 +1,28 @@
+name: Build npm release
+
 trigger:
-- master
+  - master
+  - andreypopp/*
+  - prometheansacrifice/*
+  - rustykey/*
+  - wokalski/*
 
-strategy:
-  matrix:
-    linux:
-      imageName: 'ubuntu-16.04'
-    mac:
-      imageName: 'macos-10.13'
-    windows:
-      imageName: 'vs2017-win2016'
+jobs:
+  - template: .ci/build-platform.yml
+    parameters:
+      platform: Linux
+      vmImage: ubuntu-16.04
 
-pool:
-  vmImage: $(imageName)
+  - template: .ci/build-platform.yml
+    parameters:
+      platform: macOS
+      vmImage: macOS-10.13
 
-steps:
-
-- task: NodeTool@0
-  inputs:
-    versionSpec: '8.x'
-  displayName: 'Install Node.js'
-
-# Use nightly build while 0.6.* is not released
-# - script: 'npm install -g esy@0.5.0 --unsafe-perm'
-#   displayName: 'npm install -g esy'
-- script: 'npm install -g @esy-nightly/esy --unsafe-perm'
-  displayName: 'npm install -g @esy-nightly/esy'
-
-- bash: |
-    sudo add-apt-repository ppa:avsm/ppa
-    sudo apt update
-    sudo apt install opam
-  displayName: "Installing ocaml and opam (Linux)"
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
-
-- script: "brew install ocaml opam"
-  displayName: "Installing ocaml and opam (MacOS)"
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
-
-- bash: |
-    /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-    echo ">>> Started xvfb"
-  displayName: Start xvfb
-  condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
-
-- bash: |
-    echo ">>> Compile vscode-test"
-    npm i && npm run build
-    echo ">>> Compiled vscode-test"
-    echo ">>> Run sample integration test"
-    npm test
-  displayName: Run Tests
-  timeoutInMinutes: 360
-  env:
-    DISPLAY: ':99.0'
+  # Need windows-2019 to do esy import/export-dependencies
+  # which assumes you have bsdtar (tar.exe) in your system
+  # otherwise it will end up using the esy-bash tar which doesn't
+  # understand drives like D:/ (thinks it's an scp path).
+  - template: .ci/build-platform.yml
+    parameters:
+      platform: Windows
+      vmImage: windows-2019
