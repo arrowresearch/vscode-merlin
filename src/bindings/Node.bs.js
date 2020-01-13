@@ -2,18 +2,42 @@
 'use strict';
 
 var Sys = require("bs-platform/lib/js/sys.js");
+var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
+var Https = require("https");
 var Caml_sys = require("bs-platform/lib/js/caml_sys.js");
 var Filename = require("bs-platform/lib/js/filename.js");
 var FsStubJs = require("./fs-stub.js");
 var Child_process = require("child_process");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
+var thisProjectsEsyJson = FsStubJs.thisProjectsEsyJson;
+
+var Stdout = { };
+
+var Process = {
+  Stdout: Stdout
+};
+
 function ofPromiseError (error){return error.message || 'Unknown error'};
 
 var $$Error = {
   ofPromiseError: ofPromiseError
 };
+
+function ofString(prim) {
+  return Buffer.from(prim);
+}
+
+var $$Buffer$1 = {
+  ofString: ofString
+};
+
+function StreamFunctor(S) {
+  return { };
+}
+
+var Stream = { };
 
 function writeFile(prim, prim$1) {
   return FsStubJs.writeFile(prim, prim$1);
@@ -29,6 +53,18 @@ function mkdir$prime(prim) {
 
 function exists(prim) {
   return FsStubJs.exists(prim);
+}
+
+function open_(prim, prim$1) {
+  return FsStubJs.open(prim, prim$1);
+}
+
+function write(prim, prim$1) {
+  return FsStubJs.write(prim, prim$1);
+}
+
+function close(prim, prim$1) {
+  return FsStubJs.close(prim, prim$1);
 }
 
 function mkdir(p, path) {
@@ -61,6 +97,9 @@ var Fs = {
   readFile: readFile,
   mkdir$prime: mkdir$prime,
   exists: exists,
+  open_: open_,
+  write: write,
+  close: close,
   mkdir: mkdir
 };
 
@@ -93,8 +132,78 @@ var ChildProcess = {
 
 var Path = { };
 
+var $$Response = { };
+
+var $$Request = { };
+
+function onData(t, cb) {
+  t.on("data", cb);
+  return /* () */0;
+}
+
+function onProgress(t, cb) {
+  t.on("progress", cb);
+  return /* () */0;
+}
+
+function onError(t, cb) {
+  t.on("error", cb);
+  return /* () */0;
+}
+
+function onEnd(t, cb) {
+  t.on("end", cb);
+  return /* () */0;
+}
+
+var RequestProgress = {
+  onData: onData,
+  onProgress: onProgress,
+  onError: onError,
+  onEnd: onEnd
+};
+
+function getCompleteResponse(url) {
+  return new Promise((function (resolve, param) {
+                Https.get(url, (function (response) {
+                        response.statusCode;
+                        var responseText = {
+                          contents: ""
+                        };
+                        response.on("data", (function (c) {
+                                responseText.contents = responseText.contents + c.toString();
+                                return /* () */0;
+                              }));
+                        response.on("end", (function (param) {
+                                return resolve(/* Ok */Block.__(0, [responseText.contents]));
+                              }));
+                        response.on("error", (function (_err) {
+                                return resolve(/* Error */Block.__(1, ["Failed to fetch " + (String(url) + "")]));
+                              }));
+                        return /* () */0;
+                      }));
+                return /* () */0;
+              }));
+}
+
+var Https$1 = {
+  getCompleteResponse: getCompleteResponse
+};
+
+var CamlArray = /* alias */0;
+
+exports.thisProjectsEsyJson = thisProjectsEsyJson;
+exports.CamlArray = CamlArray;
+exports.Process = Process;
 exports.$$Error = $$Error;
+exports.$$Buffer = $$Buffer$1;
+exports.StreamFunctor = StreamFunctor;
+exports.Stream = Stream;
 exports.Fs = Fs;
 exports.ChildProcess = ChildProcess;
 exports.Path = Path;
-/* ./fs-stub.js Not a pure module */
+exports.$$Response = $$Response;
+exports.$$Request = $$Request;
+exports.RequestProgress = RequestProgress;
+exports.Https = Https$1;
+/* thisProjectsEsyJson Not a pure module */

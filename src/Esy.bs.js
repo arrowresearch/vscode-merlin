@@ -3,13 +3,12 @@
 
 var $$Node = require("./bindings/Node.bs.js");
 var Path = require("path");
-var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Js_exn = require("bs-platform/lib/js/js_exn.js");
-var Printf = require("bs-platform/lib/js/printf.js");
 var Semver = require("semver");
 var Js_dict = require("bs-platform/lib/js/js_dict.js");
 var Js_json = require("bs-platform/lib/js/js_json.js");
+var Bindings = require("./bindings/Bindings.bs.js");
 var Filename = require("bs-platform/lib/js/filename.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
 var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
@@ -165,31 +164,7 @@ function getStatus(path) {
 function dropAnEsyJSON(compilerVersion, folder) {
   var esyJsonTargetDir = Path.join(folder, ".vscode", "esy");
   return $$Node.Fs.mkdir(true, esyJsonTargetDir).then((function (param) {
-                return $$Node.Fs.writeFile(Filename.concat(esyJsonTargetDir, "esy.json"), Curry._1(Printf.sprintf(/* Format */[
-                                    /* String_literal */Block.__(11, [
-                                        "{\"dependencies\": {\"ocaml\": \"",
-                                        /* String */Block.__(2, [
-                                            /* No_padding */0,
-                                            /* String_literal */Block.__(11, [
-                                                "\", \"",
-                                                /* Formatting_lit */Block.__(17, [
-                                                    /* Scan_indic */Block.__(2, [/* "e" */101]),
-                                                    /* String_literal */Block.__(11, [
-                                                        "sy-ocaml/reason\": \"*\", \"",
-                                                        /* Formatting_lit */Block.__(17, [
-                                                            /* Scan_indic */Block.__(2, [/* "o" */111]),
-                                                            /* String_literal */Block.__(11, [
-                                                                "pam/ocaml-lsp-server\": \"ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157\"}}",
-                                                                /* End_of_format */0
-                                                              ])
-                                                          ])
-                                                      ])
-                                                  ])
-                                              ])
-                                          ])
-                                      ]),
-                                    "{\"dependencies\": {\"ocaml\": \"%s\", \"@esy-ocaml/reason\": \"*\", \"@opam/ocaml-lsp-server\": \"ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157\"}}"
-                                  ]), compilerVersion));
+                return $$Node.Fs.writeFile(Filename.concat(esyJsonTargetDir, "esy.json"), Bindings.thisProjectsEsyJson);
               }));
 }
 
