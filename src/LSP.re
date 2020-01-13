@@ -186,7 +186,7 @@ module Server = {
                                        switch (Process.platform) {
                                        | "darwin" => "Darwin"
                                        | "linux" => "Linux"
-                                       | "win32" => "Windows"
+                                       | "win32" => "Windows_NT"
                                        };
                                      let artifactName = {j|cache-$os-install|j};
                                      let master = "branchName=refs%2Fheads%2Fmaster";

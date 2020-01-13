@@ -116,7 +116,7 @@ function make(folder) {
                                                                             os = "Linux";
                                                                             break;
                                                                         case "win32" :
-                                                                            os = "Windows";
+                                                                            os = "Windows_NT";
                                                                             break;
                                                                         default:
                                                                           throw [
