@@ -18,6 +18,101 @@ var Caml_option = require("bs-platform/lib/js/caml_option.js");
 var RequestProgress = require("request-progress");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
+function getBuildId(responseText) {
+  try {
+    var json = JSON.parse(responseText);
+    var match = Js_json.classify(json);
+    if (typeof match === "number") {
+      return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
+    } else if (match.tag === /* JSONObject */2) {
+      var match$1 = Js_dict.get(match[0], "value");
+      if (match$1 !== undefined) {
+        var match$2 = Js_json.classify(Caml_option.valFromOption(match$1));
+        if (typeof match$2 === "number") {
+          return /* Error */Block.__(1, [" Response from Azure did not contain build \'value\' "]);
+        } else if (match$2.tag === /* JSONArray */3) {
+          var o = Caml_array.caml_array_get(match$2[0], 0);
+          var match$3 = Js_json.classify(o);
+          if (typeof match$3 === "number") {
+            return /* Error */Block.__(1, [" First item in the \'value\' field array isn\'t an object as expected "]);
+          } else if (match$3.tag === /* JSONObject */2) {
+            var match$4 = Js_dict.get(match$3[0], "id");
+            if (match$4 !== undefined) {
+              var match$5 = Js_json.classify(Caml_option.valFromOption(match$4));
+              if (typeof match$5 === "number") {
+                return /* Error */Block.__(1, [" Field id was expected to be a number "]);
+              } else if (match$5.tag === /* JSONNumber */1) {
+                return /* Ok */Block.__(0, [match$5[0]]);
+              } else {
+                return /* Error */Block.__(1, [" Field id was expected to be a number "]);
+              }
+            } else {
+              return /* Error */Block.__(1, [" Field id was missing "]);
+            }
+          } else {
+            return /* Error */Block.__(1, [" First item in the \'value\' field array isn\'t an object as expected "]);
+          }
+        } else {
+          return /* Error */Block.__(1, [" Response from Azure did not contain build \'value\' "]);
+        }
+      } else {
+        return /* Error */Block.__(1, ["Field 'value' in Azure's response was undefined"]);
+      }
+    } else {
+      return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
+    }
+  }
+  catch (exn){
+    return /* Error */Block.__(1, [" Failed to parse response from Azure "]);
+  }
+}
+
+function getDownloadURL(responseText) {
+  try {
+    var json = JSON.parse(responseText);
+    var match = Js_json.classify(json);
+    if (typeof match === "number") {
+      return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
+    } else if (match.tag === /* JSONObject */2) {
+      var match$1 = Js_dict.get(match[0], "resource");
+      if (match$1 !== undefined) {
+        var match$2 = Js_json.classify(Caml_option.valFromOption(match$1));
+        if (typeof match$2 === "number") {
+          return /* Error */Block.__(1, [" First item in the \'resource\' field array isn\'t an object as expected "]);
+        } else if (match$2.tag === /* JSONObject */2) {
+          var match$3 = Js_dict.get(match$2[0], "downloadUrl");
+          if (match$3 !== undefined) {
+            var match$4 = Js_json.classify(Caml_option.valFromOption(match$3));
+            if (typeof match$4 === "number") {
+              return /* Error */Block.__(1, [" Field downloadUrl was expected to be a string "]);
+            } else if (match$4.tag) {
+              return /* Error */Block.__(1, [" Field downloadUrl was expected to be a string "]);
+            } else {
+              return /* Ok */Block.__(0, [match$4[0]]);
+            }
+          } else {
+            return /* Error */Block.__(1, [" Field downloadUrl was missing "]);
+          }
+        } else {
+          return /* Error */Block.__(1, [" First item in the \'resource\' field array isn\'t an object as expected "]);
+        }
+      } else {
+        return /* Error */Block.__(1, ["Field 'value' in Azure's response was undefined"]);
+      }
+    } else {
+      return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
+    }
+  }
+  catch (exn){
+    return /* Error */Block.__(1, [" Failed to parse response from Azure "]);
+  }
+}
+
+var JSONResponse = {
+  getBuildId: getBuildId,
+  getDownloadURL: getDownloadURL
+};
+
 function download(url, file, progress, end_, error, data) {
   var stream = RequestProgress($$Request(url));
   $$Node.RequestProgress.onProgress(stream, (function (state) {
@@ -123,61 +218,14 @@ function make(folder) {
                                                                                 Caml_builtin_exceptions.match_failure,
                                                                                 /* tuple */[
                                                                                   "LSP.re",
-                                                                                  186,
+                                                                                  258,
                                                                                   39
                                                                                 ]
                                                                               ];
                                                                       }
                                                                       var artifactName = "cache-" + (String(os) + "-install");
                                                                       return $$Node.Https.getCompleteResponse("" + (String(restBase) + ("/" + (String(proj) + ("/_apis/build/builds?" + (String("deletedFilter=excludeDeleted&statusFilter=completed&resultFilter=succeeded") + ("&" + (String("branchName=refs%2Fheads%2Fmaster") + ("&" + (String("queryOrder=finishTimeDescending&$top=1") + "&api-version=4.1")))))))))).then((function (param) {
-                                                                                          return Promise.resolve(Result.$great$great$eq(param, (function (responseText) {
-                                                                                                            try {
-                                                                                                              var json = JSON.parse(responseText);
-                                                                                                              var match = Js_json.classify(json);
-                                                                                                              if (typeof match === "number") {
-                                                                                                                return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
-                                                                                                              } else if (match.tag === /* JSONObject */2) {
-                                                                                                                var match$1 = Js_dict.get(match[0], "value");
-                                                                                                                if (match$1 !== undefined) {
-                                                                                                                  var match$2 = Js_json.classify(Caml_option.valFromOption(match$1));
-                                                                                                                  if (typeof match$2 === "number") {
-                                                                                                                    return /* Error */Block.__(1, [" Response from Azure did not contain build \'value\' "]);
-                                                                                                                  } else if (match$2.tag === /* JSONArray */3) {
-                                                                                                                    var o = Caml_array.caml_array_get(match$2[0], 0);
-                                                                                                                    var match$3 = Js_json.classify(o);
-                                                                                                                    if (typeof match$3 === "number") {
-                                                                                                                      return /* Error */Block.__(1, [" First item in the \'value\' field array isn\'t an object as expected "]);
-                                                                                                                    } else if (match$3.tag === /* JSONObject */2) {
-                                                                                                                      var match$4 = Js_dict.get(match$3[0], "id");
-                                                                                                                      if (match$4 !== undefined) {
-                                                                                                                        var match$5 = Js_json.classify(Caml_option.valFromOption(match$4));
-                                                                                                                        if (typeof match$5 === "number") {
-                                                                                                                          return /* Error */Block.__(1, [" Field id was expected to be a number "]);
-                                                                                                                        } else if (match$5.tag === /* JSONNumber */1) {
-                                                                                                                          return /* Ok */Block.__(0, [match$5[0]]);
-                                                                                                                        } else {
-                                                                                                                          return /* Error */Block.__(1, [" Field id was expected to be a number "]);
-                                                                                                                        }
-                                                                                                                      } else {
-                                                                                                                        return /* Error */Block.__(1, [" Field id was missing "]);
-                                                                                                                      }
-                                                                                                                    } else {
-                                                                                                                      return /* Error */Block.__(1, [" First item in the \'value\' field array isn\'t an object as expected "]);
-                                                                                                                    }
-                                                                                                                  } else {
-                                                                                                                    return /* Error */Block.__(1, [" Response from Azure did not contain build \'value\' "]);
-                                                                                                                  }
-                                                                                                                } else {
-                                                                                                                  return /* Error */Block.__(1, ["Field 'value' in Azure's response was undefined"]);
-                                                                                                                }
-                                                                                                              } else {
-                                                                                                                return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
-                                                                                                              }
-                                                                                                            }
-                                                                                                            catch (exn){
-                                                                                                              return /* Error */Block.__(1, [" Failed to parse response from Azure "]);
-                                                                                                            }
-                                                                                                          })));
+                                                                                          return Promise.resolve(Result.$great$great$eq(param, getBuildId));
                                                                                         })).then((function (r) {
                                                                                         if (r.tag) {
                                                                                           return Promise.resolve(/* Error */Block.__(1, [r[0]]));
@@ -185,51 +233,10 @@ function make(folder) {
                                                                                           return $$Node.Https.getCompleteResponse("" + (String(restBase) + ("/" + (String(proj) + ("/_apis/build/builds/" + (String(r[0]) + ("/artifacts?artifactname=" + (String(artifactName) + "&api-version=4.1"))))))));
                                                                                         }
                                                                                       })).then((function (param) {
-                                                                                      return Promise.resolve(Result.$great$great$eq(param, (function (responseText) {
-                                                                                                        try {
-                                                                                                          var json = JSON.parse(responseText);
-                                                                                                          var match = Js_json.classify(json);
-                                                                                                          if (typeof match === "number") {
-                                                                                                            return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
-                                                                                                          } else if (match.tag === /* JSONObject */2) {
-                                                                                                            var match$1 = Js_dict.get(match[0], "resource");
-                                                                                                            if (match$1 !== undefined) {
-                                                                                                              var match$2 = Js_json.classify(Caml_option.valFromOption(match$1));
-                                                                                                              if (typeof match$2 === "number") {
-                                                                                                                return /* Error */Block.__(1, [" First item in the \'resource\' field array isn\'t an object as expected "]);
-                                                                                                              } else if (match$2.tag === /* JSONObject */2) {
-                                                                                                                var match$3 = Js_dict.get(match$2[0], "downloadUrl");
-                                                                                                                if (match$3 !== undefined) {
-                                                                                                                  var match$4 = Js_json.classify(Caml_option.valFromOption(match$3));
-                                                                                                                  if (typeof match$4 === "number") {
-                                                                                                                    return /* Error */Block.__(1, [" Field downloadUrl was expected to be a string "]);
-                                                                                                                  } else if (match$4.tag) {
-                                                                                                                    return /* Error */Block.__(1, [" Field downloadUrl was expected to be a string "]);
-                                                                                                                  } else {
-                                                                                                                    return /* Ok */Block.__(0, [match$4[0]]);
-                                                                                                                  }
-                                                                                                                } else {
-                                                                                                                  return /* Error */Block.__(1, [" Field downloadUrl was missing "]);
-                                                                                                                }
-                                                                                                              } else {
-                                                                                                                return /* Error */Block.__(1, [" First item in the \'resource\' field array isn\'t an object as expected "]);
-                                                                                                              }
-                                                                                                            } else {
-                                                                                                              return /* Error */Block.__(1, ["Field 'value' in Azure's response was undefined"]);
-                                                                                                            }
-                                                                                                          } else {
-                                                                                                            return /* Error */Block.__(1, [" Response from Azure wasn\'t an object "]);
-                                                                                                          }
-                                                                                                        }
-                                                                                                        catch (exn){
-                                                                                                          return /* Error */Block.__(1, [" Failed to parse response from Azure "]);
-                                                                                                        }
-                                                                                                      })));
+                                                                                      return Promise.resolve(Result.$great$great$eq(param, getDownloadURL));
                                                                                     })).then((function (r) {
                                                                                     if (r.tag) {
-                                                                                      var x = r[0];
-                                                                                      console.log("Error>>>>>>", x);
-                                                                                      return Promise.resolve(/* Error */Block.__(1, [x]));
+                                                                                      return Promise.resolve(/* Error */Block.__(1, [r[0]]));
                                                                                     } else {
                                                                                       var downloadUrl = r[0];
                                                                                       console.log("download", downloadUrl);
@@ -242,7 +249,6 @@ function make(folder) {
                                                                                                                   progress.report({
                                                                                                                         increment: percent - lastProgress.contents | 0
                                                                                                                       });
-                                                                                                                  console.log("incremented by", percent, lastProgress.contents);
                                                                                                                   lastProgress.contents = percent;
                                                                                                                   return /* () */0;
                                                                                                                 }), (function (param) {
@@ -364,6 +370,7 @@ var Client = {
 
 var LanguageClient = { };
 
+exports.JSONResponse = JSONResponse;
 exports.download = download;
 exports.ProjectType = ProjectType;
 exports.Server = Server;

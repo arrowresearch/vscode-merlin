@@ -1,5 +1,77 @@
 open Bindings;
 
+module JSONResponse = {
+  open Js;
+  /* A module where hand written json parsing logic resides temporarily */
+  let getBuildId = responseText =>
+    try({
+      let json = Json.parseExn(responseText);
+      switch (Js.Json.classify(json)) {
+      | JSONObject(dict) =>
+        switch (Dict.get(dict, "value")) {
+        | None => Error("Field 'value' in Azure's response was undefined")
+        | Some(json) =>
+          switch (Js.Json.classify(json)) {
+          | JSONArray(builds) =>
+            let o = CamlArray.get(builds, 0);
+            switch (Json.classify(o)) {
+            | JSONObject(dict) =>
+              switch (Dict.get(dict, "id")) {
+              | Some(id) =>
+                switch (Json.classify(id)) {
+                | JSONNumber(n) => Ok(n)
+                | _ => Error({j| Field id was expected to be a number |j})
+                }
+              | None => Error({j| Field id was missing |j})
+              }
+            | _ =>
+              Error(
+                {j| First item in the 'value' field array isn't an object as expected |j},
+              )
+            };
+
+          | _ =>
+            Error({j| Response from Azure did not contain build 'value' |j})
+          }
+        }
+      | _ => Error({j| Response from Azure wasn't an object |j})
+      };
+    }) {
+    | _ => Error({j| Failed to parse response from Azure |j})
+    };
+
+  let getDownloadURL = responseText =>
+    try({
+      let json = Json.parseExn(responseText);
+      switch (Js.Json.classify(json)) {
+      | JSONObject(dict) =>
+        switch (Dict.get(dict, "resource")) {
+        | None => Error("Field 'value' in Azure's response was undefined")
+        | Some(json) =>
+          switch (Json.classify(json)) {
+          | JSONObject(dict) =>
+            switch (Dict.get(dict, "downloadUrl")) {
+            | Some(id) =>
+              switch (Json.classify(id)) {
+              | JSONString(s) => Ok(s)
+              | _ =>
+                Error({j| Field downloadUrl was expected to be a string |j})
+              }
+            | None => Error({j| Field downloadUrl was missing |j})
+            }
+          | _ =>
+            Error(
+              {j| First item in the 'resource' field array isn't an object as expected |j},
+            )
+          }
+        }
+      | _ => Error({j| Response from Azure wasn't an object |j})
+      };
+    }) {
+    | _ => Error({j| Failed to parse response from Azure |j})
+    };
+};
+
 let download = (url, file, ~progress, ~end_, ~error, ~data) => {
   let stream = RequestProgress.requestProgress(Request.request(url));
   RequestProgress.onProgress(stream, state => {
@@ -199,84 +271,7 @@ module Server = {
                                          )
                                          |> then_(
                                               bindResultAndResolvePromise(
-                                                responseText =>
-                                                try({
-                                                  let json =
-                                                    Json.parseExn(
-                                                      responseText,
-                                                    );
-                                                  switch (
-                                                    Js.Json.classify(json)
-                                                  ) {
-                                                  | JSONObject(dict) =>
-                                                    switch (
-                                                      Dict.get(dict, "value")
-                                                    ) {
-                                                    | None =>
-                                                      Error(
-                                                        "Field 'value' in Azure's response was undefined",
-                                                      )
-                                                    | Some(json) =>
-                                                      switch (
-                                                        Js.Json.classify(json)
-                                                      ) {
-                                                      | JSONArray(builds) =>
-                                                        let o =
-                                                          CamlArray.get(
-                                                            builds,
-                                                            0,
-                                                          );
-                                                        switch (
-                                                          Json.classify(o)
-                                                        ) {
-                                                        | JSONObject(dict) =>
-                                                          switch (
-                                                            Dict.get(
-                                                              dict,
-                                                              "id",
-                                                            )
-                                                          ) {
-                                                          | Some(id) =>
-                                                            switch (
-                                                              Json.classify(
-                                                                id,
-                                                              )
-                                                            ) {
-                                                            | JSONNumber(n) =>
-                                                              Ok(n)
-                                                            | _ =>
-                                                              Error(
-                                                                {j| Field id was expected to be a number |j},
-                                                              )
-                                                            }
-                                                          | None =>
-                                                            Error(
-                                                              {j| Field id was missing |j},
-                                                            )
-                                                          }
-                                                        | _ =>
-                                                          Error(
-                                                            {j| First item in the 'value' field array isn't an object as expected |j},
-                                                          )
-                                                        };
-
-                                                      | _ =>
-                                                        Error(
-                                                          {j| Response from Azure did not contain build 'value' |j},
-                                                        )
-                                                      }
-                                                    }
-                                                  | _ =>
-                                                    Error(
-                                                      {j| Response from Azure wasn't an object |j},
-                                                    )
-                                                  };
-                                                }) {
-                                                | _ =>
-                                                  Error(
-                                                    {j| Failed to parse response from Azure |j},
-                                                  )
-                                                }
+                                                JSONResponse.getBuildId,
                                               ),
                                             )
                                          |> then_(r => {
@@ -290,70 +285,7 @@ module Server = {
                                             })
                                          |> then_(
                                               bindResultAndResolvePromise(
-                                                responseText =>
-                                                try({
-                                                  let json =
-                                                    Json.parseExn(
-                                                      responseText,
-                                                    );
-                                                  switch (
-                                                    Js.Json.classify(json)
-                                                  ) {
-                                                  | JSONObject(dict) =>
-                                                    switch (
-                                                      Dict.get(
-                                                        dict,
-                                                        "resource",
-                                                      )
-                                                    ) {
-                                                    | None =>
-                                                      Error(
-                                                        "Field 'value' in Azure's response was undefined",
-                                                      )
-                                                    | Some(json) =>
-                                                      switch (
-                                                        Json.classify(json)
-                                                      ) {
-                                                      | JSONObject(dict) =>
-                                                        switch (
-                                                          Dict.get(
-                                                            dict,
-                                                            "downloadUrl",
-                                                          )
-                                                        ) {
-                                                        | Some(id) =>
-                                                          switch (
-                                                            Json.classify(id)
-                                                          ) {
-                                                          | JSONString(s) =>
-                                                            Ok(s)
-                                                          | _ =>
-                                                            Error(
-                                                              {j| Field downloadUrl was expected to be a string |j},
-                                                            )
-                                                          }
-                                                        | None =>
-                                                          Error(
-                                                            {j| Field downloadUrl was missing |j},
-                                                          )
-                                                        }
-                                                      | _ =>
-                                                        Error(
-                                                          {j| First item in the 'resource' field array isn't an object as expected |j},
-                                                        )
-                                                      }
-                                                    }
-                                                  | _ =>
-                                                    Error(
-                                                      {j| Response from Azure wasn't an object |j},
-                                                    )
-                                                  };
-                                                }) {
-                                                | _ =>
-                                                  Error(
-                                                    {j| Failed to parse response from Azure |j},
-                                                  )
-                                                }
+                                                JSONResponse.getDownloadURL,
                                               ),
                                             )
                                          |> then_(r =>
@@ -384,11 +316,6 @@ module Server = {
                                                             percent
                                                             - lastProgress^,
                                                         });
-                                                        Js.log3(
-                                                          "incremented by",
-                                                          percent,
-                                                          lastProgress^,
-                                                        );
                                                         lastProgress := percent;
                                                       },
                                                     ~data=_ => (),
@@ -403,9 +330,7 @@ module Server = {
                                                       () => {resolve(. Ok())},
                                                   )
                                                 );
-                                              | Error(x) =>
-                                                Js.log2("Error>>>>>>", x);
-                                                resolve(Error(x));
+                                              | Error(x) => resolve(Error(x))
                                               }
                                             )
                                        )
