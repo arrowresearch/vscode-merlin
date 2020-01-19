@@ -103,7 +103,7 @@ jobs:
 
       - task: PublishPipelineArtifact@1
         displayName: 'Publishing the vsix file'
-        condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+        condition: and(eq(variables['Build.Reason'], 'IndividualCI'), eq(variables['Agent.OS'], 'Darwin'))
         inputs:
           path: '.'
           artifact: 'extension'
