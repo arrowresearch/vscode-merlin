@@ -45,7 +45,6 @@ Update your `esy.json` to include:
 ```js
 {
   "dependencies": {
-    "ocaml": "4.6.1", // Replace version with the one you are using in your project
     "@esy-ocaml/reason": "*",
     "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157",
     "@opam/ocamlformat": "*",
