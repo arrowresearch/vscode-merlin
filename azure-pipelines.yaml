@@ -26,3 +26,25 @@ jobs:
     parameters:
       platform: Windows
       vmImage: windows-2019
+      
+  - job: Release
+    displayName: Release
+    dependsOn:
+      - Linux
+      - macos
+      - Windows
+    pool:
+      vmImage: ubuntu-16.04
+
+    steps:
+      - task: DownloadBuildArtifacts@0
+        displayName: 'Downloading extension'
+        inputs:
+          artifactName: extension
+          downloadPath: '.'
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact: Release'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'IndividualCI'))
+        inputs:
+          PathtoPublish: '.'
+          ArtifactName: release

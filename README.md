@@ -4,11 +4,10 @@
 
 ## Prerequisites
 
-This extension requires global installation of `esy >= 0.6.0` to allow building of [`ocaml-lsp-server`](https://github.com/ocaml/ocaml-lsp#esy) for your projects.
 ```
-npm i -g @esy-nightly/esy
+npm i -g esy
 or
-yarn global add @esy-nightly/esy
+yarn global add esy
 ```
 
 ## Producing the Extension Package
