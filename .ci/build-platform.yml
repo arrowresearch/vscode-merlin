@@ -92,7 +92,15 @@ jobs:
         displayName: "Compiling re files"
       # - script: "npm test"
       #   displayName: "Running vscode integration tests"
-        env:
-          DISPLAY: ':99.0'
+        # env:
+        #   DISPLAY: ':99.0'
       - template: utils/publish-build-cache.yml
         
+      - bash: 'mv vscode-merlin-0.1.0.vsix vscode-merlin-$(git rev-parse --short HEAD).vsix'
+        displayName: 'Adds commit hash to the release artifact name'
+
+      - task: PublishPipelineArtifact@1
+        displayName: 'Publishing the vsix file'
+        inputs:
+          path: '.'
+          artifact: 'extension'

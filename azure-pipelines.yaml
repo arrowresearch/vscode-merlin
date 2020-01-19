@@ -37,10 +37,13 @@ jobs:
       vmImage: ubuntu-16.04
 
     steps:
-    - bash: 'mv vscode-merlin-0.1.0.vsix vscode-merlin-$(git rev-parse --short HEAD).vsix'
-      displayName: 'Adds commit hash to the release artifact name'
-    - task: PublishPipelineArtifact@1
-      displayName: 'Publishing the vsix file'
-      inputs:
-        path: '.'
-        artifact: 'vscode-merlin-0.1.0'
+      - task: DownloadBuildArtifacts@0
+        displayName: 'Downloading extension'
+        inputs:
+          artifactName: extension
+          downloadPath: '.'
+      - task: PublishBuildArtifacts@1
+        displayName: 'Publish Artifact: Release'
+        inputs:
+          PathtoPublish: '.'
+          ArtifactName: release
