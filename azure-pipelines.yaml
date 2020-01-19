@@ -26,3 +26,19 @@ jobs:
     parameters:
       platform: Windows
       vmImage: windows-2019
+      
+  - job: Release
+    displayName: Release
+    dependsOn:
+      - Linux
+      - macos
+      - Windows
+    pool:
+      vmImage: ubuntu-16.04
+
+    steps:
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Artifact: vscode-merlin-0.1.0.vsix'
+      inputs:
+        PathtoPublish: '.'
+        ArtifactName: 'vscode-merlin-0.1.0.vsix'
