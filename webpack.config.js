@@ -7,7 +7,7 @@ module.exports = (_env, argv) => {
 
   return {
     target: "node",
-    entry: "./src/extension.bs.js",
+    entry: "./src/Extension.bs.js",
     output: {
       libraryTarget: "commonjs",
       path: path.resolve(__dirname, "dist"),
