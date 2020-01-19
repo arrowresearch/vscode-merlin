@@ -30,8 +30,8 @@ jobs:
   - job: Release
     displayName: Release
     dependsOn:
-      - Linux
-      - macos
+      # - Linux
+      # - macos
       - Windows
     pool:
       vmImage: ubuntu-16.04
