@@ -92,10 +92,10 @@
     "vsce": "^1.71.0",
     "vscode-test": "^1.2.3",
     "webpack": "^4.41.5",
+    "vscode": "^1.1.36",
     "webpack-cli": "^3.3.10"
   },
   "dependencies": {
-    "vscode": "^1.1.36",
     "bs-platform": "^7.0.1",
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
