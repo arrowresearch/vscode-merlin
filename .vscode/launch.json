@@ -21,7 +21,7 @@
         "--extensionDevelopmentPath=${workspaceFolder}"
       ],
       "outFiles": [
-        "${workspaceFolder}/src/**/*.bs.js"
+        "${workspaceFolder}/dist/extension.js"
       ]
     }
   ]
