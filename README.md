@@ -41,11 +41,11 @@ Be mindful, that first initialization can take significant amount of time, as ex
 If extension fails to initialize for some reason, please [file an issue](https://github.com/arrowresearch/vscode-merlin/issues)
 
 ### Esy
-Update your `esy.json` to include:
+Update your `esy.json` to include `ocamlformat` and `@opam/ocaml-lsp-server`. Example:
 ```js
 {
   "dependencies": {
-    "@esy-ocaml/reason": "*",
+     ...
     "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157",
     "@opam/ocamlformat": "*",
   }
