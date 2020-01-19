@@ -90,6 +90,8 @@ jobs:
         displayName: "npm install"
       - script: "npm run build"
         displayName: "Compiling re files"
+      - script: "npm run package"
+        displayName: "Packaging the extension"
       # - script: "npm test"
       #   displayName: "Running vscode integration tests"
         # env:
