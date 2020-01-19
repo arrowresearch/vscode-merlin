@@ -4,13 +4,33 @@
 var $$Node = require("./Node.bs.js");
 var Vscode = require("./Vscode.bs.js");
 
+var thisProjectsEsyJson = $$Node.thisProjectsEsyJson;
+
+var CamlArray = $$Node.CamlArray;
+
+var Process = $$Node.Process;
+
 var $$Error = $$Node.$$Error;
+
+var $$Buffer = $$Node.$$Buffer;
+
+var StreamFunctor = $$Node.StreamFunctor;
+
+var Stream = $$Node.Stream;
 
 var Fs = $$Node.Fs;
 
 var ChildProcess = $$Node.ChildProcess;
 
 var Path = $$Node.Path;
+
+var $$Response = $$Node.$$Response;
+
+var $$Request = $$Node.$$Request;
+
+var RequestProgress = $$Node.RequestProgress;
+
+var Https = $$Node.Https;
 
 var TextDocument = Vscode.TextDocument;
 
@@ -24,10 +44,20 @@ var Commands = Vscode.Commands;
 
 var ExtensionContext = Vscode.ExtensionContext;
 
+exports.thisProjectsEsyJson = thisProjectsEsyJson;
+exports.CamlArray = CamlArray;
+exports.Process = Process;
 exports.$$Error = $$Error;
+exports.$$Buffer = $$Buffer;
+exports.StreamFunctor = StreamFunctor;
+exports.Stream = Stream;
 exports.Fs = Fs;
 exports.ChildProcess = ChildProcess;
 exports.Path = Path;
+exports.$$Response = $$Response;
+exports.$$Request = $$Request;
+exports.RequestProgress = RequestProgress;
+exports.Https = Https;
 exports.TextDocument = TextDocument;
 exports.Folder = Folder;
 exports.Workspace = Workspace;

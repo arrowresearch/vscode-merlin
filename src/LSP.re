@@ -1,5 +1,18 @@
 open Bindings;
 
+let download = (url, file, ~progress, ~end_, ~error, ~data) => {
+  let stream = RequestProgress.requestProgress(Request.request(url));
+  RequestProgress.onProgress(stream, state => {
+    progress(
+      float_of_int(state##size##transferred) /. (134. *. 1024. *. 1024.),
+    )
+  });
+  RequestProgress.onData(stream, data);
+  RequestProgress.onEnd(stream, end_);
+  RequestProgress.onError(stream, error);
+  RequestProgress.pipe(stream, Fs.createWriteStream(file));
+};
+
 module ProjectType = {
   type t =
     | Esy({readyForDev: bool})
@@ -150,15 +163,97 @@ module Server = {
                               progress => {
                                 progress.report(. {"increment": 10});
                                 /* Running esy */
+                                let hiddenEsyRoot =
+                                  Path.join([|folder, ".vscode", "esy"|]);
                                 ChildProcess.exec(
-                                  "esy -P "
-                                  ++ Path.join([|folder, ".vscode", "esy"|]),
+                                  "esy i -P " ++ hiddenEsyRoot,
                                   ChildProcess.Options.make(~cwd=folder, ()),
                                 )
                                 |> then_(((_stdout, _stderr)) => {
-                                     Js.log("Finished running esy");
-                                     resolve();
-                                   });
+                                     progress.report(. {"increment": 10});
+                                     Js.(
+                                       Promise.(
+                                         AzurePipelines.getBuildID()
+                                         |> then_(
+                                              AzurePipelines.getDownloadURL,
+                                            )
+                                         |> then_(r =>
+                                              switch (r) {
+                                              | Ok(downloadUrl) =>
+                                                Js.log2(
+                                                  "download",
+                                                  downloadUrl,
+                                                );
+                                                let lastProgress = ref(0);
+                                                Promise.make(
+                                                  (~resolve, ~reject as _) =>
+                                                  download(
+                                                    downloadUrl,
+                                                    Path.join([|
+                                                      hiddenEsyRoot,
+                                                      "cache.zip",
+                                                    |]),
+                                                    ~progress=
+                                                      progressFraction => {
+                                                        let percent =
+                                                          int_of_float(
+                                                            progressFraction
+                                                            *. 80.0,
+                                                          );
+                                                        progress.report(. {
+                                                          "increment":
+                                                            percent
+                                                            - lastProgress^,
+                                                        });
+                                                        lastProgress := percent;
+                                                      },
+                                                    ~data=_ => (),
+                                                    ~error=
+                                                      e =>
+                                                        resolve(.
+                                                          Error(
+                                                            {j|Failed to download $downloadUrl |j},
+                                                          ),
+                                                        ),
+                                                    ~end_=
+                                                      () => {resolve(. Ok())},
+                                                  )
+                                                );
+                                              | Error(x) => resolve(Error(x))
+                                              }
+                                            )
+                                       )
+                                     );
+                                   })
+                                |> then_(_result => {
+                                     ChildProcess.exec(
+                                       "unzip cache.zip",
+                                       ChildProcess.Options.make(
+                                         ~cwd=hiddenEsyRoot,
+                                         (),
+                                       ),
+                                     )
+                                   })
+                                |> then_(_ => {
+                                     ChildProcess.exec(
+                                       "esy import-dependencies -P "
+                                       ++ hiddenEsyRoot,
+                                       ChildProcess.Options.make(
+                                         ~cwd=hiddenEsyRoot,
+                                         (),
+                                       ),
+                                     )
+                                   })
+                                |> then_(_ => {
+                                     ChildProcess.exec(
+                                       "esy build -P " ++ hiddenEsyRoot,
+                                       ChildProcess.Options.make(
+                                         ~cwd=hiddenEsyRoot,
+                                         (),
+                                       ),
+                                     )
+                                   })
+                                |> then_(_ => resolve());
                               },
                             )
                           )
@@ -171,8 +266,7 @@ module Server = {
                     | Esy(_) =>
                       resolve({
                         command:
-                          Bindings.processPlatform == "win32"
-                            ? "esy.cmd" : "esy",
+                          Process.platform == "win32" ? "esy.cmd" : "esy",
                         args: [|
                           "exec-command",
                           "--include-current-env",

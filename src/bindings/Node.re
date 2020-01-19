@@ -1,9 +1,26 @@
+[@bs.module "./fs-stub.js"]
+external thisProjectsEsyJson: string = "thisProjectsEsyJson";
+
+module CamlArray = Array;
+open Js;
+
 [@bs.val] external __dirname: string = "__dirname";
 
 [@bs.val] [@bs.scope "process"]
 external processEnv: Js.Dict.t(string) = "env";
 
 [@bs.val] [@bs.scope "process"] external processPlatform: string = "platform";
+module Process = {
+  type t;
+  [@bs.val] external v: t = "process";
+  [@bs.val] [@bs.scope "process"] external platform: string = "platform";
+  /* TODO [@bs.val] [@bs.scope "process"] external env: Js.Dict.t(string) = "env"; */
+  module Stdout = {
+    type t;
+    [@bs.val] external v: t = "process.stdout";
+    [@bs.send] external write: (t, string) => unit = "write";
+  };
+};
 
 module Error = {
   type t;
@@ -11,6 +28,13 @@ module Error = {
   let ofPromiseError = [%raw
     error => "return error.message || 'Unknown error'"
   ];
+};
+
+module Buffer = {
+  type t = {. "byteLength": int};
+  [@bs.send] external toString: t => string = "toString";
+  [@bs.val] [@bs.scope "Buffer"] external from: string => t = "from";
+  let ofString = from;
 };
 
 /* Did not work. Was insteaded pointed to https://gist.github.com/mrmurphy/f0a499d4510a358927b8179071145ff9 */
@@ -25,6 +49,21 @@ module Error = {
 /*   Js.Promise.t('c) = */
 /*   "promisify"; */
 
+module type STREAM = {
+  type t;
+  let on: (t, string, Buffer.t => unit) => unit;
+};
+
+module StreamFunctor = (S: {type t;}) => {
+  type t = S.t;
+  [@bs.send] external on: (t, string, Buffer.t => unit) => unit = "on";
+};
+
+module Stream =
+  StreamFunctor({
+    type t;
+  });
+
 module Fs = {
   /* [@bs.module "fs"] */
   /* external writeFile: */
@@ -37,6 +76,8 @@ module Fs = {
   /*   (string, (. Js.Nullable.t(Error.t), string) => unit) => unit = */
   /*   "readFile"; */
   /* let readFile = promisify(readFile); */
+  type fd;
+  [@bs.module "fs"] external writeSync: (. fd, Buffer.t) => unit = "writeSync";
 
   [@bs.module "./fs-stub.js"]
   external writeFile: (string, string) => Js.Promise.t(unit) = "writeFile";
@@ -49,6 +90,18 @@ module Fs = {
 
   [@bs.module "./fs-stub.js"]
   external exists: string => Js.Promise.t(bool) = "exists";
+
+  [@bs.module "./fs-stub.js"]
+  external open_: (string, string) => Js.Promise.t(fd) = "open";
+
+  [@bs.module "./fs-stub.js"]
+  external write: (fd, Buffer.t) => Js.Promise.t(unit) = "write";
+
+  [@bs.module "./fs-stub.js"]
+  external close: (fd, Buffer.t) => Js.Promise.t(unit) = "close";
+
+  [@bs.module "fs"]
+  external createWriteStream: string => Stream.t = "createWriteStream";
 
   let rec mkdir = (~p=?, path) => {
     let forceCreate =
@@ -119,4 +172,75 @@ module ChildProcess = {
 module Path = {
   [@bs.module "path"] [@bs.variadic]
   external join: array(string) => string = "join";
+};
+
+module Response = {
+  type t = {
+    .
+    "statusCode": int,
+    "headers": Js.Dict.t(string),
+  };
+  [@bs.send] external setEncoding: (t, string) => unit = "setEncoding";
+  [@bs.send] external on: (t, string, Buffer.t => unit) => unit = "on";
+};
+
+module Request = {
+  [@bs.module] external request: string => Stream.t = "request";
+};
+
+module RequestProgress = {
+  type t;
+  type state = {
+    .
+    "percent": float,
+    "speed": int,
+    "size": {
+      .
+      "total": int,
+      "transferred": int,
+    },
+    "time": {
+      .
+      "elapsed": float,
+      "remaining": float,
+    },
+  };
+  [@bs.module] external requestProgress: Stream.t => t = "request-progress";
+  [@bs.send] external onData': (t, string, Buffer.t => unit) => unit = "on";
+  let onData = (t, cb) => onData'(t, "data", cb);
+  [@bs.send] external onProgress': (t, string, state => unit) => unit = "on";
+  let onProgress = (t, cb) => {
+    onProgress'(t, "progress", cb);
+  };
+  [@bs.send] external onError': (t, string, Error.t => unit) => unit = "on";
+  let onError = (t, cb) => {
+    onError'(t, "error", cb);
+  };
+  [@bs.send] external onEnd': (t, string, unit => unit) => unit = "on";
+  let onEnd = (t, cb) => {
+    onEnd'(t, "end", cb);
+  };
+  [@bs.send] external pipe: (t, Stream.t) => unit = "pipe";
+};
+
+module Https = {
+  [@bs.module "https"]
+  external get: (string, Response.t => unit) => unit = "get";
+  let getCompleteResponse = url =>
+    Promise.make((~resolve, ~reject as _) => {
+      get(
+        url,
+        response => {
+          let _statusCode = response##statusCode;
+          let responseText = ref("");
+          Response.on(response, "data", c => {
+            responseText := responseText^ ++ Buffer.toString(c)
+          });
+          Response.on(response, "end", _ => {resolve(. Ok(responseText^))});
+          Response.on(response, "error", _err => {
+            resolve(. Error({j|Failed to fetch $url|j}))
+          });
+        },
+      )
+    });
 };
