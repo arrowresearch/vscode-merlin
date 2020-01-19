@@ -1,23 +1,24 @@
-'use strict';
+"use strict";
 
-const path = require('path');
+const path = require("path");
 
 module.exports = (_env, argv) => {
   const isProduction = argv.mode == "production";
 
   return {
-    target: 'node',
-    entry: './src/extension.bs.js',
+    target: "node",
+    entry: "./src/extension.bs.js",
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'extension.js'
+      libraryTarget: "commonjs",
+      path: path.resolve(__dirname, "dist"),
+      filename: "extension.js"
     },
-    devtool: isProduction ? false : 'source-map',
+    devtool: isProduction ? false : "source-map",
     externals: {
-      vscode: 'commonjs vscode'
+      vscode: "commonjs vscode"
     },
     resolve: {
-      extensions: ['.js']
+      extensions: [".js"]
     }
-  }
-}
+  };
+};
