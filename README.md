@@ -1,5 +1,7 @@
 # VS Code Merlin Extension
 
+[![Build Status](https://dev.azure.com/arrowresearch/vscode-merlin/_apis/build/status/arrowresearch.vscode-merlin?branchName=master)](https://dev.azure.com/arrowresearch/vscode-merlin/_build/latest?definitionId=1&branchName=master)
+
 🚧 This is work in progress, use at your own risk 🚧
 
 ## Prerequisites
