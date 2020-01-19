@@ -44,6 +44,7 @@ jobs:
           downloadPath: '.'
       - task: PublishBuildArtifacts@1
         displayName: 'Publish Artifact: Release'
+        condition: and(succeeded(), eq(variables['Build.Reason'], 'IndividualCI'))
         inputs:
           PathtoPublish: '.'
           ArtifactName: release
