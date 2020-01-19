@@ -89,7 +89,6 @@
     "vscode-test": "^1.2.3"
   },
   "dependencies": {
-    "@esy-nightly/esy": "*",
     "bs-platform": "^7.0.1",
     "request": "^2.88.0",
     "request-progress": "^3.0.0",
