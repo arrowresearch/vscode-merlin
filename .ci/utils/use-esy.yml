@@ -1,0 +1,7 @@
+# steps to install esy globally
+
+steps:
+  # Use nightly build while 0.6.* is not released
+  # And we need the commits that pull in git submodules too
+- script: 'npm install -g @esy-nightly/esy --unsafe-perm'
+  displayName: 'npm install -g @esy-nightly/esy'

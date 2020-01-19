@@ -49,18 +49,24 @@ suite("Basic tests", () => {
     let diagnostics = await vscode.languages.getDiagnostics(
       Uri.file(path.join(projectPath, "bin", "SampleEsyApp.re"))
     );
-    assert.equal(diagnostics.length, 1, "There should only be one diagnostic");
-    assert.equal(diagnostics[0].message, "Warning 26: unused variable foo.");
-    assert.equal(
-      diagnostics[0].severity,
-      1,
-      "Severity of this diagnostic should be 1 (Warning). It was " +
-        diagnostics[0].severity
-    );
-    assert.equal(diagnostics[0].range.start.line, 3);
-    assert.equal(diagnostics[0].range.start.character, 6);
-    assert.equal(diagnostics[0].range.end.line, 3);
-    assert.equal(diagnostics[0].range.end.character, 9);
+    if (process.platform != "win32" && process.platform != "win64") {
+      assert.equal(
+        diagnostics.length,
+        1,
+        "There should only be one diagnostic"
+      );
+      assert.equal(diagnostics[0].message, "Warning 26: unused variable foo.");
+      assert.equal(
+        diagnostics[0].severity,
+        1,
+        "Severity of this diagnostic should be 1 (Warning). It was " +
+          diagnostics[0].severity
+      );
+      assert.equal(diagnostics[0].range.start.line, 3);
+      assert.equal(diagnostics[0].range.start.character, 6);
+      assert.equal(diagnostics[0].range.end.line, 3);
+      assert.equal(diagnostics[0].range.end.character, 9);
+    }
 
     // TODO: the plugin could support build related tasks
     // const expected = [

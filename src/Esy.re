@@ -109,10 +109,7 @@ let dropAnEsyJSON = (~compilerVersion, ~folder) => {
     |> then_(() =>
          Fs.writeFile(
            Filename.concat(esyJsonTargetDir, "esy.json"),
-           Printf.sprintf(
-             "{\"dependencies\": {\"ocaml\": \"%s\", \"@esy-ocaml/reason\": \"*\", \"@opam/ocaml-lsp-server\": \"ocaml/ocaml-lsp:ocaml-lsp-server.opam#e5e6ebf9dcf157\"}}",
-             compilerVersion,
-           ),
+           thisProjectsEsyJson,
          )
        )
   );
@@ -127,7 +124,9 @@ let processDeps = (dependenciesJson, folder) => {
         | Some(bsPlatformVersionJson) =>
           switch (Js.Json.classify(bsPlatformVersionJson)) {
           | JSONString(bsPlatformVersion) =>
-            if (bsPlatformVersion->Semver.minVersion->Semver.satisfies(">=6.0.0")) {
+            if (bsPlatformVersion
+                ->Semver.minVersion
+                ->Semver.satisfies(">=6.0.0")) {
               dropAnEsyJSON(~folder, ~compilerVersion="4.6.x");
             } else {
               dropAnEsyJSON(~folder, ~compilerVersion="4.2.x");
@@ -162,7 +161,9 @@ let getSubDict = (dict, key) =>
   dict->Js.Dict.get(key)->Belt.Option.flatMap(Js.Json.decodeObject);
 
 let mergeDicts = (dict1, dict2) =>
-  Js.Dict.fromArray(Js.Array.concat(Js.Dict.entries(dict1), Js.Dict.entries(dict2)));
+  Js.Dict.fromArray(
+    Js.Array.concat(Js.Dict.entries(dict1), Js.Dict.entries(dict2)),
+  );
 
 let setup = (~manifestPath) => {
   Js.Promise.(
@@ -174,17 +175,24 @@ let setup = (~manifestPath) => {
              let manifestJson = parseExn(manifest);
              switch (classify(manifestJson)) {
              | JSONObject(dict) =>
-               switch (getSubDict(dict, "dependencies"), getSubDict(dict, "devDependencies")) {
-               | (Some(dependenciesJson), None) | (None, Some(dependenciesJson)) =>
+               switch (
+                 getSubDict(dict, "dependencies"),
+                 getSubDict(dict, "devDependencies"),
+               ) {
+               | (Some(dependenciesJson), None)
+               | (None, Some(dependenciesJson)) =>
                  processDeps(dependenciesJson, folder)
                | (Some(dependenciesJson), Some(devDependenciesJson)) =>
-                  processDeps(mergeDicts(dependenciesJson, devDependenciesJson), folder)
+                 processDeps(
+                   mergeDicts(dependenciesJson, devDependenciesJson),
+                   folder,
+                 )
                | (None, None) =>
-                   reject(
-                     Failure(
-                       "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
-                     ),
-                   )
+                 reject(
+                   Failure(
+                     "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
+                   ),
+                 )
                }
              | _ =>
                reject(

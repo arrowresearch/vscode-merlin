@@ -14,3 +14,9 @@ let propertyExists = (json, property) => {
     }
   );
 };
+
+let mapResultAndResolvePromise = (f, r) =>
+  Js.Promise.(Result.(r >| f |> resolve));
+
+let bindResultAndResolvePromise = (f, r) =>
+  Js.Promise.(Result.(r >>= f |> resolve));
