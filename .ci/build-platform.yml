@@ -29,7 +29,7 @@ jobs:
           echo "Installing opam packages (reason, ocamlformat and ocaml-lsp-server)"
           opam pin add --yes ocaml-lsp-server.dev https://github.com/ocaml/ocaml-lsp.git
           opam install ocamlformat reason ocaml-lsp-server --yes
-        condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows'))
+        condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
         displayName: "Setting up opam"
 
       - bash: |
