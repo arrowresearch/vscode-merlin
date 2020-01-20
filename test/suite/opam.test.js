@@ -22,7 +22,7 @@ suite("Basic tests", () => {
     cp.execSync(`mkdir -p ${opamRoot}`);
     let env = cp
       .execSync(
-        `sh -c 'export OPAMROOT=${opamRoot}; opam init --yes > /dev/null; opam switch create e2e 4.08.1 > /dev/null; eval $(opam env); opam pin add --yes ocaml-lsp-server.dev https://github.com/ocaml/ocaml-lsp.git > /dev/null; opam install . --deps-only --yes > /dev/null; opam env'`,
+        `sh -c 'opam install . --deps-only --yes > /dev/null; opam env'`,
         { cwd: projectPath }
       )
       .toString();
