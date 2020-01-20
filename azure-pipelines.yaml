@@ -38,6 +38,7 @@ jobs:
 
     steps:
       - task: DownloadBuildArtifacts@0
+        condition: and(eq(variables['Build.Reason'], 'IndividualCI'), succeeded())
         displayName: 'Downloading extension'
         inputs:
           artifactName: extension
