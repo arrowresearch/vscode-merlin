@@ -7,9 +7,9 @@ var $$Node = require("./bindings/Node.bs.js");
 var Path = require("path");
 var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
-var Utils = require("./Utils.bs.js");
 var Vscode = require("vscode");
 var $$Request = require("request");
+var ProjectType = require("./ProjectType.bs.js");
 var AzurePipelines = require("./AzurePipelines.bs.js");
 var RequestProgress = require("request-progress");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
@@ -26,62 +26,10 @@ function download(url, file, progress, end_, error, data) {
   return /* () */0;
 }
 
-function detect(folder) {
-  return Esy.getStatus(folder).then((function (status) {
-                if (status.isProject) {
-                  var match = status.rootPackageConfigPath;
-                  var manifestFile = (match == null) ? "" : match;
-                  if (new RegExp(".json$").test(manifestFile)) {
-                    if (status.isProjectReadyForDev) {
-                      return Promise.resolve(/* Esy */Block.__(0, [/* readyForDev */true]));
-                    } else {
-                      return $$Node.Fs.readFile(manifestFile).then((function (manifest) {
-                                    var manifestJson = JSON.parse(manifest);
-                                    var manifestHasEsyConfig = Utils.propertyExists(manifestJson, "esy");
-                                    var manifestIsEsyJSON = new RegExp("esy.json$").test(manifestFile);
-                                    if (manifestIsEsyJSON || manifestHasEsyConfig) {
-                                      return Promise.resolve(/* Esy */Block.__(0, [/* readyForDev */status.isProjectReadyForDev]));
-                                    } else {
-                                      var esyToolChainFolder = Path.join(folder, ".vscode", "esy");
-                                      return $$Node.Fs.exists(esyToolChainFolder).then((function (doesToolChainEsyManifestExist) {
-                                                    if (doesToolChainEsyManifestExist) {
-                                                      return Esy.getStatus(esyToolChainFolder).then((function (toolChainStatus) {
-                                                                    if (toolChainStatus.isProject) {
-                                                                      return Promise.resolve(/* Bsb */Block.__(1, [/* readyForDev */toolChainStatus.isProjectSolved]));
-                                                                    } else {
-                                                                      return Promise.reject([
-                                                                                  Caml_builtin_exceptions.failure,
-                                                                                  "Weird invariant violation. Why would .vscode/esy exist but not be a valid esy project. TODO"
-                                                                                ]);
-                                                                    }
-                                                                  }));
-                                                    } else {
-                                                      return Promise.resolve(/* Bsb */Block.__(1, [/* readyForDev */false]));
-                                                    }
-                                                  }));
-                                    }
-                                  }));
-                    }
-                  } else {
-                    return Promise.resolve(/* Opam */0);
-                  }
-                } else {
-                  return Promise.reject([
-                              Caml_builtin_exceptions.failure,
-                              "Not a valid esy/opam/bsb project"
-                            ]);
-                }
-              }));
-}
-
-var ProjectType = {
-  detect: detect
-};
-
 function make(folder) {
   process.env["OCAMLRUNPARAM"] = "b";
   process.env["MERLIN_LOG"] = "-";
-  return detect(folder).then((function (projectType) {
+  return ProjectType.detect(folder).then((function (projectType) {
                 var setupPromise;
                 setupPromise = typeof projectType === "number" ? Promise.resolve(/* () */0) : (
                     projectType.tag ? (
@@ -237,7 +185,6 @@ var Client = {
 var LanguageClient = { };
 
 exports.download = download;
-exports.ProjectType = ProjectType;
 exports.Server = Server;
 exports.Client = Client;
 exports.LanguageClient = LanguageClient;

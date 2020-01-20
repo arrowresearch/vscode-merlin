@@ -67,6 +67,10 @@ function close(prim, prim$1) {
   return FsStubJs.close(prim, prim$1);
 }
 
+function unlink(prim) {
+  return FsStubJs.unlink(prim);
+}
+
 function mkdir(p, path) {
   var forceCreate = p !== undefined ? p : false;
   if (forceCreate) {
@@ -100,6 +104,7 @@ var Fs = {
   open_: open_,
   write: write,
   close: close,
+  unlink: unlink,
   mkdir: mkdir
 };
 
@@ -190,6 +195,8 @@ var Https$1 = {
   getCompleteResponse: getCompleteResponse
 };
 
+var Os = { };
+
 var CamlArray = /* alias */0;
 
 exports.thisProjectsEsyJson = thisProjectsEsyJson;
@@ -206,4 +213,5 @@ exports.$$Response = $$Response;
 exports.$$Request = $$Request;
 exports.RequestProgress = RequestProgress;
 exports.Https = Https$1;
+exports.Os = Os;
 /* thisProjectsEsyJson Not a pure module */

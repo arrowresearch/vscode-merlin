@@ -16,6 +16,9 @@ let createClient = (~id, ~name, ~folder) =>
   );
 
 let activate = _context => {
+  Refmt.register();
+  Ocamlformat.register();
+
   Js.Promise.(
     createClient(
       ~id="merlin-language-server",

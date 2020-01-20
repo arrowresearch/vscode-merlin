@@ -103,6 +103,9 @@ module Fs = {
   [@bs.module "fs"]
   external createWriteStream: string => Stream.t = "createWriteStream";
 
+  [@bs.module "./fs-stub.js"]
+  external unlink: string => Js.Promise.t(bool) = "unlink";
+
   let rec mkdir = (~p=?, path) => {
     let forceCreate =
       switch (p) {
@@ -172,6 +175,8 @@ module ChildProcess = {
 module Path = {
   [@bs.module "path"] [@bs.variadic]
   external join: array(string) => string = "join";
+
+  [@bs.module "path"] external basename: string => string = "basename";
 };
 
 module Response = {
@@ -243,4 +248,8 @@ module Https = {
         },
       )
     });
+};
+
+module Os = {
+  [@bs.module "os"] external tmpdir: unit => string = "tmpdir";
 };

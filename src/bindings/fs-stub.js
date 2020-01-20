@@ -8,6 +8,7 @@ let open = promisify(fs.open);
 let write = promisify(fs.write);
 let close = promisify(fs.close);
 let thisProjectsEsyJson = JSON.stringify(require("../../esy.json"));
+let unlink = promisify(fs.unlink);
 
 module.exports = {
   readFile,
@@ -17,5 +18,6 @@ module.exports = {
   open,
   write,
   close,
-  thisProjectsEsyJson
+  thisProjectsEsyJson,
+  unlink
 };

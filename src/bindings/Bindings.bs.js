@@ -32,6 +32,8 @@ var RequestProgress = $$Node.RequestProgress;
 
 var Https = $$Node.Https;
 
+var Os = $$Node.Os;
+
 var TextDocument = Vscode.TextDocument;
 
 var Folder = Vscode.Folder;
@@ -43,6 +45,12 @@ var $$Window = Vscode.$$Window;
 var Commands = Vscode.Commands;
 
 var ExtensionContext = Vscode.ExtensionContext;
+
+var Languages = Vscode.Languages;
+
+var $$Range = Vscode.$$Range;
+
+var TextEdit = Vscode.TextEdit;
 
 exports.thisProjectsEsyJson = thisProjectsEsyJson;
 exports.CamlArray = CamlArray;
@@ -58,10 +66,14 @@ exports.$$Response = $$Response;
 exports.$$Request = $$Request;
 exports.RequestProgress = RequestProgress;
 exports.Https = Https;
+exports.Os = Os;
 exports.TextDocument = TextDocument;
 exports.Folder = Folder;
 exports.Workspace = Workspace;
 exports.$$Window = $$Window;
 exports.Commands = Commands;
 exports.ExtensionContext = ExtensionContext;
+exports.Languages = Languages;
+exports.$$Range = $$Range;
+exports.TextEdit = TextEdit;
 /* Node Not a pure module */

@@ -20,10 +20,19 @@ var Commands = { };
 
 var ExtensionContext = { };
 
+var Languages = { };
+
+var $$Range = { };
+
+var TextEdit = { };
+
 exports.TextDocument = TextDocument;
 exports.Folder = Folder;
 exports.Workspace = Workspace;
 exports.$$Window = $$Window;
 exports.Commands = Commands;
 exports.ExtensionContext = ExtensionContext;
+exports.Languages = Languages;
+exports.$$Range = $$Range;
+exports.TextEdit = TextEdit;
 /* No side effect */
