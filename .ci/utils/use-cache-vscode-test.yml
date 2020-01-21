@@ -1,6 +1,6 @@
 
 steps:
-  - script: mkdirp -p .vscode-test
+  - script: mkdir -p .vscode-test
     displayName: Create .vscode-test (if it doesnot exist)
   - task: Cache@2
     condition: and(eq(variables['Build.Reason'], 'PullRequest'), and(succeeded(), ne(variables['Build.SourceBranch'], variables['System.PullRequest.TargetBranch'])))
