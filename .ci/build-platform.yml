@@ -95,7 +95,7 @@ jobs:
       - template: utils/use-esy.yml
       - script: "esy install"
         displayName: "esy install"
-      - template: utils/restore-build-cache.yml
+      - template: utils/restore-esy-cache.yml
       - script: "esy build"
         displayName: "esy build"
       - script: "npm i"
@@ -108,7 +108,7 @@ jobs:
         displayName: "Running vscode integration tests"
         env:
           DISPLAY: ':99.0'
-      - template: utils/publish-build-cache.yml
+      - template: utils/publish-esy-cache.yml
         
       - bash: 'mv vscode-merlin-0.1.0.vsix vscode-merlin-$(git rev-parse --short HEAD).vsix'
         displayName: 'Adds commit hash to the release artifact name'
