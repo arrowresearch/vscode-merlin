@@ -20,17 +20,23 @@ jobs:
         displayName: "Installing ocaml and opam (MacOS)"
         condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
 
+      - template: use-cach-opam-switch.yml
+
       - bash: |
           echo "Initialising opam..."
           opam init --yes
           echo "Creating switch 4.08.."
           opam switch create ci-e2e 4.08.1
+        displayName: "Azure cache miss: setting up opam switch"
+        condition: and(ne(variables.CACHE_RESTORED, 'true'), ne(variables['Agent.OS'], 'Windows_NT'))
+
+      - bash: |
           eval $(opam env)
           echo "Installing opam packages (reason, ocamlformat and ocaml-lsp-server)"
           opam pin add --yes ocaml-lsp-server.dev https://github.com/ocaml/ocaml-lsp.git
           opam install ocamlformat reason ocaml-lsp-server --yes
         condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
-        displayName: "Setting up opam"
+        displayName: "Installing necessary opam packages (only on Unix)"
 
       - bash: |
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
