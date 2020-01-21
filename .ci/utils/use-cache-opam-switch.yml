@@ -1,5 +1,3 @@
-# Steps for restoring opam cache
-
 steps:
   # TODO: This can be done in parallel with installing node, and esy
   # (which would save a bunch of time on windows)
