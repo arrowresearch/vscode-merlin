@@ -16,7 +16,7 @@ jobs:
         displayName: "Installing ocaml and opam (Ubuntu via avsm/ppa)"
         condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
         
-      - script: "brew install ocaml opam"
+      - script: "brew install opam"
         displayName: "Installing ocaml and opam (MacOS)"
         condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
 
@@ -24,9 +24,7 @@ jobs:
 
       - bash: |
           echo "Initialising opam..."
-          opam init --yes
-          echo "Creating switch 4.08.."
-          opam switch create 4.08 ocaml-base-compiler.4.08.1
+          opam init --yes -c 4.08.1 --disable-sandboxing 
         displayName: "Azure cache miss: setting up opam switch"
         condition: and(ne(variables.CACHE_RESTORED, 'true'), ne(variables['Agent.OS'], 'Windows_NT'))
 
