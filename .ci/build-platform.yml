@@ -13,12 +13,28 @@ jobs:
           sudo add-apt-repository ppa:avsm/ppa
           sudo apt update
           sudo apt install opam
-        displayName: "Installing ocaml and opam (Ubuntu via avsm/ppa)"
+        displayName: "Installing opam (Ubuntu via avsm/ppa)"
         condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
         
-      - script: "brew install ocaml opam"
+      - script: "brew install opam"
         displayName: "Installing ocaml and opam (MacOS)"
         condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
+
+      - template: utils/use-cache-opam-switch.yml
+
+      - bash: |
+          echo "Initialising opam..."
+          opam init --yes -c 4.08.1 --disable-sandboxing 
+        displayName: "Azure cache miss: setting up opam switch"
+        condition: and(ne(variables.CACHE_RESTORED, 'true'), ne(variables['Agent.OS'], 'Windows_NT'))
+
+      - bash: |
+          eval $(opam env)
+          echo "Installing opam packages (reason, ocamlformat and ocaml-lsp-server)"
+          opam pin add --yes ocaml-lsp-server.dev https://github.com/ocaml/ocaml-lsp.git
+          opam install ocamlformat reason ocaml-lsp-server --yes
+        condition: and(succeeded(), ne(variables['Agent.OS'], 'Windows_NT'))
+        displayName: "Installing necessary opam packages (only on Unix)"
 
       - bash: |
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
@@ -83,7 +99,7 @@ jobs:
       - template: utils/use-esy.yml
       - script: "esy install"
         displayName: "esy install"
-      - template: utils/restore-build-cache.yml
+      - template: utils/restore-esy-cache.yml
       - script: "esy build"
         displayName: "esy build"
       - script: "npm i"
@@ -92,11 +108,12 @@ jobs:
         displayName: "Compiling re files"
       - script: "npm run package"
         displayName: "Packaging the extension"
+      - template: utils/use-cache-vscode-test.yml
       - script: "npm test"
         displayName: "Running vscode integration tests"
         env:
           DISPLAY: ':99.0'
-      - template: utils/publish-build-cache.yml
+      - template: utils/publish-esy-cache.yml
         
       - bash: 'mv vscode-merlin-0.1.0.vsix vscode-merlin-$(git rev-parse --short HEAD).vsix'
         displayName: 'Adds commit hash to the release artifact name'
