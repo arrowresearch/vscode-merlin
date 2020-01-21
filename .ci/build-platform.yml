@@ -20,7 +20,7 @@ jobs:
         displayName: "Installing ocaml and opam (MacOS)"
         condition: and(succeeded(), eq(variables['Agent.OS'], 'Darwin'))
 
-      - template: use-cach-opam-switch.yml
+      - template: .ci/use-cache-opam-switch.yml
 
       - bash: |
           echo "Initialising opam..."
