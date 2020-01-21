@@ -26,7 +26,7 @@ jobs:
           echo "Initialising opam..."
           opam init --yes
           echo "Creating switch 4.08.."
-          opam switch create 4.08.1
+          opam switch create 4.08
         displayName: "Azure cache miss: setting up opam switch"
         condition: and(ne(variables.CACHE_RESTORED, 'true'), ne(variables['Agent.OS'], 'Windows_NT'))
 
