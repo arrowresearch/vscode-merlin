@@ -9,7 +9,7 @@ describe("Expect", () => {
           Bindings.ChildProcess.Options.make(),
         )
         |> then_(((stdout, _)) => {
-             expect(stdout) |> toBe("hey\n") |> resolve
+             expect(stdout) |> toContainString("hey") |> resolve
            })
       )
     })
