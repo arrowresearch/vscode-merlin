@@ -20,30 +20,9 @@ suite("Basic tests", () => {
     let opamRoot = path.join(os.tmpdir(), "opam-root");
     fs.copySync(sampleOpamSrc, projectPath);
     cp.execSync(`mkdir -p ${opamRoot}`);
-    let env = cp
-      .execSync(
-        `sh -c 'opam install . --deps-only --yes > /dev/null; opam env'`,
-        { cwd: projectPath }
-      )
-      .toString();
-    let regexpMatch = env.match(/PATH=[^;]+;/g);
-    if (regexpMatch.length >= 1) {
-      process.env["PATH"] = Array.prototype.reduce.call(
-        regexpMatch,
-        function(acc, pathString) {
-          return (
-            acc +
-            pathString
-              .replace(/[;'"]/g, "")
-              .split("=")[1]
-              .split(":")
-              .concat(process.env["PATH"].split("=")[1])
-              .join(":")
-          );
-        },
-        ""
-      );
-    }
+    cp.execSync(`sh -c 'opam install . --deps-only --yes > /dev/null'`, {
+      cwd: projectPath
+    }).toString();
     projectUri = Uri.file(projectPath);
     await vscode.commands.executeCommand("vscode.openFolder", projectUri);
     reasonDocument = await vscode.workspace.openTextDocument(
