@@ -10,7 +10,7 @@ describe("Esy.getStatus", () => {
       Js.Promise.(
         Esy.getStatus(projPath)
         |> then_((status: Esy.status) => {
-             expect(status.isProject) |> toBe(false) |> resolve
+             expect(status.isProject) |> toBe(true) |> resolve
            })
       )
     })
