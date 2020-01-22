@@ -11,7 +11,7 @@ var projPath = Curry._1(Filename.dirname, __dirname);
 Jest.describe("Esy.getStatus", (function (param) {
         return Jest.testPromise("Checking if running esy status in __dirname works: " + projPath, undefined, (function (param) {
                       return Esy.getStatus(projPath).then((function (status) {
-                                    return Promise.resolve(Jest.Expect.toBe(false, Jest.Expect.expect(status.isProject)));
+                                    return Promise.resolve(Jest.Expect.toBe(true, Jest.Expect.expect(status.isProject)));
                                   }));
                     }));
       }));
