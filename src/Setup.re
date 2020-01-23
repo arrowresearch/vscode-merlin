@@ -43,17 +43,8 @@ module Bsb = {
     RequestProgress.pipe(stream, Fs.createWriteStream(file));
   };
 
-  let dropAnEsyJSON = (~compilerVersion, ~folder) => {
-    let esyJsonTargetDir = Path.join([|folder, ".vscode", "esy"|]);
-    Js.Promise.(
-      Fs.mkdir(~p=true, esyJsonTargetDir)
-      |> then_(() =>
-           Fs.writeFile(
-             Filename.concat(esyJsonTargetDir, "esy.json"),
-             thisProjectsEsyJson,
-           )
-         )
-    );
+  let dropAnEsyJSON = path => {
+    Fs.writeFile(path, thisProjectsEsyJson);
   };
 
   let processDeps = (dependenciesJson, folder) => {
@@ -68,30 +59,55 @@ module Bsb = {
               if (bsPlatformVersion
                   ->Semver.minVersion
                   ->Semver.satisfies(">=6.0.0")) {
-                dropAnEsyJSON(~folder, ~compilerVersion="4.6.x");
+                Ok();
               } else {
-                dropAnEsyJSON(~folder, ~compilerVersion="4.2.x");
+                Error("Bucklescript <7 not supported");
               }
             | _ =>
-              reject(
-                Failure(
-                  "'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!",
-                ),
+              Error(
+                "'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!",
               )
             }
 
           | None =>
-            reject(
-              Failure(
-                "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
-              ),
+            Error(
+              "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
             )
           }
         | _ =>
-          reject(
-            Failure(
-              "'dependencies' section in the manifest file was expected to be dictionary, but it was not!",
-            ),
+          Error(
+            "'dependencies' section in the manifest file was expected to be dictionary, but it was not!",
+          )
+        }
+      )
+    );
+  };
+
+  let toBeBrokenDownNext = manifestJson => {
+    Js.Promise.(
+      Js.Json.(
+        switch (classify(manifestJson)) {
+        | JSONObject(dict) =>
+          switch (
+            getSubDict(dict, "dependencies"),
+            getSubDict(dict, "devDependencies"),
+          ) {
+          | (Some(dependenciesJson), None)
+          | (None, Some(dependenciesJson)) =>
+            processDeps(dependenciesJson, folder)
+          | (Some(dependenciesJson), Some(devDependenciesJson)) =>
+            processDeps(
+              mergeDicts(dependenciesJson, devDependenciesJson),
+              folder,
+            )
+          | (None, None) =>
+            Error(
+              "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
+            )
+          }
+        | _ =>
+          Error(
+            "The entire manifest was expected to be dictionary of key-vals, but it was not!:",
           )
         }
       )
@@ -107,33 +123,17 @@ module Bsb = {
           Fs.readFile(manifestPath)
           |> then_(manifest => {
                let manifestJson = parseExn(manifest);
-               switch (classify(manifestJson)) {
-               | JSONObject(dict) =>
-                 switch (
-                   getSubDict(dict, "dependencies"),
-                   getSubDict(dict, "devDependencies"),
-                 ) {
-                 | (Some(dependenciesJson), None)
-                 | (None, Some(dependenciesJson)) =>
-                   processDeps(dependenciesJson, folder)
-                 | (Some(dependenciesJson), Some(devDependenciesJson)) =>
-                   processDeps(
-                     mergeDicts(dependenciesJson, devDependenciesJson),
-                     folder,
-                   )
-                 | (None, None) =>
-                   reject(
-                     Failure(
-                       "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
-                     ),
-                   )
-                 }
-               | _ =>
-                 reject(
-                   Failure(
-                     "The entire manifest was expected to be dictionary of key-vals, but it was not!:",
-                   ),
-                 )
+               switch (toBeBrokenDownNext(manifestJson)) {
+               | Ok () =>
+                 let esyJsonTargetDir =
+                   Path.join([|folder, ".vscode", "esy"|]);
+                 Fs.mkdir(~p=true, esyJsonTargetDir)
+                 |> then_(_ => {
+                      Filename.concat(esyJsonTargetDir, "esy.json")
+                      |> dropAnEsyJSON
+                      |> Js.Promise.resolve
+                    });
+               | _ as e => e |> Js.Promise.reject
                };
              });
         }
