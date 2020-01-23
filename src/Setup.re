@@ -19,7 +19,8 @@ module Esy = {
              resolve();
            });
       },
-    );
+    )
+    |> then_(() => resolve(Ok()));
   };
 };
 
@@ -47,7 +48,7 @@ module Bsb = {
     Fs.writeFile(path, thisProjectsEsyJson);
   };
 
-  let processDeps = (dependenciesJson, folder) => {
+  let processDeps = dependenciesJson => {
     Js.Promise.(
       Js.Json.(
         switch (dependenciesJson->object_->classify) {
@@ -93,13 +94,9 @@ module Bsb = {
             getSubDict(dict, "devDependencies"),
           ) {
           | (Some(dependenciesJson), None)
-          | (None, Some(dependenciesJson)) =>
-            processDeps(dependenciesJson, folder)
+          | (None, Some(dependenciesJson)) => processDeps(dependenciesJson)
           | (Some(dependenciesJson), Some(devDependenciesJson)) =>
-            processDeps(
-              mergeDicts(dependenciesJson, devDependenciesJson),
-              folder,
-            )
+            processDeps(mergeDicts(dependenciesJson, devDependenciesJson))
           | (None, None) =>
             Error(
               "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
@@ -131,99 +128,129 @@ module Bsb = {
                  |> then_(_ => {
                       Filename.concat(esyJsonTargetDir, "esy.json")
                       |> dropAnEsyJSON
-                      |> Js.Promise.resolve
+                      |> then_(() => {
+                           Window.(
+                             withProgress(
+                               {
+                                 "location": 15 /* Window.(locationToJs(Notification)) */,
+                                 "title": "Setting up toolchain...",
+                               },
+                               progress => {
+                                 progress.report(. {"increment": 10});
+                                 /* Running esy */
+                                 let hiddenEsyRoot =
+                                   Path.join([|
+                                     projectPath,
+                                     ".vscode",
+                                     "esy",
+                                   |]);
+                                 ChildProcess.exec(
+                                   "esy i -P " ++ hiddenEsyRoot,
+                                   ChildProcess.Options.make(
+                                     ~cwd=projectPath,
+                                     (),
+                                   ),
+                                 )
+                                 |> then_(((_stdout, _stderr)) => {
+                                      progress.report(. {"increment": 10});
+                                      Js.(
+                                        Promise.(
+                                          AzurePipelines.getBuildID()
+                                          |> then_(
+                                               AzurePipelines.getDownloadURL,
+                                             )
+                                          |> then_(r =>
+                                               switch (r) {
+                                               | Ok(downloadUrl) =>
+                                                 Js.log2(
+                                                   "download",
+                                                   downloadUrl,
+                                                 );
+                                                 let lastProgress = ref(0);
+                                                 Promise.make(
+                                                   (~resolve, ~reject as _) =>
+                                                   download(
+                                                     downloadUrl,
+                                                     Path.join([|
+                                                       hiddenEsyRoot,
+                                                       "cache.zip",
+                                                     |]),
+                                                     ~progress=
+                                                       progressFraction => {
+                                                         let percent =
+                                                           int_of_float(
+                                                             progressFraction
+                                                             *. 80.0,
+                                                           );
+                                                         progress.report(. {
+                                                           "increment":
+                                                             percent
+                                                             - lastProgress^,
+                                                         });
+                                                         lastProgress :=
+                                                           percent;
+                                                       },
+                                                     ~data=_ => (),
+                                                     ~error=
+                                                       e =>
+                                                         resolve(.
+                                                           Error(
+                                                             {j|Failed to download $downloadUrl |j},
+                                                           ),
+                                                         ),
+                                                     ~end_=
+                                                       () => {
+                                                         resolve(. Ok())
+                                                       },
+                                                   )
+                                                 );
+                                               | Error(x) =>
+                                                 resolve(Error(x))
+                                               }
+                                             )
+                                        )
+                                      );
+                                    })
+                                 |> then_(_result => {
+                                      ChildProcess.exec(
+                                        "unzip cache.zip",
+                                        ChildProcess.Options.make(
+                                          ~cwd=hiddenEsyRoot,
+                                          (),
+                                        ),
+                                      )
+                                    })
+                                 |> then_(_ => {
+                                      ChildProcess.exec(
+                                        "esy import-dependencies -P "
+                                        ++ hiddenEsyRoot,
+                                        ChildProcess.Options.make(
+                                          ~cwd=hiddenEsyRoot,
+                                          (),
+                                        ),
+                                      )
+                                    })
+                                 |> then_(_ => {
+                                      ChildProcess.exec(
+                                        "esy build -P " ++ hiddenEsyRoot,
+                                        ChildProcess.Options.make(
+                                          ~cwd=hiddenEsyRoot,
+                                          (),
+                                        ),
+                                      )
+                                    })
+                                 |> then_(_ => resolve());
+                               },
+                             )
+                           )
+                         })
+                      |> then_(() => Ok() |> resolve)
                     });
-               | _ as e => e |> Js.Promise.reject
+               | _ as e => e |> resolve
                };
              });
         }
       )
-      |> then_(() => {
-           Window.(
-             withProgress(
-               {
-                 "location": 15 /* Window.(locationToJs(Notification)) */,
-                 "title": "Setting up toolchain...",
-               },
-               progress => {
-                 progress.report(. {"increment": 10});
-                 /* Running esy */
-                 let hiddenEsyRoot =
-                   Path.join([|projectPath, ".vscode", "esy"|]);
-                 ChildProcess.exec(
-                   "esy i -P " ++ hiddenEsyRoot,
-                   ChildProcess.Options.make(~cwd=projectPath, ()),
-                 )
-                 |> then_(((_stdout, _stderr)) => {
-                      progress.report(. {"increment": 10});
-                      Js.(
-                        Promise.(
-                          AzurePipelines.getBuildID()
-                          |> then_(AzurePipelines.getDownloadURL)
-                          |> then_(r =>
-                               switch (r) {
-                               | Ok(downloadUrl) =>
-                                 Js.log2("download", downloadUrl);
-                                 let lastProgress = ref(0);
-                                 Promise.make((~resolve, ~reject as _) =>
-                                   download(
-                                     downloadUrl,
-                                     Path.join([|
-                                       hiddenEsyRoot,
-                                       "cache.zip",
-                                     |]),
-                                     ~progress=
-                                       progressFraction => {
-                                         let percent =
-                                           int_of_float(
-                                             progressFraction *. 80.0,
-                                           );
-                                         progress.report(. {
-                                           "increment":
-                                             percent - lastProgress^,
-                                         });
-                                         lastProgress := percent;
-                                       },
-                                     ~data=_ => (),
-                                     ~error=
-                                       e =>
-                                         resolve(.
-                                           Error(
-                                             {j|Failed to download $downloadUrl |j},
-                                           ),
-                                         ),
-                                     ~end_=() => {resolve(. Ok())},
-                                   )
-                                 );
-                               | Error(x) => resolve(Error(x))
-                               }
-                             )
-                        )
-                      );
-                    })
-                 |> then_(_result => {
-                      ChildProcess.exec(
-                        "unzip cache.zip",
-                        ChildProcess.Options.make(~cwd=hiddenEsyRoot, ()),
-                      )
-                    })
-                 |> then_(_ => {
-                      ChildProcess.exec(
-                        "esy import-dependencies -P " ++ hiddenEsyRoot,
-                        ChildProcess.Options.make(~cwd=hiddenEsyRoot, ()),
-                      )
-                    })
-                 |> then_(_ => {
-                      ChildProcess.exec(
-                        "esy build -P " ++ hiddenEsyRoot,
-                        ChildProcess.Options.make(~cwd=hiddenEsyRoot, ()),
-                      )
-                    })
-                 |> then_(_ => resolve());
-               },
-             )
-           )
-         })
     );
   };
 };

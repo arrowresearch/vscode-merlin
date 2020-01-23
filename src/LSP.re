@@ -12,31 +12,32 @@ module Server = {
     Js.Dict.set(processEnv, "MERLIN_LOG", "-");
     Js.Promise.(
       ProjectType.(
-        {
-          ProjectType.detect(folder)
-          |> then_(projectType => {
-               let setupPromise =
-                 switch (projectType) {
-                 | Esy({readyForDev}) =>
-                   if (readyForDev) {
-                     resolve();
-                   } else {
-                     Setup.Esy.run(folder);
-                   }
-                 | Opam => resolve()
-                 | Bsb({readyForDev}) =>
-                   if (readyForDev) {
-                     resolve();
-                   } else {
-                     /* Not ready for dev. Setting up */
-                     Setup.Bsb.run(folder);
-                   }
-                 };
-               setupPromise
-               |> then_(() => {
+        ProjectType.detect(folder)
+        |> then_(projectType => {
+             let setupPromise =
+               switch (projectType) {
+               | Esy({readyForDev}) =>
+                 if (readyForDev) {
+                   resolve(Ok());
+                 } else {
+                   Setup.Esy.run(folder);
+                 }
+               | Opam => resolve(Ok())
+               | Bsb({readyForDev}) =>
+                 if (readyForDev) {
+                   resolve(Ok());
+                 } else {
+                   /* Not ready for dev. Setting up */
+                   Setup.Bsb.run(folder);
+                 }
+               };
+             setupPromise
+             |> then_(r => {
+                  switch (r) {
+                  | Ok () =>
                     switch (projectType) {
                     | Esy(_) =>
-                      resolve({
+                      Ok({
                         command:
                           Process.platform == "win32" ? "esy.cmd" : "esy",
                         args: [|
@@ -48,24 +49,25 @@ module Server = {
                           env: processEnv,
                         },
                       })
+                      |> resolve
                     | Opam =>
                       if (processPlatform == "win32") {
-                        reject(
-                          Failure(
-                            "Opam workflow for Windows is not supported yet",
-                          ),
-                        );
+                        Error(
+                          "Opam workflow for Windows is not supported yet",
+                        )
+                        |> resolve;
                       } else {
-                        resolve({
+                        Ok({
                           command: "opam",
                           args: [|"exec", "ocamllsp"|],
                           options: {
                             env: processEnv,
                           },
-                        });
+                        })
+                        |> resolve;
                       }
                     | Bsb(_) =>
-                      resolve({
+                      Ok({
                         command:
                           Bindings.processPlatform == "win32"
                             ? "esy.cmd" : "esy",
@@ -78,10 +80,12 @@ module Server = {
                           env: processEnv,
                         },
                       })
+                      |> resolve
                     }
-                  });
-             });
-        }
+                  | Error(e) => resolve(Error(e))
+                  }
+                });
+           })
       )
     );
   };
