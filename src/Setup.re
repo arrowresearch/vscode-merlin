@@ -49,208 +49,188 @@ module Bsb = {
   };
 
   let processDeps = dependenciesJson => {
-    Js.Promise.(
-      Js.Json.(
-        switch (dependenciesJson->object_->classify) {
-        | JSONObject(dependenciesDict) =>
-          switch (Js.Dict.get(dependenciesDict, "bs-platform")) {
-          | Some(bsPlatformVersionJson) =>
-            switch (Js.Json.classify(bsPlatformVersionJson)) {
-            | JSONString(bsPlatformVersion) =>
-              if (bsPlatformVersion
-                  ->Semver.minVersion
-                  ->Semver.satisfies(">=6.0.0")) {
-                Ok();
-              } else {
-                Error("Bucklescript <7 not supported");
-              }
-            | _ =>
-              Error(
-                "'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!",
-              )
+    Js.Json.(
+      switch (dependenciesJson->object_->classify) {
+      | JSONObject(dependenciesDict) =>
+        switch (Js.Dict.get(dependenciesDict, "bs-platform")) {
+        | Some(bsPlatformVersionJson) =>
+          switch (Js.Json.classify(bsPlatformVersionJson)) {
+          | JSONString(bsPlatformVersion) =>
+            if (bsPlatformVersion
+                ->Semver.minVersion
+                ->Semver.satisfies(">=6.0.0")) {
+              Ok();
+            } else {
+              Error("Bucklescript <7 not supported");
             }
-
-          | None =>
+          | _ =>
             Error(
-              "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
+              "'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!",
             )
           }
-        | _ =>
+
+        | None =>
           Error(
-            "'dependencies' section in the manifest file was expected to be dictionary, but it was not!",
+            "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
           )
         }
-      )
+      | _ =>
+        Error(
+          "'dependencies' section in the manifest file was expected to be dictionary, but it was not!",
+        )
+      }
     );
   };
 
   let toBeBrokenDownNext = manifestJson => {
-    Js.Promise.(
-      Js.Json.(
-        switch (classify(manifestJson)) {
-        | JSONObject(dict) =>
-          switch (
-            getSubDict(dict, "dependencies"),
-            getSubDict(dict, "devDependencies"),
-          ) {
-          | (Some(dependenciesJson), None)
-          | (None, Some(dependenciesJson)) => processDeps(dependenciesJson)
-          | (Some(dependenciesJson), Some(devDependenciesJson)) =>
-            processDeps(mergeDicts(dependenciesJson, devDependenciesJson))
-          | (None, None) =>
-            Error(
-              "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
-            )
-          }
-        | _ =>
+    Js.Json.(
+      switch (classify(manifestJson)) {
+      | JSONObject(dict) =>
+        switch (
+          getSubDict(dict, "dependencies"),
+          getSubDict(dict, "devDependencies"),
+        ) {
+        | (Some(dependenciesJson), None)
+        | (None, Some(dependenciesJson)) => processDeps(dependenciesJson)
+        | (Some(dependenciesJson), Some(devDependenciesJson)) =>
+          processDeps(mergeDicts(dependenciesJson, devDependenciesJson))
+        | (None, None) =>
           Error(
-            "The entire manifest was expected to be dictionary of key-vals, but it was not!:",
+            "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
           )
         }
-      )
+      | _ =>
+        Error(
+          "The entire manifest was expected to be dictionary of key-vals, but it was not!:",
+        )
+      }
     );
   };
 
   let run = projectPath => {
     let manifestPath = Path.join([|projectPath, "package.json"|]);
-    Js.Promise.(
-      Js.Json.(
-        {
-          let folder = Filename.dirname(manifestPath);
-          Fs.readFile(manifestPath)
-          |> then_(manifest => {
-               let manifestJson = parseExn(manifest);
-               switch (toBeBrokenDownNext(manifestJson)) {
-               | Ok () =>
-                 let esyJsonTargetDir =
-                   Path.join([|folder, ".vscode", "esy"|]);
-                 Fs.mkdir(~p=true, esyJsonTargetDir)
-                 |> then_(_ => {
-                      Filename.concat(esyJsonTargetDir, "esy.json")
-                      |> dropAnEsyJSON
-                      |> then_(() => {
-                           Window.(
-                             withProgress(
-                               {
-                                 "location": 15 /* Window.(locationToJs(Notification)) */,
-                                 "title": "Setting up toolchain...",
-                               },
-                               progress => {
-                                 progress.report(. {"increment": 10});
-                                 /* Running esy */
-                                 let hiddenEsyRoot =
-                                   Path.join([|
-                                     projectPath,
-                                     ".vscode",
-                                     "esy",
-                                   |]);
-                                 ChildProcess.exec(
-                                   "esy i -P " ++ hiddenEsyRoot,
-                                   ChildProcess.Options.make(
-                                     ~cwd=projectPath,
-                                     (),
-                                   ),
-                                 )
-                                 |> then_(((_stdout, _stderr)) => {
-                                      progress.report(. {"increment": 10});
-                                      Js.(
-                                        Promise.(
-                                          AzurePipelines.getBuildID()
-                                          |> then_(
-                                               AzurePipelines.getDownloadURL,
-                                             )
-                                          |> then_(r =>
-                                               switch (r) {
-                                               | Ok(downloadUrl) =>
-                                                 Js.log2(
-                                                   "download",
-                                                   downloadUrl,
-                                                 );
-                                                 let lastProgress = ref(0);
-                                                 Promise.make(
-                                                   (~resolve, ~reject as _) =>
-                                                   download(
-                                                     downloadUrl,
-                                                     Path.join([|
-                                                       hiddenEsyRoot,
-                                                       "cache.zip",
-                                                     |]),
-                                                     ~progress=
-                                                       progressFraction => {
-                                                         let percent =
-                                                           int_of_float(
-                                                             progressFraction
-                                                             *. 80.0,
-                                                           );
-                                                         progress.report(. {
-                                                           "increment":
-                                                             percent
-                                                             - lastProgress^,
-                                                         });
-                                                         lastProgress :=
-                                                           percent;
-                                                       },
-                                                     ~data=_ => (),
-                                                     ~error=
-                                                       e =>
-                                                         resolve(.
-                                                           Error(
-                                                             {j|Failed to download $downloadUrl |j},
-                                                           ),
-                                                         ),
-                                                     ~end_=
-                                                       () => {
-                                                         resolve(. Ok())
-                                                       },
-                                                   )
-                                                 );
-                                               | Error(x) =>
-                                                 resolve(Error(x))
-                                               }
-                                             )
-                                        )
-                                      );
-                                    })
-                                 |> then_(_result => {
-                                      ChildProcess.exec(
-                                        "unzip cache.zip",
-                                        ChildProcess.Options.make(
-                                          ~cwd=hiddenEsyRoot,
-                                          (),
-                                        ),
+
+    let runEsyCommands = folder => {
+      let esyJsonTargetDir = Path.join([|folder, ".vscode", "esy"|]);
+      Js.Promise.(
+        Fs.mkdir(~p=true, esyJsonTargetDir)
+        |> then_(_ => {
+             Filename.concat(esyJsonTargetDir, "esy.json")
+             |> dropAnEsyJSON
+             |> then_(() => {
+                  Window.(
+                    withProgress(
+                      {
+                        "location": 15 /* Window.(locationToJs(Notification)) */,
+                        "title": "Setting up toolchain...",
+                      },
+                      progress => {
+                        progress.report(. {"increment": 10});
+                        /* Running esy */
+                        let hiddenEsyRoot =
+                          Path.join([|projectPath, ".vscode", "esy"|]);
+                        ChildProcess.exec(
+                          "esy i -P " ++ hiddenEsyRoot,
+                          ChildProcess.Options.make(~cwd=projectPath, ()),
+                        )
+                        |> then_(((_stdout, _stderr)) => {
+                             progress.report(. {"increment": 10});
+                             AzurePipelines.getBuildID()
+                             |> then_(AzurePipelines.getDownloadURL)
+                             |> then_(r =>
+                                  switch (r) {
+                                  | Ok(downloadUrl) =>
+                                    Js.log2("download", downloadUrl);
+                                    let lastProgress = ref(0);
+                                    Js.Promise.make((~resolve, ~reject as _) =>
+                                      download(
+                                        downloadUrl,
+                                        Path.join([|
+                                          hiddenEsyRoot,
+                                          "cache.zip",
+                                        |]),
+                                        ~progress=
+                                          progressFraction => {
+                                            let percent =
+                                              int_of_float(
+                                                progressFraction *. 80.0,
+                                              );
+                                            progress.report(. {
+                                              "increment":
+                                                percent - lastProgress^,
+                                            });
+                                            lastProgress := percent;
+                                          },
+                                        ~data=_ => (),
+                                        ~error=
+                                          _e =>
+                                            resolve(.
+                                              Error(
+                                                {j|Failed to download $downloadUrl |j},
+                                              ),
+                                            ),
+                                        ~end_=() => {resolve(. Ok())},
                                       )
-                                    })
-                                 |> then_(_ => {
-                                      ChildProcess.exec(
-                                        "esy import-dependencies -P "
-                                        ++ hiddenEsyRoot,
-                                        ChildProcess.Options.make(
-                                          ~cwd=hiddenEsyRoot,
-                                          (),
-                                        ),
-                                      )
-                                    })
-                                 |> then_(_ => {
-                                      ChildProcess.exec(
-                                        "esy build -P " ++ hiddenEsyRoot,
-                                        ChildProcess.Options.make(
-                                          ~cwd=hiddenEsyRoot,
-                                          (),
-                                        ),
-                                      )
-                                    })
-                                 |> then_(_ => resolve());
-                               },
+                                    );
+                                  | Error(x) => resolve(Error(x))
+                                  }
+                                );
+                           })
+                        |> then_(_result => {
+                             ChildProcess.exec(
+                               "unzip cache.zip",
+                               ChildProcess.Options.make(
+                                 ~cwd=hiddenEsyRoot,
+                                 (),
+                               ),
                              )
-                           )
-                         })
-                      |> then_(() => Ok() |> resolve)
-                    });
-               | _ as e => e |> resolve
-               };
-             });
-        }
-      )
+                           })
+                        |> then_(_ => {
+                             ChildProcess.exec(
+                               "esy import-dependencies -P " ++ hiddenEsyRoot,
+                               ChildProcess.Options.make(
+                                 ~cwd=hiddenEsyRoot,
+                                 (),
+                               ),
+                             )
+                           })
+                        |> then_(_ => {
+                             ChildProcess.exec(
+                               "esy build -P " ++ hiddenEsyRoot,
+                               ChildProcess.Options.make(
+                                 ~cwd=hiddenEsyRoot,
+                                 (),
+                               ),
+                             )
+                           })
+                        |> then_(_ => resolve());
+                      },
+                    )
+                  )
+                })
+             |> then_(() => Ok() |> resolve)
+           })
+      );
+    };
+    Js.Promise.(
+      {
+        let folder = Filename.dirname(manifestPath);
+        Fs.readFile(manifestPath)
+        |> then_(manifest => {
+             Option.(
+               Json.(
+                 parse(manifest)
+                 >>| toBeBrokenDownNext
+                 >>| (
+                   fun
+                   | Ok () => runEsyCommands(folder)
+                   | Error(e) => resolve(Error(e))
+                 )
+               )
+               |> toPromise("Failed to parse manifest file")
+             )
+           });
+      }
     );
   };
 };

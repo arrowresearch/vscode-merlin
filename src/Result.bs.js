@@ -3,29 +3,31 @@
 
 var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
+var Belt_Result = require("bs-platform/lib/js/belt_Result.js");
+var Caml_option = require("bs-platform/lib/js/caml_option.js");
 
-function map(e, f) {
-  if (e.tag) {
-    return /* Error */Block.__(1, [e[0]]);
+function $pipe$bang(o, f) {
+  if (o !== undefined) {
+    return /* () */0;
   } else {
-    return /* Ok */Block.__(0, [Curry._1(f, e[0])]);
+    return Curry._1(f, /* () */0);
   }
 }
 
-function bind(e, f) {
-  if (e.tag) {
-    return /* Error */Block.__(1, [e[0]]);
+function toResult(msg, param) {
+  if (param !== undefined) {
+    return /* Ok */Block.__(0, [Caml_option.valFromOption(param)]);
   } else {
-    return Curry._1(f, e[0]);
+    return /* Error */Block.__(1, [msg]);
   }
 }
 
-var $great$pipe = map;
+var $great$great$eq = Belt_Result.flatMap;
 
-var $great$great$eq = bind;
+var $great$great$pipe = Belt_Result.map;
 
-exports.map = map;
-exports.$great$pipe = $great$pipe;
-exports.bind = bind;
 exports.$great$great$eq = $great$great$eq;
+exports.$great$great$pipe = $great$great$pipe;
+exports.$pipe$bang = $pipe$bang;
+exports.toResult = toResult;
 /* No side effect */

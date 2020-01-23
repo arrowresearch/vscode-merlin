@@ -1,12 +1,15 @@
-let map = (e, f) =>
-  switch (e) {
-  | Ok(x) => Ok(f(x))
-  | Error(x) => Error(x)
+open Belt.Result;
+
+let (>>=) = flatMap;
+let (>>|) = map;
+
+let (|!) = (o, f) =>
+  switch (o) {
+  | None => f()
+  | _ => ()
   };
-let (>|) = map;
-let bind = (e, f: 'a => result('c, 'b)) =>
-  switch (e) {
-  | Ok(x) => f(x)
-  | Error(x) => Error(x)
-  };
-let (>>=) = bind;
+
+let toResult = msg =>
+  fun
+  | Some(x) => Ok(x)
+  | None => Error(msg);

@@ -27,7 +27,7 @@ function propertyExists(json, property) {
 }
 
 function mapResultAndResolvePromise(f, r) {
-  return Promise.resolve(Result.$great$pipe(r, f));
+  return Promise.resolve(Result.$great$great$pipe(r, f));
 }
 
 function bindResultAndResolvePromise(f, r) {

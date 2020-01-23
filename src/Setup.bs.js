@@ -2,11 +2,13 @@
 'use strict';
 
 var Fs = require("fs");
+var Json = require("@glennsl/bs-json/src/Json.bs.js");
 var $$Node = require("./bindings/Node.bs.js");
 var Path = require("path");
 var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
 var Utils = require("./Utils.bs.js");
+var $$Option = require("./Option.bs.js");
 var Semver = require("semver");
 var Vscode = require("vscode");
 var Js_dict = require("bs-platform/lib/js/js_dict.js");
@@ -113,77 +115,78 @@ function run$2(projectPath) {
   var manifestPath = Path.join(projectPath, "package.json");
   var folder = Curry._1(Filename.dirname, manifestPath);
   return $$Node.Fs.readFile(manifestPath).then((function (manifest) {
-                var manifestJson = JSON.parse(manifest);
-                var e = toBeBrokenDownNext(manifestJson);
-                if (e.tag) {
-                  return Promise.resolve(e);
-                } else {
-                  var esyJsonTargetDir = Path.join(folder, ".vscode", "esy");
-                  return $$Node.Fs.mkdir(true, esyJsonTargetDir).then((function (param) {
-                                var path = Filename.concat(esyJsonTargetDir, "esy.json");
-                                return $$Node.Fs.writeFile(path, Bindings.thisProjectsEsyJson).then((function (param) {
-                                                return Vscode.window.withProgress({
-                                                            location: 15,
-                                                            title: "Setting up toolchain..."
-                                                          }, (function (progress) {
-                                                              progress.report({
-                                                                    increment: 10
-                                                                  });
-                                                              var hiddenEsyRoot = Path.join(projectPath, ".vscode", "esy");
-                                                              return $$Node.ChildProcess.exec("esy i -P " + hiddenEsyRoot, {
-                                                                                    cwd: projectPath
-                                                                                  }).then((function (param) {
-                                                                                    progress.report({
-                                                                                          increment: 10
-                                                                                        });
-                                                                                    return AzurePipelines.getBuildID(/* () */0).then(AzurePipelines.getDownloadURL).then((function (r) {
-                                                                                                  if (r.tag) {
-                                                                                                    return Promise.resolve(/* Error */Block.__(1, [r[0]]));
-                                                                                                  } else {
-                                                                                                    var downloadUrl = r[0];
-                                                                                                    console.log("download", downloadUrl);
-                                                                                                    var lastProgress = {
-                                                                                                      contents: 0
-                                                                                                    };
-                                                                                                    return new Promise((function (resolve, param) {
-                                                                                                                  return download(downloadUrl, Path.join(hiddenEsyRoot, "cache.zip"), (function (progressFraction) {
-                                                                                                                                var percent = progressFraction * 80.0 | 0;
-                                                                                                                                progress.report({
-                                                                                                                                      increment: percent - lastProgress.contents | 0
-                                                                                                                                    });
-                                                                                                                                lastProgress.contents = percent;
-                                                                                                                                return /* () */0;
-                                                                                                                              }), (function (param) {
-                                                                                                                                return resolve(/* Ok */Block.__(0, [/* () */0]));
-                                                                                                                              }), (function (e) {
-                                                                                                                                return resolve(/* Error */Block.__(1, ["Failed to download " + (String(downloadUrl) + " ")]));
-                                                                                                                              }), (function (param) {
-                                                                                                                                return /* () */0;
-                                                                                                                              }));
-                                                                                                                }));
-                                                                                                  }
-                                                                                                }));
-                                                                                  })).then((function (_result) {
-                                                                                  return $$Node.ChildProcess.exec("unzip cache.zip", {
-                                                                                              cwd: hiddenEsyRoot
-                                                                                            });
-                                                                                })).then((function (param) {
-                                                                                return $$Node.ChildProcess.exec("esy import-dependencies -P " + hiddenEsyRoot, {
-                                                                                            cwd: hiddenEsyRoot
-                                                                                          });
-                                                                              })).then((function (param) {
-                                                                              return $$Node.ChildProcess.exec("esy build -P " + hiddenEsyRoot, {
-                                                                                          cwd: hiddenEsyRoot
-                                                                                        });
-                                                                            })).then((function (param) {
-                                                                            return Promise.resolve(/* () */0);
-                                                                          }));
-                                                            }));
-                                              })).then((function (param) {
-                                              return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
-                                            }));
-                              }));
-                }
+                return $$Option.toPromise("Failed to parse manifest file", $$Option.$great$great$pipe($$Option.$great$great$pipe(Json.parse(manifest), toBeBrokenDownNext), (function (param) {
+                                  if (param.tag) {
+                                    return Promise.resolve(/* Error */Block.__(1, [param[0]]));
+                                  } else {
+                                    var folder$1 = folder;
+                                    var esyJsonTargetDir = Path.join(folder$1, ".vscode", "esy");
+                                    return $$Node.Fs.mkdir(true, esyJsonTargetDir).then((function (param) {
+                                                  var path = Filename.concat(esyJsonTargetDir, "esy.json");
+                                                  return $$Node.Fs.writeFile(path, Bindings.thisProjectsEsyJson).then((function (param) {
+                                                                  return Vscode.window.withProgress({
+                                                                              location: 15,
+                                                                              title: "Setting up toolchain..."
+                                                                            }, (function (progress) {
+                                                                                progress.report({
+                                                                                      increment: 10
+                                                                                    });
+                                                                                var hiddenEsyRoot = Path.join(projectPath, ".vscode", "esy");
+                                                                                return $$Node.ChildProcess.exec("esy i -P " + hiddenEsyRoot, {
+                                                                                                      cwd: projectPath
+                                                                                                    }).then((function (param) {
+                                                                                                      progress.report({
+                                                                                                            increment: 10
+                                                                                                          });
+                                                                                                      return AzurePipelines.getBuildID(/* () */0).then(AzurePipelines.getDownloadURL).then((function (r) {
+                                                                                                                    if (r.tag) {
+                                                                                                                      return Promise.resolve(/* Error */Block.__(1, [r[0]]));
+                                                                                                                    } else {
+                                                                                                                      var downloadUrl = r[0];
+                                                                                                                      console.log("download", downloadUrl);
+                                                                                                                      var lastProgress = {
+                                                                                                                        contents: 0
+                                                                                                                      };
+                                                                                                                      return new Promise((function (resolve, param) {
+                                                                                                                                    return download(downloadUrl, Path.join(hiddenEsyRoot, "cache.zip"), (function (progressFraction) {
+                                                                                                                                                  var percent = progressFraction * 80.0 | 0;
+                                                                                                                                                  progress.report({
+                                                                                                                                                        increment: percent - lastProgress.contents | 0
+                                                                                                                                                      });
+                                                                                                                                                  lastProgress.contents = percent;
+                                                                                                                                                  return /* () */0;
+                                                                                                                                                }), (function (param) {
+                                                                                                                                                  return resolve(/* Ok */Block.__(0, [/* () */0]));
+                                                                                                                                                }), (function (_e) {
+                                                                                                                                                  return resolve(/* Error */Block.__(1, ["Failed to download " + (String(downloadUrl) + " ")]));
+                                                                                                                                                }), (function (param) {
+                                                                                                                                                  return /* () */0;
+                                                                                                                                                }));
+                                                                                                                                  }));
+                                                                                                                    }
+                                                                                                                  }));
+                                                                                                    })).then((function (_result) {
+                                                                                                    return $$Node.ChildProcess.exec("unzip cache.zip", {
+                                                                                                                cwd: hiddenEsyRoot
+                                                                                                              });
+                                                                                                  })).then((function (param) {
+                                                                                                  return $$Node.ChildProcess.exec("esy import-dependencies -P " + hiddenEsyRoot, {
+                                                                                                              cwd: hiddenEsyRoot
+                                                                                                            });
+                                                                                                })).then((function (param) {
+                                                                                                return $$Node.ChildProcess.exec("esy build -P " + hiddenEsyRoot, {
+                                                                                                            cwd: hiddenEsyRoot
+                                                                                                          });
+                                                                                              })).then((function (param) {
+                                                                                              return Promise.resolve(/* () */0);
+                                                                                            }));
+                                                                              }));
+                                                                })).then((function (param) {
+                                                                return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
+                                                              }));
+                                                }));
+                                  }
+                                })));
               }));
 }
 

@@ -1,17 +1,20 @@
-let (>>=) = (o, f) =>
-  switch (o) {
-  | Some(x) => f(x)
-  | None => None
-  };
+open Belt.Option;
 
-let (>|) = (o, f) =>
-  switch (o) {
-  | Some(x) => Some(f(x))
-  | None => None
-  };
+let (>>=) = flatMap;
+let (>>|) = map;
 
 let (|!) = (o, f) =>
   switch (o) {
   | None => f()
   | _ => ()
   };
+
+let toResult = msg =>
+  fun
+  | Some(x) => Ok(x)
+  | None => Error(msg);
+
+let toPromise = msg =>
+  fun
+  | Some(x) => x
+  | None => Js.Promise.resolve(Error(msg));
