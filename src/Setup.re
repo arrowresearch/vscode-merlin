@@ -48,60 +48,34 @@ module Bsb = {
     Fs.writeFile(path, thisProjectsEsyJson);
   };
 
-  let processDeps = dependenciesJson => {
-    Js.Json.(
-      switch (dependenciesJson->object_->classify) {
-      | JSONObject(dependenciesDict) =>
-        switch (Js.Dict.get(dependenciesDict, "bs-platform")) {
-        | Some(bsPlatformVersionJson) =>
-          switch (Js.Json.classify(bsPlatformVersionJson)) {
-          | JSONString(bsPlatformVersion) =>
-            if (bsPlatformVersion
-                ->Semver.minVersion
-                ->Semver.satisfies(">=6.0.0")) {
-              Ok();
-            } else {
-              Error("Bucklescript <7 not supported");
-            }
-          | _ =>
-            Error(
-              "'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!",
-            )
-          }
-
-        | None =>
-          Error(
-            "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
-          )
-        }
-      | _ =>
-        Error(
-          "'dependencies' section in the manifest file was expected to be dictionary, but it was not!",
-        )
+  let processDeps = dependencies => {
+    switch (Js.Dict.get(dependencies, "bs-platform")) {
+    | Some(bsPlatformVersion) =>
+      if (bsPlatformVersion->Semver.minVersion->Semver.satisfies(">=6.0.0")) {
+        Ok();
+      } else {
+        Error("Bucklescript <7 not supported");
       }
-    );
+    | None =>
+      Error(
+        "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
+      )
+    };
   };
 
   let toBeBrokenDownNext = manifestJson => {
-    Js.Json.(
-      switch (classify(manifestJson)) {
-      | JSONObject(dict) =>
-        switch (
-          getSubDict(dict, "dependencies"),
-          getSubDict(dict, "devDependencies"),
-        ) {
-        | (Some(dependenciesJson), None)
-        | (None, Some(dependenciesJson)) => processDeps(dependenciesJson)
-        | (Some(dependenciesJson), Some(devDependenciesJson)) =>
-          processDeps(mergeDicts(dependenciesJson, devDependenciesJson))
-        | (None, None) =>
-          Error(
-            "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
-          )
-        }
-      | _ =>
+    Json.Decode.(
+      switch (
+        manifestJson |> (field("dependencies", dict(string)) |> optional),
+        manifestJson |> (field("devDependencies", dict(string)) |> optional),
+      ) {
+      | (Some(dependenciesJson), None)
+      | (None, Some(dependenciesJson)) => processDeps(dependenciesJson)
+      | (Some(dependenciesJson), Some(devDependenciesJson)) =>
+        processDeps(mergeDicts(dependenciesJson, devDependenciesJson))
+      | (None, None) =>
         Error(
-          "The entire manifest was expected to be dictionary of key-vals, but it was not!:",
+          "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
         )
       }
     );

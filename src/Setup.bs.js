@@ -12,11 +12,11 @@ var $$Option = require("./Option.bs.js");
 var Semver = require("semver");
 var Vscode = require("vscode");
 var Js_dict = require("bs-platform/lib/js/js_dict.js");
-var Js_json = require("bs-platform/lib/js/js_json.js");
 var $$Request = require("request");
 var Bindings = require("./bindings/Bindings.bs.js");
 var Filename = require("bs-platform/lib/js/filename.js");
 var Caml_option = require("bs-platform/lib/js/caml_option.js");
+var Json_decode = require("@glennsl/bs-json/src/Json_decode.bs.js");
 var AzurePipelines = require("./AzurePipelines.bs.js");
 var RequestProgress = require("request-progress");
 
@@ -67,47 +67,41 @@ function dropAnEsyJSON(path) {
   return $$Node.Fs.writeFile(path, Bindings.thisProjectsEsyJson);
 }
 
-function processDeps(dependenciesJson) {
-  var match = Js_json.classify(dependenciesJson);
-  if (typeof match === "number" || match.tag !== /* JSONObject */2) {
-    return /* Error */Block.__(1, ["'dependencies' section in the manifest file was expected to be dictionary, but it was not!"]);
-  } else {
-    var match$1 = Js_dict.get(match[0], "bs-platform");
-    if (match$1 !== undefined) {
-      var match$2 = Js_json.classify(Caml_option.valFromOption(match$1));
-      if (typeof match$2 === "number" || match$2.tag) {
-        return /* Error */Block.__(1, ["'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!"]);
-      } else if (Semver.satisfies(Semver.minVersion(match$2[0]), ">=6.0.0")) {
-        return /* Ok */Block.__(0, [/* () */0]);
-      } else {
-        return /* Error */Block.__(1, ["Bucklescript <7 not supported"]);
-      }
+function processDeps(dependencies) {
+  var match = Js_dict.get(dependencies, "bs-platform");
+  if (match !== undefined) {
+    if (Semver.satisfies(Semver.minVersion(match), ">=6.0.0")) {
+      return /* Ok */Block.__(0, [/* () */0]);
     } else {
-      return /* Error */Block.__(1, ["'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!"]);
+      return /* Error */Block.__(1, ["Bucklescript <7 not supported"]);
     }
+  } else {
+    return /* Error */Block.__(1, ["'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!"]);
   }
 }
 
 function toBeBrokenDownNext(manifestJson) {
-  var match = Js_json.classify(manifestJson);
-  if (typeof match === "number" || match.tag !== /* JSONObject */2) {
-    return /* Error */Block.__(1, ["The entire manifest was expected to be dictionary of key-vals, but it was not!:"]);
-  } else {
-    var dict = match[0];
-    var match$1 = Utils.getSubDict(dict, "dependencies");
-    var match$2 = Utils.getSubDict(dict, "devDependencies");
+  var match = Json_decode.optional((function (param) {
+          return Json_decode.field("dependencies", (function (param) {
+                        return Json_decode.dict(Json_decode.string, param);
+                      }), param);
+        }), manifestJson);
+  var match$1 = Json_decode.optional((function (param) {
+          return Json_decode.field("devDependencies", (function (param) {
+                        return Json_decode.dict(Json_decode.string, param);
+                      }), param);
+        }), manifestJson);
+  if (match !== undefined) {
+    var dependenciesJson = Caml_option.valFromOption(match);
     if (match$1 !== undefined) {
-      var dependenciesJson = Caml_option.valFromOption(match$1);
-      if (match$2 !== undefined) {
-        return processDeps(Utils.mergeDicts(dependenciesJson, Caml_option.valFromOption(match$2)));
-      } else {
-        return processDeps(dependenciesJson);
-      }
-    } else if (match$2 !== undefined) {
-      return processDeps(Caml_option.valFromOption(match$2));
+      return processDeps(Utils.mergeDicts(dependenciesJson, Caml_option.valFromOption(match$1)));
     } else {
-      return /* Error */Block.__(1, ["The manifest file doesn't seem to contain `dependencies` or `devDependencies` property"]);
+      return processDeps(dependenciesJson);
     }
+  } else if (match$1 !== undefined) {
+    return processDeps(Caml_option.valFromOption(match$1));
+  } else {
+    return /* Error */Block.__(1, ["The manifest file doesn't seem to contain `dependencies` or `devDependencies` property"]);
   }
 }
 
