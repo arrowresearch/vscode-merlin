@@ -72,7 +72,8 @@ module Window = {
   type progress = {report: (. {. "increment": int}) => unit};
   [@bs.module "vscode"] [@bs.scope "window"]
   external withProgress:
-    (withProgessConfig, progress => Js.Promise.t(unit)) => Js.Promise.t(unit) =
+    (withProgessConfig, progress => Js.Promise.t(result('a, 'b))) =>
+    Js.Promise.t(result('a, 'b)) =
     "withProgress";
 };
 
