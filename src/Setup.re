@@ -48,39 +48,6 @@ module Bsb = {
     Fs.writeFile(path, thisProjectsEsyJson);
   };
 
-  let processDeps = dependencies => {
-    switch (Js.Dict.get(dependencies, "bs-platform")) {
-    | Some(bsPlatformVersion) =>
-      if (bsPlatformVersion->Semver.minVersion->Semver.satisfies(">=6.0.0")) {
-        Ok();
-      } else {
-        Error("Bucklescript <7 not supported");
-      }
-    | None =>
-      Error(
-        "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
-      )
-    };
-  };
-
-  let toBeBrokenDownNext = manifestJson => {
-    Json.Decode.(
-      switch (
-        manifestJson |> (field("dependencies", dict(string)) |> optional),
-        manifestJson |> (field("devDependencies", dict(string)) |> optional),
-      ) {
-      | (Some(dependenciesJson), None)
-      | (None, Some(dependenciesJson)) => processDeps(dependenciesJson)
-      | (Some(dependenciesJson), Some(devDependenciesJson)) =>
-        processDeps(mergeDicts(dependenciesJson, devDependenciesJson))
-      | (None, None) =>
-        Error(
-          "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
-        )
-      }
-    );
-  };
-
   let run = projectPath => {
     let manifestPath = Path.join([|projectPath, "package.json"|]);
     let runEsyCommands = folder => {
@@ -173,7 +140,7 @@ module Bsb = {
              Option.(
                Json.(
                  parse(manifest)
-                 >>| toBeBrokenDownNext
+                 >>| CheckBucklescriptCompat.run
                  >>| (
                    fun
                    | Ok () => runEsyCommands(folder)

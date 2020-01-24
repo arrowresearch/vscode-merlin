@@ -2,7 +2,7 @@
 'use strict';
 
 var Jest = require("@glennsl/bs-jest/src/jest.js");
-var $$Node = require("../src/bindings/Node.bs.js");
+var $$Node = require("../bindings/Node.bs.js");
 
 Jest.describe("Expect", (function (param) {
         return Jest.testPromise("toBe", undefined, (function (param) {

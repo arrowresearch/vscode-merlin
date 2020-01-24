@@ -95,7 +95,7 @@
     "watch": "run-p watch:bsb watch:webpack",
     "test:bsb": "node ./test/runBsbTests.js",
     "test:esy": "node ./test/runEsyTests.js",
-    "test:unit": "npm run build:bsb && jest __tests__",
+    "test:unit": "npm run build:bsb && jest src/",
     "test:opam": "node ./test/runOpamTests.js",
     "test": "npm run test:unit && npm run test:esy && npm run test:opam && npm run test:bsb",
     "package": "vsce package",

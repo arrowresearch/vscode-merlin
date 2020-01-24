@@ -6,11 +6,11 @@
   },
   "sources": [
     {
-      "subdirs": true,
+      "subdirs": ["bindings", "formatters"],
       "dir": "src"
     },
     {
-      "dir": "__tests__",
+      "dir": "src/__tests__",
       "type": "dev"
     }
   ],

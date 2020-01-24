@@ -7,18 +7,14 @@ var $$Node = require("./bindings/Node.bs.js");
 var Path = require("path");
 var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
-var Utils = require("./Utils.bs.js");
 var $$Option = require("./Option.bs.js");
-var Semver = require("semver");
 var Vscode = require("vscode");
-var Js_dict = require("bs-platform/lib/js/js_dict.js");
 var $$Request = require("request");
 var Bindings = require("./bindings/Bindings.bs.js");
 var Filename = require("bs-platform/lib/js/filename.js");
-var Caml_option = require("bs-platform/lib/js/caml_option.js");
-var Json_decode = require("@glennsl/bs-json/src/Json_decode.bs.js");
 var AzurePipelines = require("./AzurePipelines.bs.js");
 var RequestProgress = require("request-progress");
+var CheckBucklescriptCompat = require("./CheckBucklescriptCompat.bs.js");
 
 function run(projectPath) {
   return Vscode.window.withProgress({
@@ -67,49 +63,11 @@ function dropAnEsyJSON(path) {
   return $$Node.Fs.writeFile(path, Bindings.thisProjectsEsyJson);
 }
 
-function processDeps(dependencies) {
-  var match = Js_dict.get(dependencies, "bs-platform");
-  if (match !== undefined) {
-    if (Semver.satisfies(Semver.minVersion(match), ">=6.0.0")) {
-      return /* Ok */Block.__(0, [/* () */0]);
-    } else {
-      return /* Error */Block.__(1, ["Bucklescript <7 not supported"]);
-    }
-  } else {
-    return /* Error */Block.__(1, ["'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!"]);
-  }
-}
-
-function toBeBrokenDownNext(manifestJson) {
-  var match = Json_decode.optional((function (param) {
-          return Json_decode.field("dependencies", (function (param) {
-                        return Json_decode.dict(Json_decode.string, param);
-                      }), param);
-        }), manifestJson);
-  var match$1 = Json_decode.optional((function (param) {
-          return Json_decode.field("devDependencies", (function (param) {
-                        return Json_decode.dict(Json_decode.string, param);
-                      }), param);
-        }), manifestJson);
-  if (match !== undefined) {
-    var dependenciesJson = Caml_option.valFromOption(match);
-    if (match$1 !== undefined) {
-      return processDeps(Utils.mergeDicts(dependenciesJson, Caml_option.valFromOption(match$1)));
-    } else {
-      return processDeps(dependenciesJson);
-    }
-  } else if (match$1 !== undefined) {
-    return processDeps(Caml_option.valFromOption(match$1));
-  } else {
-    return /* Error */Block.__(1, ["The manifest file doesn't seem to contain `dependencies` or `devDependencies` property"]);
-  }
-}
-
 function run$2(projectPath) {
   var manifestPath = Path.join(projectPath, "package.json");
   var folder = Curry._1(Filename.dirname, manifestPath);
   return $$Node.Fs.readFile(manifestPath).then((function (manifest) {
-                return $$Option.toPromise("Failed to parse manifest file", $$Option.$great$great$pipe($$Option.$great$great$pipe(Json.parse(manifest), toBeBrokenDownNext), (function (param) {
+                return $$Option.toPromise("Failed to parse manifest file", $$Option.$great$great$pipe($$Option.$great$great$pipe(Json.parse(manifest), CheckBucklescriptCompat.run), (function (param) {
                                   if (param.tag) {
                                     return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                   } else {
@@ -186,8 +144,6 @@ function run$2(projectPath) {
 var Bsb = {
   download: download,
   dropAnEsyJSON: dropAnEsyJSON,
-  processDeps: processDeps,
-  toBeBrokenDownNext: toBeBrokenDownNext,
   run: run$2
 };
 
