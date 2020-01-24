@@ -177,6 +177,8 @@ module Path = {
   external join: array(string) => string = "join";
 
   [@bs.module "path"] external basename: string => string = "basename";
+
+  [@bs.module "path"] external dirname: string => string = "dirname";
 };
 
 module Response = {
