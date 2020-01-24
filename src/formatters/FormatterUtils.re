@@ -21,7 +21,7 @@ let getFormatterPath = formatter => {
        | ProjectType.Esy(_) => P.resolve({j|$esy $formatter|j})
        | Bsb(_) =>
          P.resolve({j|$esy -P $rootPath/.vscode/esy $formatter|j})
-       | Opam => P.resolve({j|opam exec $formatter|j})
+       | Opam => P.resolve({j|opam exec -- $formatter|j})
        };
      });
 };
