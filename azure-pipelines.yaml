@@ -1,4 +1,4 @@
-name: Build npm release
+name: vscode-merlin
 
 trigger:
   - master
