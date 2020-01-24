@@ -19,6 +19,7 @@ function register(param) {
       }, {
         provideDocumentFormattingEdits: (function ($$document) {
             var fileName = Path.basename($$document.fileName);
+            var cwd = Path.dirname($$document.fileName);
             var match = Vscode.window.activeTextEditor;
             if (match !== undefined) {
               var textEditor = match;
@@ -28,7 +29,9 @@ function register(param) {
               return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (param) {
                                   return FormatterUtils.getFormatterPath("refmt");
                                 })).then((function (formatterPath) {
-                                return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" " + (String(tempFileName) + (" " + (String(refmtWidthArg) + ""))))), { });
+                                return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" " + (String(tempFileName) + (" " + (String(refmtWidthArg) + ""))))), {
+                                            cwd: cwd
+                                          });
                               })).then((function (param) {
                               var textRange = FormatterUtils.getFullTextRange(textEditor.document);
                               $$Node.Fs.unlink(tempFileName);
