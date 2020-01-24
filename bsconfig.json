@@ -6,11 +6,11 @@
   },
   "sources": [
     {
-      "subdirs": true,
+      "subdirs": ["bindings", "formatters"],
       "dir": "src"
     },
     {
-      "dir": "__tests__",
+      "dir": "src/__tests__",
       "type": "dev"
     }
   ],
@@ -19,7 +19,7 @@
     "in-source": true
   },
   "suffix": ".bs.js",
-  "bs-dependencies": [],
+  "bs-dependencies": ["@glennsl/bs-json"],
   "bs-dev-dependencies": ["@glennsl/bs-jest"],
   "warnings": {
     "error": "+101"

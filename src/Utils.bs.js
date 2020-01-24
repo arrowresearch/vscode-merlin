@@ -4,6 +4,7 @@
 var Result = require("./Result.bs.js");
 var Js_dict = require("bs-platform/lib/js/js_dict.js");
 var Js_json = require("bs-platform/lib/js/js_json.js");
+var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var Caml_option = require("bs-platform/lib/js/caml_option.js");
 
 function propertyExists(json, property) {
@@ -26,14 +27,24 @@ function propertyExists(json, property) {
 }
 
 function mapResultAndResolvePromise(f, r) {
-  return Promise.resolve(Result.$great$pipe(r, f));
+  return Promise.resolve(Result.$great$great$pipe(r, f));
 }
 
 function bindResultAndResolvePromise(f, r) {
   return Promise.resolve(Result.$great$great$eq(r, f));
 }
 
+function getSubDict(dict, key) {
+  return Belt_Option.flatMap(Js_dict.get(dict, key), Js_json.decodeObject);
+}
+
+function mergeDicts(dict1, dict2) {
+  return Js_dict.fromArray(Js_dict.entries(dict2).concat(Js_dict.entries(dict1)));
+}
+
 exports.propertyExists = propertyExists;
 exports.mapResultAndResolvePromise = mapResultAndResolvePromise;
 exports.bindResultAndResolvePromise = bindResultAndResolvePromise;
+exports.getSubDict = getSubDict;
+exports.mergeDicts = mergeDicts;
 /* No side effect */

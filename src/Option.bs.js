@@ -3,7 +3,7 @@
 
 var Block = require("bs-platform/lib/js/block.js");
 var Curry = require("bs-platform/lib/js/curry.js");
-var Belt_Result = require("bs-platform/lib/js/belt_Result.js");
+var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var Caml_option = require("bs-platform/lib/js/caml_option.js");
 
 function $pipe$bang(o, f) {
@@ -22,12 +22,21 @@ function toResult(msg, param) {
   }
 }
 
-var $great$great$eq = Belt_Result.flatMap;
+function toPromise(msg, param) {
+  if (param !== undefined) {
+    return Caml_option.valFromOption(param);
+  } else {
+    return Promise.resolve(/* Error */Block.__(1, [msg]));
+  }
+}
 
-var $great$great$pipe = Belt_Result.map;
+var $great$great$eq = Belt_Option.flatMap;
+
+var $great$great$pipe = Belt_Option.map;
 
 exports.$great$great$eq = $great$great$eq;
 exports.$great$great$pipe = $great$great$pipe;
 exports.$pipe$bang = $pipe$bang;
 exports.toResult = toResult;
+exports.toPromise = toPromise;
 /* No side effect */

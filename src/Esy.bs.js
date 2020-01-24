@@ -2,20 +2,13 @@
 'use strict';
 
 var $$Node = require("./bindings/Node.bs.js");
-var Path = require("path");
-var Curry = require("bs-platform/lib/js/curry.js");
 var Js_exn = require("bs-platform/lib/js/js_exn.js");
-var Semver = require("semver");
 var Js_dict = require("bs-platform/lib/js/js_dict.js");
 var Js_json = require("bs-platform/lib/js/js_json.js");
-var Bindings = require("./bindings/Bindings.bs.js");
-var Filename = require("bs-platform/lib/js/filename.js");
 var Pervasives = require("bs-platform/lib/js/pervasives.js");
-var Belt_Option = require("bs-platform/lib/js/belt_Option.js");
 var Caml_option = require("bs-platform/lib/js/caml_option.js");
 var Caml_exceptions = require("bs-platform/lib/js/caml_exceptions.js");
 var Caml_js_exceptions = require("bs-platform/lib/js/caml_js_exceptions.js");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 var UnexpectedJSONValue = Caml_exceptions.create("Esy.UnexpectedJSONValue");
 
@@ -161,84 +154,6 @@ function getStatus(path) {
               }));
 }
 
-function dropAnEsyJSON(compilerVersion, folder) {
-  var esyJsonTargetDir = Path.join(folder, ".vscode", "esy");
-  return $$Node.Fs.mkdir(true, esyJsonTargetDir).then((function (param) {
-                return $$Node.Fs.writeFile(Filename.concat(esyJsonTargetDir, "esy.json"), Bindings.thisProjectsEsyJson);
-              }));
-}
-
-function processDeps(dependenciesJson, folder) {
-  var match = Js_json.classify(dependenciesJson);
-  if (typeof match === "number" || match.tag !== /* JSONObject */2) {
-    return Promise.reject([
-                Caml_builtin_exceptions.failure,
-                "'dependencies' section in the manifest file was expected to be dictionary, but it was not!"
-              ]);
-  } else {
-    var match$1 = Js_dict.get(match[0], "bs-platform");
-    if (match$1 !== undefined) {
-      var match$2 = Js_json.classify(Caml_option.valFromOption(match$1));
-      if (typeof match$2 === "number" || match$2.tag) {
-        return Promise.reject([
-                    Caml_builtin_exceptions.failure,
-                    "'bs-platform' (in dependencies section) was expected to contain a semver string, but it was not!"
-                  ]);
-      } else if (Semver.satisfies(Semver.minVersion(match$2[0]), ">=6.0.0")) {
-        return dropAnEsyJSON("4.6.x", folder);
-      } else {
-        return dropAnEsyJSON("4.2.x", folder);
-      }
-    } else {
-      return Promise.reject([
-                  Caml_builtin_exceptions.failure,
-                  "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!"
-                ]);
-    }
-  }
-}
-
-function getSubDict(dict, key) {
-  return Belt_Option.flatMap(Js_dict.get(dict, key), Js_json.decodeObject);
-}
-
-function mergeDicts(dict1, dict2) {
-  return Js_dict.fromArray(Js_dict.entries(dict2).concat(Js_dict.entries(dict1)));
-}
-
-function setup(manifestPath) {
-  var folder = Curry._1(Filename.dirname, manifestPath);
-  return $$Node.Fs.readFile(manifestPath).then((function (manifest) {
-                var manifestJson = JSON.parse(manifest);
-                var match = Js_json.classify(manifestJson);
-                if (typeof match === "number" || match.tag !== /* JSONObject */2) {
-                  return Promise.reject([
-                              Caml_builtin_exceptions.failure,
-                              "The entire manifest was expected to be dictionary of key-vals, but it was not!:"
-                            ]);
-                } else {
-                  var dict = match[0];
-                  var match$1 = getSubDict(dict, "dependencies");
-                  var match$2 = getSubDict(dict, "devDependencies");
-                  if (match$1 !== undefined) {
-                    var dependenciesJson = Caml_option.valFromOption(match$1);
-                    if (match$2 !== undefined) {
-                      return processDeps(mergeDicts(dependenciesJson, Caml_option.valFromOption(match$2)), folder);
-                    } else {
-                      return processDeps(dependenciesJson, folder);
-                    }
-                  } else if (match$2 !== undefined) {
-                    return processDeps(Caml_option.valFromOption(match$2), folder);
-                  } else {
-                    return Promise.reject([
-                                Caml_builtin_exceptions.failure,
-                                "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property"
-                              ]);
-                  }
-                }
-              }));
-}
-
 exports.UnexpectedJSONValue = UnexpectedJSONValue;
 exports.Stderr = Stderr;
 exports.UnknownError = UnknownError;
@@ -249,9 +164,4 @@ exports.bool_ = bool_;
 exports.nullableString$prime = nullableString$prime;
 exports.nullableString = nullableString;
 exports.getStatus = getStatus;
-exports.dropAnEsyJSON = dropAnEsyJSON;
-exports.processDeps = processDeps;
-exports.getSubDict = getSubDict;
-exports.mergeDicts = mergeDicts;
-exports.setup = setup;
 /* Node Not a pure module */
