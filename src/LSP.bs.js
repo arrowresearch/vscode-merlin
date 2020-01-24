@@ -3,19 +3,77 @@
 
 var Path = require("path");
 var Block = require("bs-platform/lib/js/block.js");
+var Curry = require("bs-platform/lib/js/curry.js");
 var Setup = require("./Setup.bs.js");
+var Vscode = require("vscode");
 var ProjectType = require("./ProjectType.bs.js");
+
+function setupWithProgressIndicator(m, folder) {
+  return Vscode.window.withProgress({
+              location: 15,
+              title: "Setting up toolchain..."
+            }, (function (progress) {
+                var succeeded = {
+                  contents: /* Ok */Block.__(0, [/* () */0])
+                };
+                var eventEmitter = Curry._1(m.make, /* () */0);
+                Curry._2(m.onProgress, eventEmitter, (function (percent) {
+                        return progress.report({
+                                    increment: percent * 100 | 0
+                                  });
+                      }));
+                Curry._2(m.onEnd, eventEmitter, (function (param) {
+                        return progress.report({
+                                    increment: 100
+                                  });
+                      }));
+                Curry._2(m.onError, eventEmitter, (function (errorMsg) {
+                        succeeded.contents = /* Error */Block.__(1, [errorMsg]);
+                        return /* () */0;
+                      }));
+                return Curry._2(m.run, eventEmitter, folder).then((function (param) {
+                              return Promise.resolve(succeeded.contents);
+                            }));
+              }));
+}
 
 function make(folder) {
   process.env["OCAMLRUNPARAM"] = "b";
   process.env["MERLIN_LOG"] = "-";
   return ProjectType.detect(folder).then((function (projectType) {
                 var setupPromise;
-                setupPromise = typeof projectType === "number" ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : (
+                setupPromise = typeof projectType === "number" ? setupWithProgressIndicator({
+                        make: Setup.Opam.make,
+                        onProgress: Setup.Opam.onProgress,
+                        onEnd: Setup.Opam.onEnd,
+                        onError: Setup.Opam.onError,
+                        reportProgress: Setup.Opam.reportProgress,
+                        reportEnd: Setup.Opam.reportEnd,
+                        reportError: Setup.Opam.reportError,
+                        run: Setup.Opam.run
+                      }, folder) : (
                     projectType.tag ? (
-                        projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : Setup.Bsb.run(folder)
+                        projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : setupWithProgressIndicator({
+                                make: Setup.Bsb.make,
+                                onProgress: Setup.Bsb.onProgress,
+                                onEnd: Setup.Bsb.onEnd,
+                                onError: Setup.Bsb.onError,
+                                reportProgress: Setup.Bsb.reportProgress,
+                                reportEnd: Setup.Bsb.reportEnd,
+                                reportError: Setup.Bsb.reportError,
+                                run: Setup.Bsb.run
+                              }, folder)
                       ) : (
-                        projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : Setup.Esy.run(folder)
+                        projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : setupWithProgressIndicator({
+                                make: Setup.Esy.make,
+                                onProgress: Setup.Esy.onProgress,
+                                onEnd: Setup.Esy.onEnd,
+                                onError: Setup.Esy.onError,
+                                reportProgress: Setup.Esy.reportProgress,
+                                reportEnd: Setup.Esy.reportEnd,
+                                reportError: Setup.Esy.reportError,
+                                run: Setup.Esy.run
+                              }, folder)
                       )
                   );
                 return setupPromise.then((function (r) {
@@ -68,6 +126,7 @@ function make(folder) {
 }
 
 var Server = {
+  setupWithProgressIndicator: setupWithProgressIndicator,
   make: make
 };
 

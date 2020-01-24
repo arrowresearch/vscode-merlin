@@ -9,6 +9,41 @@ module Server = {
     args: array(string),
     options: processOptions,
   };
+  module type MTYPE = {
+    type t;
+    let make: unit => t;
+    let onProgress: (t, float => unit) => unit;
+    let onEnd: (t, unit => unit) => unit;
+    let onError: (t, string => unit) => unit;
+    let reportProgress: (t, float) => unit;
+    let reportEnd: t => unit;
+    let reportError: (t, string) => unit;
+    let run: (t, string) => Js.Promise.t(unit);
+  };
+  let setupWithProgressIndicator = (m, folder) => {
+    module M = (val m: MTYPE);
+    M.(
+      Window.withProgress(
+        {
+          "location": 15, /* Window.(locationToJs(Notification)) */
+          "title": "Setting up toolchain...",
+        },
+        progress => {
+          let succeeded = ref(Ok());
+          let eventEmitter = make();
+          onProgress(eventEmitter, percent => {
+            progress.report(. {"increment": int_of_float(percent *. 100.)})
+          });
+          onEnd(eventEmitter, () => {progress.report(. {"increment": 100})});
+          onError(eventEmitter, errorMsg => {succeeded := Error(errorMsg)});
+          Js.Promise.(
+            run(eventEmitter, folder) |> then_(() => resolve(succeeded^))
+          );
+        },
+      )
+    );
+  };
+
   let make = folder => {
     Js.Dict.set(processEnv, "OCAMLRUNPARAM", "b");
     Js.Dict.set(processEnv, "MERLIN_LOG", "-");
@@ -20,15 +55,18 @@ module Server = {
              if (readyForDev) {
                resolve(Ok());
              } else {
-               Setup.Esy.run(folder);
+               setupWithProgressIndicator((module Setup.Esy), folder);
              }
-           | Opam => resolve(Ok())
+           | Opam => setupWithProgressIndicator((module Setup.Opam), folder)
            | Bsb({readyForDev}) =>
              if (readyForDev) {
                resolve(Ok());
              } else {
                /* Not ready for dev. Setting up */
-               Setup.Bsb.run(folder);
+               setupWithProgressIndicator(
+                 (module Setup.Bsb),
+                 folder,
+               );
              }
            };
          setupPromise
