@@ -12,6 +12,7 @@ let register = () => {
     {
       "provideDocumentFormattingEdits": (document: Vscode.Window.document) => {
         let fileName = Node.Path.basename(document.fileName);
+        let cwd = Node.Path.dirname(document.fileName);
         switch (Vscode.Window.activeTextEditor) {
         | None => Js.Promise.resolve([||])
         | Some(textEditor) =>
@@ -27,7 +28,7 @@ let register = () => {
           |> P.then_(formatterPath => {
                Node.ChildProcess.exec(
                  {j|$formatterPath $tempFileName $refmtWidthArg|j},
-                 Node.ChildProcess.Options.make(),
+                 Node.ChildProcess.Options.make(~cwd, ()),
                )
              })
           |> P.then_(((formattedText, _)) => {

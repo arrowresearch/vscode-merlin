@@ -17,7 +17,7 @@ function getFormatterPath(formatter) {
                 var match = process.platform === "win32";
                 var esy = match ? "esy.cmd" : "esy";
                 if (typeof projectType === "number") {
-                  return Promise.resolve("opam exec " + (String(formatter) + ""));
+                  return Promise.resolve("opam exec -- " + (String(formatter) + ""));
                 } else if (projectType.tag) {
                   return Promise.resolve("" + (String(esy) + (" -P " + (String(rootPath) + ("/.vscode/esy " + (String(formatter) + ""))))));
                 } else {
