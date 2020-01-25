@@ -1,18 +1,27 @@
 /* This had to be moved to it's own separate module so that it could be test */
 open Utils;
 
+module E = {
+  type t =
+    | NoBsPlatform
+    | IncompatibleBucklescript
+    | NoDepsOrDevDeps;
+  let toString =
+    fun
+    | NoBsPlatform => "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!"
+    | IncompatibleBucklescript => "Bucklescript <6 not supported"
+    | NoDepsOrDevDeps => "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property";
+};
+
 let processDeps = dependencies => {
   switch (Js.Dict.get(dependencies, "bs-platform")) {
   | Some(bsPlatformVersion) =>
     if (bsPlatformVersion->Semver.minVersion->Semver.satisfies(">=6.0.0")) {
       Ok();
     } else {
-      Error("Bucklescript <6 not supported");
+      Error(E.IncompatibleBucklescript);
     }
-  | None =>
-    Error(
-      "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
-    )
+  | None => Error(E.NoBsPlatform)
   };
 };
 
@@ -26,10 +35,7 @@ let run = manifestJson => {
     | (None, Some(dependenciesJson)) => processDeps(dependenciesJson)
     | (Some(dependenciesJson), Some(devDependenciesJson)) =>
       processDeps(mergeDicts(dependenciesJson, devDependenciesJson))
-    | (None, None) =>
-      Error(
-        "The manifest file doesn't seem to contain `dependencies` or `devDependencies` property",
-      )
+    | (None, None) => Error(E.NoDepsOrDevDeps)
     }
   );
 };

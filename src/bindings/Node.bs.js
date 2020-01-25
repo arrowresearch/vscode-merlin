@@ -9,7 +9,6 @@ var Caml_sys = require("bs-platform/lib/js/caml_sys.js");
 var Filename = require("bs-platform/lib/js/filename.js");
 var FsStubJs = require("./fs-stub.js");
 var Child_process = require("child_process");
-var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 var thisProjectsEsyJson = FsStubJs.thisProjectsEsyJson;
 
@@ -38,6 +37,14 @@ function StreamFunctor(S) {
 }
 
 var Stream = { };
+
+function toString(param) {
+  return "mkdir(~p=true) received home path and it was not found";
+}
+
+var E = {
+  toString: toString
+};
 
 function writeFile(prim, prim$1) {
   return FsStubJs.writeFile(prim, prim$1);
@@ -75,18 +82,21 @@ function mkdir(p, path) {
   var forceCreate = p !== undefined ? p : false;
   if (forceCreate) {
     return FsStubJs.exists(path).then((function (doesExist) {
-                  if (doesExist) {
-                    return Promise.resolve(/* () */0);
+                  if (doesExist.tag) {
+                    return Promise.resolve(/* Error */Block.__(1, [doesExist[0]]));
+                  } else if (doesExist[0]) {
+                    return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
                   } else {
                     var homePath = Caml_sys.caml_sys_getenv(Sys.unix ? "HOME" : "USERPROFILE");
                     if (path === homePath) {
-                      return Promise.reject([
-                                  Caml_builtin_exceptions.failure,
-                                  "mkdir(~p=true) received home path and it was not found"
-                                ]);
+                      return Promise.resolve(/* Error */Block.__(1, [/* PathNotFound */0]));
                     } else {
                       return mkdir(true, Curry._1(Filename.dirname, path)).then((function (param) {
-                                    return FsStubJs.mkdir(path);
+                                    if (param.tag) {
+                                      return Promise.resolve(/* Error */Block.__(1, [param[0]]));
+                                    } else {
+                                      return FsStubJs.mkdir(path);
+                                    }
                                   }));
                     }
                   }
@@ -97,6 +107,7 @@ function mkdir(p, path) {
 }
 
 var Fs = {
+  E: E,
   writeFile: writeFile,
   readFile: readFile,
   mkdir$prime: mkdir$prime,
@@ -108,22 +119,32 @@ var Fs = {
   mkdir: mkdir
 };
 
+function toString$1(param) {
+  return "Error during exec";
+}
+
+var E$1 = {
+  toString: toString$1
+};
+
 var Options = { };
 
 function exec(cmd, options) {
-  return new Promise((function (resolve, reject) {
-                Child_process.exec(cmd, options, (function (err, stdout, stderr) {
+  return new Promise((function (resolve, param) {
+                var cp = {
+                  contents: {
+                    exitCode: 0
+                  }
+                };
+                cp.contents = Child_process.exec(cmd, options, (function (err, stdout, stderr) {
                         if (err == null) {
-                          return resolve(/* tuple */[
-                                      stdout,
-                                      stderr
-                                    ]);
+                          return resolve(/* Ok */Block.__(0, [/* tuple */[
+                                          cp.contents.exitCode,
+                                          stdout,
+                                          stderr
+                                        ]]));
                         } else {
-                          console.log(err);
-                          return reject([
-                                      Caml_builtin_exceptions.failure,
-                                      "Error during exec"
-                                    ]);
+                          return resolve(/* Error */Block.__(1, [/* ExecFailure */0]));
                         }
                       }));
                 return /* () */0;
@@ -131,6 +152,7 @@ function exec(cmd, options) {
 }
 
 var ChildProcess = {
+  E: E$1,
   Options: Options,
   exec: exec
 };
@@ -168,6 +190,14 @@ var RequestProgress = {
   onEnd: onEnd
 };
 
+function toString$2(param) {
+  return "Failed to place request to " + (String(param[0]) + "");
+}
+
+var E$2 = {
+  toString: toString$2
+};
+
 function getCompleteResponse(url) {
   return new Promise((function (resolve, param) {
                 Https.get(url, (function (response) {
@@ -183,7 +213,7 @@ function getCompleteResponse(url) {
                                 return resolve(/* Ok */Block.__(0, [responseText.contents]));
                               }));
                         response.on("error", (function (_err) {
-                                return resolve(/* Error */Block.__(1, ["Failed to fetch " + (String(url) + "")]));
+                                return resolve(/* Error */Block.__(1, [/* Failure */["Error occurred while placing request to " + (String(url) + "")]]));
                               }));
                         return /* () */0;
                       }));
@@ -192,6 +222,7 @@ function getCompleteResponse(url) {
 }
 
 var Https$1 = {
+  E: E$2,
   getCompleteResponse: getCompleteResponse
 };
 

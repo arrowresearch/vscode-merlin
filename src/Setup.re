@@ -1,4 +1,5 @@
 open Bindings;
+open Js.Promise;
 
 /* False bindings to emulate EventEmitters. Node.js event emitters
    take unrestricted types on their .emit() methods */
@@ -37,7 +38,6 @@ module Internal = {
 };
 
 module Esy = {
-  open Js.Promise;
   open ChildProcess;
   include Internal;
   let make = () => make();
@@ -53,7 +53,6 @@ module Esy = {
 };
 
 module Opam = {
-  open Js.Promise;
   open ChildProcess;
   include Internal;
   let make = () => make();
@@ -65,6 +64,30 @@ module Opam = {
 };
 
 module Bsb = {
+  module E = {
+    type t =
+      | SetupChainFailure(string)
+      | CacheFailure(string)
+      | EsyBuildFailure
+      | EsyImportDependenciesFailure
+      | EsyInstallFailure
+      | BucklescriptCompatFailure(CheckBucklescriptCompat.E.t)
+      | InvalidPath(string)
+      | Failure(string);
+    let toString =
+      fun
+      | SetupChainFailure(msg) => {j|Setup failed: $msg|j}
+      | EsyBuildFailure => "'esy install' failed"
+      | EsyImportDependenciesFailure => "'esy import-dependencies' failed"
+      | EsyInstallFailure => "'esy install' failed"
+      | BucklescriptCompatFailure(e) => {
+          let msg = CheckBucklescriptCompat.E.toString(e);
+          {j| BucklescriptCompatFailure: $msg |j};
+        }
+      | CacheFailure(msg) => {j| Azure artifacts cache failure: $msg |j}
+      | Failure(reason) => {j| Bsb setup failed. Reason: $reason |j}
+      | InvalidPath(p) => {j| Setup failed with because of invalid path provided to it: $p |j};
+  };
   open Utils;
   include Internal;
   let download = (url, file, ~progress, ~end_, ~error, ~data) => {
@@ -87,81 +110,147 @@ module Bsb = {
   let make = () => make();
   let run = (eventEmitter, projectPath) => {
     let manifestPath = Path.join([|projectPath, "package.json"|]);
-    let runEsyCommands = folder => {
+    let runSetupChain = folder => {
       let hiddenEsyRoot = Path.join([|folder, ".vscode", "esy"|]);
-      Js.Promise.(
-        {
-          Fs.mkdir(~p=true, hiddenEsyRoot)
-          |> then_(_ => {
-               Filename.concat(hiddenEsyRoot, "esy.json") |> dropAnEsyJSON
-             })
-          |> then_(() => {
-               /* Running esy */
-               ChildProcess.exec(
-                 "esy i -P " ++ hiddenEsyRoot,
-                 ChildProcess.Options.make(~cwd=projectPath, ()),
-               )
-             })
-          |> then_(((_stdout, _stderr)) => {
-               reportProgress(eventEmitter, 0.1);
-               AzurePipelines.getBuildID();
-             })
-          |> then_(AzurePipelines.getDownloadURL)
-          |> then_(r =>
-               switch (r) {
-               | Ok(downloadUrl) =>
-                 Js.log2("download", downloadUrl);
-                 let lastProgress = ref(0.0);
-                 Js.Promise.make((~resolve, ~reject as _) =>
-                   download(
-                     downloadUrl,
-                     Path.join([|hiddenEsyRoot, "cache.zip"|]),
-                     ~progress=
-                       progressFraction => {
-                         let percent = progressFraction *. 80.0;
-                         reportProgress(
-                           eventEmitter,
-                           percent -. lastProgress^,
-                         );
-                         lastProgress := percent;
-                       },
-                     ~data=_ => (),
-                     ~error=
-                       _e => {
-                         resolve(.
-                           Error({j|Failed to download $downloadUrl |j}),
-                         )
-                       },
-                     ~end_=() => {resolve(. Ok())},
-                   )
-                 );
-               | Error(x) => resolve(Error(x))
-               }
-             )
-          |> then_(_result => {
+      /* let onlyIfOk: */
+      /*   ('a => Js.Promise.t(result('b, 'c)), result('c, 'd)) => */
+      /*   Js.Promise.t(result('b, 'c)) = */
+      /*   f => */
+      /*     fun */
+      /*     | Ok(x) => f(x) */
+      /*     | Error(e) => Js.Promise.resolve(Error(e)); */
+      Fs.mkdir(~p=true, hiddenEsyRoot)
+      |> then_(
+           fun
+           | Error(e) => Error(e) |> resolve
+           | Ok () => {
+               Filename.concat(hiddenEsyRoot, "esy.json")
+               |> dropAnEsyJSON
+               |> then_(() => resolve(Ok()));
+             },
+         )
+      |> then_(
+           fun
+           | Error(Fs.E.PathNotFound) =>
+             Error(E.InvalidPath(hiddenEsyRoot)) |> resolve
+           | Ok () => {
+               Command.Esy.install(~p=hiddenEsyRoot)
+               |> then_(
+                    fun
+                    | Error(e) =>
+                      Command.Esy.E.(
+                        switch (e) {
+                        | CmdFailed(_)
+                        | NonZeroExit(_, _, _, _)
+                        | UnexpectedJSONValue(_) /* TODO: Some of these JSON errors can be encapsulated */
+                        | JsonParseExn(_)
+                        | UnknownError => Error(E.EsyInstallFailure)
+                        }
+                      )
+                      |> resolve
+                    | Ok(_stdout) => {
+                        reportProgress(eventEmitter, 0.1);
+                        AzurePipelines.getBuildID()
+                        |> then_(
+                             fun
+                             | Ok(id) => AzurePipelines.getDownloadURL(id)
+                             | Error(e) => Error(e) |> resolve,
+                           )
+                        |> then_(
+                             fun
+                             | Ok(url) => Ok(url) |> resolve
+                             | Error(e) =>
+                               AzurePipelines.E.(
+                                 switch (e) {
+                                 | DownloadFailure(_)
+                                 | UnsupportedOS
+                                 | InvalidJSONType(_)
+                                 | MissingField(_)
+                                 | InvalidFirstArrayElement
+                                 | Failure(_) =>
+                                   /* TODO: helpful message saying cache restoration
+                                      failed and long build times are to be expected */
+                                   resolve(Error(E.CacheFailure("<TODO>")))
+                                 }
+                               ),
+                           );
+                      },
+                  );
+             },
+         )
+      |> then_(
+           fun
+           | Ok(downloadUrl) => {
+               Js.log2("download", downloadUrl);
+               let lastProgress = ref(0.0);
+               Js.Promise.make((~resolve, ~reject as _) =>
+                 download(
+                   downloadUrl,
+                   Path.join([|hiddenEsyRoot, "cache.zip"|]),
+                   ~progress=
+                     progressFraction => {
+                       let percent = progressFraction *. 80.0;
+                       reportProgress(eventEmitter, percent -. lastProgress^);
+                       lastProgress := percent;
+                     },
+                   ~data=_ => (),
+                   ~error=e => resolve(. Error(E.CacheFailure(e##message))),
+                   ~end_=() => {resolve(. Ok())},
+                 )
+               );
+             }
+           | Error((_thisIsWhereCacheFailureCouldBeReported: E.t)) =>
+             resolve(Error(E.CacheFailure("Couldn't compute downloadUrl"))),
+         )
+      |> then_(
+           fun
+           | Ok () => {
                reportProgress(eventEmitter, 93.33);
-               ChildProcess.exec(
-                 "unzip cache.zip",
-                 ChildProcess.Options.make(~cwd=hiddenEsyRoot, ()),
-               );
-             })
-          |> then_(_ => {
+               Command.Unzip.run(~p=hiddenEsyRoot, "cache.zip")
+               |> then_(
+                    fun
+                    | Error(_unzipCmdError) =>
+                      Error(
+                        E.CacheFailure("Failed to unzip downloaded cache"),
+                      )
+                      |> resolve
+                    | Ok(_unzipCmdOutput) => resolve(Ok()),
+                  );
+             }
+           | Error(e) => Error(e) |> resolve,
+         )
+      |> then_(
+           fun
+           | Ok () => {
                reportProgress(eventEmitter, 96.66);
-               ChildProcess.exec(
-                 "esy import-dependencies -P " ++ hiddenEsyRoot,
-                 ChildProcess.Options.make(~cwd=hiddenEsyRoot, ()),
-               );
-             })
-          |> then_(_ => {
+               Command.Esy.importDependencies(~p=hiddenEsyRoot)
+               |> then_(
+                    resolve
+                    << (
+                      fun
+                      | Ok(_) => Ok()
+                      | Error(_) => Error(E.EsyImportDependenciesFailure)
+                    ),
+                  );
+             }
+           | Error(e) => resolve(Error(e)),
+         )
+      |> then_(
+           fun
+           | Error(e) => Error(e) |> resolve
+           | Ok () => {
                reportProgress(eventEmitter, 99.99);
-               ChildProcess.exec(
-                 "esy build -P " ++ hiddenEsyRoot,
-                 ChildProcess.Options.make(~cwd=hiddenEsyRoot, ()),
-               );
-             })
-          |> then_(_ => {resolve(Ok())});
-        }
-      );
+               Command.Esy.build(~p=hiddenEsyRoot)
+               |> then_(
+                    resolve
+                    << (
+                      fun
+                      | Ok(_esyCmdOutput) => Ok()
+                      | Error(_e) => Error(E.EsyBuildFailure)
+                    ),
+                  );
+             },
+         );
     };
     Js.Promise.(
       {
@@ -174,11 +263,14 @@ module Bsb = {
                  >>| CheckBucklescriptCompat.run
                  >>| (
                    fun
-                   | Ok () => runEsyCommands(folder)
-                   | Error(e) => resolve(Error(e))
+                   | Ok () => runSetupChain(folder)
+                   | Error(e) =>
+                     resolve(Error(E.BucklescriptCompatFailure(e)))
                  )
                )
-               |> toPromise("Failed to parse manifest file")
+               |> toPromise(
+                    E.SetupChainFailure("Failed to parse manifest file"),
+                  )
              )
            })
         |> then_(
@@ -187,8 +279,8 @@ module Bsb = {
                  reportEnd(eventEmitter);
                  resolve();
                }
-             | Error(msg) => {
-                 reportError(eventEmitter, msg);
+             | Error(e) => {
+                 reportError(eventEmitter, E.toString(e));
                  resolve();
                },
            );

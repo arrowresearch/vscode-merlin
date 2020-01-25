@@ -12,7 +12,7 @@ describe("Setup.Bsb.checkBucklescriptCompat", () => {
           |> CheckBucklescriptCompat.run
         ) {
         | Ok () => pass
-        | Error(msg) => fail(msg)
+        | Error(msg) => fail(CheckBucklescriptCompat.E.toString(msg))
         }
       });
       test(
@@ -23,7 +23,9 @@ describe("Setup.Bsb.checkBucklescriptCompat", () => {
           |> Json.parseOrRaise
           |> CheckBucklescriptCompat.run
         ) {
-        | Error(msg) => expect(msg) |> toBe("Bucklescript <6 not supported")
+        | Error(e) =>
+          expect(e)
+          |> toBe(CheckBucklescriptCompat.E.IncompatibleBucklescript)
         | Ok () => fail("should not have returned Ok")
         }
       });
@@ -34,11 +36,8 @@ describe("Setup.Bsb.checkBucklescriptCompat", () => {
           |> CheckBucklescriptCompat.run
         ) {
         | Ok () => fail("should not have returned Ok()")
-        | Error(msg) =>
-          expect(msg)
-          |> toBe(
-               "'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!",
-             )
+        | Error(e) =>
+          expect(e) |> toBe(CheckBucklescriptCompat.E.NoBsPlatform)
         }
       });
     }

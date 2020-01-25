@@ -20,19 +20,34 @@ let register = () => {
 
           Node.Fs.writeFile(tempFileName, textEditor.document.getText())
           |> P.then_(_ => {FormatterUtils.getFormatterPath("ocamlformat")})
-          |> P.then_(formatterPath => {
-               Node.ChildProcess.exec(
-                 {j|$formatterPath --enable-outside-detected-project --name=$filePath $tempFileName|j},
-                 Node.ChildProcess.Options.make(~cwd, ()),
-               );
-             })
-          |> P.then_(((formattedText, error)) => {
-               let textRange =
-                 FormatterUtils.getFullTextRange(textEditor.document);
-               Node.Fs.unlink(tempFileName) |> ignore;
-               [|Vscode.TextEdit.replace(textRange, formattedText)|]
-               |> P.resolve;
-             })
+          |> P.then_(
+               fun
+               | Error(reason) =>
+                 P.reject(Failure("Could not setup ocamlformat: " ++ reason))
+               | Ok(formatterPath) => {
+                   Node.ChildProcess.exec(
+                     {j|$formatterPath --enable-outside-detected-project --name=$filePath $tempFileName|j},
+                     Node.ChildProcess.Options.make(~cwd, ()),
+                   );
+                 },
+             )
+          |> P.then_(
+               fun
+               | Error(e) =>
+                 P.reject(
+                   Failure(
+                     "Could not run ocamlfmt: "
+                     ++ Node.ChildProcess.E.toString(e),
+                   ),
+                 )
+               | Ok((_, formattedText, _error)) => {
+                   let textRange =
+                     FormatterUtils.getFullTextRange(textEditor.document);
+                   Node.Fs.unlink(tempFileName) |> ignore;
+                   [|Vscode.TextEdit.replace(textRange, formattedText)|]
+                   |> P.resolve;
+                 },
+             )
           |> P.catch(e => {
                Node.Fs.unlink(tempFileName) |> ignore;
                let message = Bindings.Error.ofPromiseError(e);

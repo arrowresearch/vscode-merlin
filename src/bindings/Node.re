@@ -13,6 +13,7 @@ external processEnv: Js.Dict.t(string) = "env";
 module Process = {
   type t;
   [@bs.val] external v: t = "process";
+  [@bs.val] [@bs.scope "process"] external cwd: unit => string = "cwd";
   [@bs.val] [@bs.scope "process"] external platform: string = "platform";
   /* TODO [@bs.val] [@bs.scope "process"] external env: Js.Dict.t(string) = "env"; */
   module Stdout = {
@@ -23,7 +24,7 @@ module Process = {
 };
 
 module Error = {
-  type t;
+  type t = {. "message": string};
   [@bs.new] external make: string => t = "Error";
   let ofPromiseError = [%raw
     error => "return error.message || 'Unknown error'"
@@ -37,7 +38,7 @@ module Buffer = {
   let ofString = from;
 };
 
-/* Did not work. Was insteaded pointed to https://gist.github.com/mrmurphy/f0a499d4510a358927b8179071145ff9 */
+/* Did not work. Was instead pointed to https://gist.github.com/mrmurphy/f0a499d4510a358927b8179071145ff9 */
 /* [@bs.module "util"] */
 /* external promisify: */
 /*   (('a, (. Js.Nullable.t(Error.t), 'b) => unit) => unit, 'a) => */
@@ -76,6 +77,15 @@ module Fs = {
   /*   (string, (. Js.Nullable.t(Error.t), string) => unit) => unit = */
   /*   "readFile"; */
   /* let readFile = promisify(readFile); */
+
+  module E = {
+    type t =
+      | PathNotFound;
+    let toString =
+      fun
+      | PathNotFound => "mkdir(~p=true) received home path and it was not found";
+  };
+
   type fd;
   [@bs.module "fs"] external writeSync: (. fd, Buffer.t) => unit = "writeSync";
 
@@ -86,10 +96,10 @@ module Fs = {
   external readFile: string => Js.Promise.t(string) = "readFile";
 
   [@bs.module "./fs-stub.js"]
-  external mkdir': string => Js.Promise.t(unit) = "mkdir";
+  external mkdir': string => Js.Promise.t(result(unit, 'b)) = "mkdir";
 
   [@bs.module "./fs-stub.js"]
-  external exists: string => Js.Promise.t(bool) = "exists";
+  external exists: string => Js.Promise.t(result(bool, 'b)) = "exists";
 
   [@bs.module "./fs-stub.js"]
   external open_: (string, string) => Js.Promise.t(fd) = "open";
@@ -115,23 +125,27 @@ module Fs = {
     Js.Promise.(
       if (forceCreate) {
         exists(path)
-        |> then_(doesExist =>
-             if (doesExist) {
-               resolve();
-             } else {
-               let homePath = Sys.getenv(Sys.unix ? "HOME" : "USERPROFILE");
-               if (path == homePath) {
-                 reject(
-                   Failure(
-                     "mkdir(~p=true) received home path and it was not found",
-                   ),
-                 );
+        |> then_(doesExist => {
+             switch (doesExist) {
+             | Ok(doesExist) =>
+               if (doesExist) {
+                 resolve(Ok());
                } else {
-                 mkdir(~p=true, Filename.dirname(path))
-                 |> then_(() => mkdir'(path));
-               };
+                 let homePath = Sys.getenv(Sys.unix ? "HOME" : "USERPROFILE");
+                 if (path == homePath) {
+                   resolve(Error(E.PathNotFound));
+                 } else {
+                   mkdir(~p=true, Filename.dirname(path))
+                   |> then_(
+                        fun
+                        | Ok () => mkdir'(path)
+                        | Error(e) => Error(e) |> resolve,
+                      );
+                 };
+               }
+             | Error(e) => resolve(Error(e))
              }
-           );
+           });
       } else {
         mkdir'(path);
       }
@@ -140,7 +154,14 @@ module Fs = {
 };
 
 module ChildProcess = {
-  type t;
+  type t = {. "exitCode": int};
+  module E = {
+    type t =
+      | ExecFailure;
+    let toString =
+      fun
+      | ExecFailure => "Error during exec";
+  };
 
   module Options = {
     type t;
@@ -151,23 +172,23 @@ module ChildProcess = {
 
   [@bs.val] [@bs.module "child_process"]
   external exec:
-    (string, Options.t, (Js.Nullable.t(Error.t), string, string) => unit) =>
-    t /* This should have been `t` - ChildProcess object in Node.js TODO: figure a way to pass it to callback */ =
+    (string, Options.t, (Js.Nullable.t(Error.t), string, string) => unit) => t =
     "exec";
 
   let exec = (cmd, options) => {
     Js.Promise.(
-      make((~resolve, ~reject) =>
-        ignore @@
-        exec(cmd, options, (err, stdout, stderr) =>
-          if (Js.Nullable.isNullable(err)) {
-            resolve(. (stdout, stderr));
-          } else {
-            Js.log(err);
-            reject(. Failure("Error during exec"));
-          }
-        )
-      )
+      make((~resolve, ~reject as _) => {
+        let cp = ref({"exitCode": 0});
+        cp :=
+          exec(cmd, options, (err, stdout, stderr) =>
+            if (Js.Nullable.isNullable(err)) {
+              resolve(. Ok(((cp^)##exitCode, stdout, stderr)));
+            } else {
+              resolve(. Error(E.ExecFailure));
+            }
+          );
+        ();
+      })
     );
   };
 };
@@ -231,6 +252,14 @@ module RequestProgress = {
 };
 
 module Https = {
+  module E = {
+    type t =
+      | Failure(string);
+    let toString =
+      fun
+      | Failure(url) => {j|Failed to place request to $url|j};
+  };
+
   [@bs.module "https"]
   external get: (string, Response.t => unit) => unit = "get";
   let getCompleteResponse = url =>
@@ -245,7 +274,11 @@ module Https = {
           });
           Response.on(response, "end", _ => {resolve(. Ok(responseText^))});
           Response.on(response, "error", _err => {
-            resolve(. Error({j|Failed to fetch $url|j}))
+            resolve(.
+              Error(
+                E.Failure({j|Error occurred while placing request to $url|j}),
+              ),
+            )
           });
         },
       )

@@ -9,12 +9,12 @@ let (|!) = (o, f) =>
   | _ => ()
   };
 
-let toResult = msg =>
+let toResult = e =>
   fun
   | Some(x) => Ok(x)
-  | None => Error(msg);
+  | None => Error(e);
 
-let toPromise = msg =>
+let toPromise = e =>
   fun
   | Some(x) => x
-  | None => Js.Promise.resolve(Error(msg));
+  | None => Js.Promise.resolve(Error(e));

@@ -7,7 +7,11 @@ var $$Node = require("../bindings/Node.bs.js");
 Jest.describe("Expect", (function (param) {
         return Jest.testPromise("toBe", undefined, (function (param) {
                       return $$Node.ChildProcess.exec("echo hey", { }).then((function (param) {
-                                    return Promise.resolve(Jest.Expect.toContainString("hey", Jest.Expect.expect(param[0])));
+                                    if (param.tag) {
+                                      return Promise.resolve(Jest.fail("exec should have succeeded"));
+                                    } else {
+                                      return Promise.resolve(Jest.Expect.toContainString("hey", Jest.Expect.expect(param[0][1])));
+                                    }
                                   }));
                     }));
       }));

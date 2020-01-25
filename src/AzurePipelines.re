@@ -1,6 +1,22 @@
 open Bindings;
 
-let (<<) = (f, g, x) => f(g(x));
+module E = {
+  type t =
+    | DownloadFailure(string)
+    | UnsupportedOS
+    | InvalidJSONType(string)
+    | MissingField(string)
+    | InvalidFirstArrayElement /* Hacky. This wouldn't be needed if we properly parse the json */
+    | Failure(string); /* Download failure */
+  let toString =
+    fun
+    | DownloadFailure(url) => {j| Could not download $url |j}
+    | UnsupportedOS => "We detected a platform for which we couldn't find cached builds"
+    | InvalidJSONType(value) => {j|Field $value in Azure's response was undefined|j}
+    | MissingField(k) => {j| Response from Azure did not contain build $k |j}
+    | InvalidFirstArrayElement => "Unexpected array value in Azure response"
+    | Failure(url) => {j| Failed to download $url |j};
+};
 
 module JSONResponse = {
   module CamlArray = Array;
@@ -12,7 +28,7 @@ module JSONResponse = {
       switch (Js.Json.classify(json)) {
       | JSONObject(dict) =>
         switch (Dict.get(dict, "value")) {
-        | None => Error("Field 'value' in Azure's response was undefined")
+        | None => Error(E.InvalidJSONType("value"))
         | Some(json) =>
           switch (Js.Json.classify(json)) {
           | JSONArray(builds) =>
@@ -23,24 +39,20 @@ module JSONResponse = {
               | Some(id) =>
                 switch (Json.classify(id)) {
                 | JSONNumber(n) => Ok(n)
-                | _ => Error({j| Field id was expected to be a number |j})
+                | _ => Error(E.InvalidJSONType("id"))
                 }
-              | None => Error({j| Field id was missing |j})
+              | None => Error(E.InvalidJSONType("id"))
               }
-            | _ =>
-              Error(
-                {j| First item in the 'value' field array isn't an object as expected |j},
-              )
+            | _ => Error(E.InvalidFirstArrayElement)
             };
 
-          | _ =>
-            Error({j| Response from Azure did not contain build 'value' |j})
+          | _ => Error(E.MissingField("value"))
           }
         }
-      | _ => Error({j| Response from Azure wasn't an object |j})
+      | _ => Error(E.InvalidJSONType("<Entire azure response>"))
       };
     }) {
-    | _ => Error({j| Failed to parse response from Azure |j})
+    | _ => Error(E.InvalidJSONType("<Entire azure response>"))
     };
 
   let getDownloadURL = responseText =>
@@ -49,7 +61,7 @@ module JSONResponse = {
       switch (Js.Json.classify(json)) {
       | JSONObject(dict) =>
         switch (Dict.get(dict, "resource")) {
-        | None => Error("Field 'value' in Azure's response was undefined")
+        | None => Error(E.MissingField("resource"))
         | Some(json) =>
           switch (Json.classify(json)) {
           | JSONObject(dict) =>
@@ -57,21 +69,17 @@ module JSONResponse = {
             | Some(id) =>
               switch (Json.classify(id)) {
               | JSONString(s) => Ok(s)
-              | _ =>
-                Error({j| Field downloadUrl was expected to be a string |j})
+              | _ => Error(E.InvalidJSONType("downloadUrl"))
               }
-            | None => Error({j| Field downloadUrl was missing |j})
+            | None => Error(E.MissingField("downloadUrl"))
             }
-          | _ =>
-            Error(
-              {j| First item in the 'resource' field array isn't an object as expected |j},
-            )
+          | _ => Error(E.InvalidJSONType("resource"))
           }
         }
-      | _ => Error({j| Response from Azure wasn't an object |j})
+      | _ => Error(E.InvalidJSONType("<entire azure response>"))
       };
     }) {
-    | _ => Error({j| Failed to parse response from Azure |j})
+    | _ => Error(E.InvalidJSONType("<entire azure response>"))
     };
 };
 
@@ -79,32 +87,50 @@ let restBase = "https://dev.azure.com/arrowresearch/";
 let proj = "vscode-merlin";
 let os =
   switch (Process.platform) {
-  | "darwin" => "Darwin"
-  | "linux" => "Linux"
-  | "win32" => "Windows"
+  | "darwin" => Some("Darwin")
+  | "linux" => Some("Linux")
+  | "win32" => Some("Windows")
+  | _ => None
   };
-let artifactName = {j|cache-$os-install|j};
+let artifactName = Option.(os >>| (os => {j|cache-$os-install|j}));
 let master = "branchName=refs%2Fheads%2Fmaster";
 let filter = "deletedFilter=excludeDeleted&statusFilter=completed&resultFilter=succeeded";
 let latest = "queryOrder=finishTimeDescending&$top=1";
 
+open Utils;
+open Js.Promise;
 let getBuildID = () => {
-  Utils.(
-    Js.Promise.(
-      Https.getCompleteResponse(
-        {j|$restBase/$proj/_apis/build/builds?$filter&$master&$latest&api-version=4.1|j},
-      )
-      |> then_(bindResultAndResolvePromise(JSONResponse.getBuildId))
-    )
-  );
+  Https.getCompleteResponse(
+    {j|$restBase/$proj/_apis/build/builds?$filter&$master&$latest&api-version=4.1|j},
+  )
+  |> then_(
+       resolve
+       << (
+         fun
+         | Ok(response) => JSONResponse.getBuildId(response)
+         | Error(e) =>
+           switch (e) {
+           | Https.E.Failure(url) => Error(E.DownloadFailure(url))
+           }
+       ),
+     );
 };
 
-let getDownloadURL = latestBuildID =>
-  Utils.(
-    Js.Promise.(
-      Https.getCompleteResponse(
-        {j|$restBase/$proj/_apis/build/builds/$latestBuildID/artifacts?artifactname=$artifactName&api-version=4.1|j},
-      )
-      |> then_(bindResultAndResolvePromise(JSONResponse.getDownloadURL))
+let getDownloadURL = latestBuildID => {
+  let latestBuildID = Js.Float.toString(latestBuildID);
+  switch (artifactName) {
+  | Some(artifactName) =>
+    Https.getCompleteResponse(
+      {j|$restBase/$proj/_apis/build/builds/$latestBuildID/artifacts?artifactname=$artifactName&api-version=4.1|j},
     )
-  );
+    |> then_(
+         resolve
+         << (
+           fun
+           | Error(Https.E.Failure(url)) => Error(E.Failure(url))
+           | Ok(url) => JSONResponse.getDownloadURL(url)
+         ),
+       )
+  | None => resolve(Error(E.UnsupportedOS))
+  };
+};

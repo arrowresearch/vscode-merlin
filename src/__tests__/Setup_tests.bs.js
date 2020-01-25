@@ -9,7 +9,7 @@ Jest.describe("Setup.Bsb.checkBucklescriptCompat", (function (param) {
         Jest.test("must return Ok() for a valid package.json with compatible bs-platform", (function (param) {
                 var match = CheckBucklescriptCompat.run(Json.parseOrRaise(" { \"dependencies\": { \"bs-platform\": \"7.x.x\" } } "));
                 if (match.tag) {
-                  return Jest.fail(match[0]);
+                  return Jest.fail(CheckBucklescriptCompat.E.toString(match[0]));
                 } else {
                   return Jest.pass;
                 }
@@ -17,7 +17,7 @@ Jest.describe("Setup.Bsb.checkBucklescriptCompat", (function (param) {
         Jest.test("must return Error(\"Bucklescript <6 not supported\") for a valid package.json with incompatible bs-platform", (function (param) {
                 var match = CheckBucklescriptCompat.run(Json.parseOrRaise(" { \"dependencies\": { \"bs-platform\": \"5.x.x\" } } "));
                 if (match.tag) {
-                  return Jest.Expect.toBe("Bucklescript <6 not supported", Jest.Expect.expect(match[0]));
+                  return Jest.Expect.toBe(/* IncompatibleBucklescript */1, Jest.Expect.expect(match[0]));
                 } else {
                   return Jest.fail("should not have returned Ok");
                 }
@@ -25,7 +25,7 @@ Jest.describe("Setup.Bsb.checkBucklescriptCompat", (function (param) {
         return Jest.test("must return Error() for a package.json with no bs-platform", (function (param) {
                       var match = CheckBucklescriptCompat.run(Json.parseOrRaise(" { \"dependencies\": { \"react\": \"*\" } } "));
                       if (match.tag) {
-                        return Jest.Expect.toBe("'bs-platform' was expected in the 'dependencies' section of the manifest file, but was not found!", Jest.Expect.expect(match[0]));
+                        return Jest.Expect.toBe(/* NoBsPlatform */0, Jest.Expect.expect(match[0]));
                       } else {
                         return Jest.fail("should not have returned Ok()");
                       }
