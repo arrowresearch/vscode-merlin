@@ -126,3 +126,31 @@ module TextEdit = {
   [@bs.module "vscode"] [@bs.scope "TextEdit"]
   external replace: (Range.t, string) => t = "replace";
 };
+
+module LanguageClient = {
+  type documentSelectorItem = {
+    scheme: string,
+    language: string,
+  };
+  type clientOptions = {documentSelector: array(documentSelectorItem)};
+  type processOptions = {env: Js.Dict.t(string)};
+  type serverOptions = {
+    command: string,
+    args: array(string),
+    options: processOptions,
+  };
+  type t = {
+    start: (. unit) => unit,
+    stop: (. unit) => unit,
+  };
+  [@bs.new] [@bs.module "vscode-languageclient"]
+  external make:
+    (
+      ~id: string,
+      ~name: string,
+      ~serverOptions: serverOptions,
+      ~clientOptions: clientOptions
+    ) =>
+    t =
+    "LanguageClient";
+};

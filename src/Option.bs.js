@@ -14,19 +14,19 @@ function $pipe$bang(o, f) {
   }
 }
 
-function toResult(msg, param) {
+function toResult(e, param) {
   if (param !== undefined) {
     return /* Ok */Block.__(0, [Caml_option.valFromOption(param)]);
   } else {
-    return /* Error */Block.__(1, [msg]);
+    return /* Error */Block.__(1, [e]);
   }
 }
 
-function toPromise(msg, param) {
+function toPromise(e, param) {
   if (param !== undefined) {
     return Caml_option.valFromOption(param);
   } else {
-    return Promise.resolve(/* Error */Block.__(1, [msg]));
+    return Promise.resolve(/* Error */Block.__(1, [e]));
   }
 }
 

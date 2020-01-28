@@ -52,6 +52,8 @@ var $$Range = Vscode.$$Range;
 
 var TextEdit = Vscode.TextEdit;
 
+var LanguageClient = Vscode.LanguageClient;
+
 exports.thisProjectsEsyJson = thisProjectsEsyJson;
 exports.CamlArray = CamlArray;
 exports.Process = Process;
@@ -76,4 +78,5 @@ exports.ExtensionContext = ExtensionContext;
 exports.Languages = Languages;
 exports.$$Range = $$Range;
 exports.TextEdit = TextEdit;
+exports.LanguageClient = LanguageClient;
 /* Node Not a pure module */

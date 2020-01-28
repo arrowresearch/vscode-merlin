@@ -8,9 +8,13 @@ describe("Expect", () => {
           "echo hey",
           Bindings.ChildProcess.Options.make(),
         )
-        |> then_(((stdout, _)) => {
-             expect(stdout) |> toContainString("hey") |> resolve
-           })
+        |> then_(
+             fun
+             | Ok((_exitCode, stdout, _)) => {
+                 expect(stdout) |> toContainString("hey") |> resolve;
+               }
+             | Error(_) => fail("exec should have succeeded") |> resolve,
+           )
       )
     })
   )

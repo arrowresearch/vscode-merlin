@@ -8,6 +8,7 @@ var Curry = require("bs-platform/lib/js/curry.js");
 var Vscode = require("vscode");
 var V4 = require("uuid/v4");
 var FormatterUtils = require("./FormatterUtils.bs.js");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function register(param) {
   Vscode.languages.registerDocumentFormattingEditProvider({
@@ -25,14 +26,28 @@ function register(param) {
               var tempFileName = Path.join(Os.tmpdir(), "vscode-merlin-ocamlformat-" + (String(id) + ("-" + (String(fileName) + ""))));
               return $$Node.Fs.writeFile(tempFileName, Curry._1(textEditor.document.getText, /* () */0)).then((function (param) {
                                   return FormatterUtils.getFormatterPath("ocamlformat");
-                                })).then((function (formatterPath) {
-                                return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" --enable-outside-detected-project --name=" + (String(filePath) + (" " + (String(tempFileName) + ""))))), {
-                                            cwd: cwd
-                                          });
+                                })).then((function (param) {
+                                if (param.tag) {
+                                  return Promise.reject([
+                                              Caml_builtin_exceptions.failure,
+                                              "Could not setup ocamlformat: " + param[0]
+                                            ]);
+                                } else {
+                                  return $$Node.ChildProcess.exec("" + (String(param[0]) + (" --enable-outside-detected-project --name=" + (String(filePath) + (" " + (String(tempFileName) + ""))))), {
+                                              cwd: cwd
+                                            });
+                                }
                               })).then((function (param) {
-                              var textRange = FormatterUtils.getFullTextRange(textEditor.document);
-                              $$Node.Fs.unlink(tempFileName);
-                              return Promise.resolve(/* array */[Vscode.TextEdit.replace(textRange, param[0])]);
+                              if (param.tag) {
+                                return Promise.reject([
+                                            Caml_builtin_exceptions.failure,
+                                            "Could not run ocamlfmt: " + Curry._1($$Node.ChildProcess.E.toString, param[0])
+                                          ]);
+                              } else {
+                                var textRange = FormatterUtils.getFullTextRange(textEditor.document);
+                                $$Node.Fs.unlink(tempFileName);
+                                return Promise.resolve(/* array */[Vscode.TextEdit.replace(textRange, param[0][1])]);
+                              }
                             })).catch((function (e) {
                             $$Node.Fs.unlink(tempFileName);
                             var message = $$Node.$$Error.ofPromiseError(e);

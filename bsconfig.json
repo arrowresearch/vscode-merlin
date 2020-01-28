@@ -6,8 +6,12 @@
   },
   "sources": [
     {
-      "subdirs": ["bindings", "formatters"],
+      "subdirs": ["bindings", "formatters", "command"],
       "dir": "src"
+    },
+    {
+      "dir": "src/command/__tests__",
+      "type": "dev"
     },
     {
       "dir": "src/__tests__",

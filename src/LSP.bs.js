@@ -40,53 +40,84 @@ function setupWithProgressIndicator(m, folder) {
 function make(folder) {
   process.env["OCAMLRUNPARAM"] = "b";
   process.env["MERLIN_LOG"] = "-";
-  return ProjectType.detect(folder).then((function (projectType) {
-                var setupPromise;
-                setupPromise = typeof projectType === "number" ? setupWithProgressIndicator({
-                        make: Setup.Opam.make,
-                        onProgress: Setup.Opam.onProgress,
-                        onEnd: Setup.Opam.onEnd,
-                        onError: Setup.Opam.onError,
-                        reportProgress: Setup.Opam.reportProgress,
-                        reportEnd: Setup.Opam.reportEnd,
-                        reportError: Setup.Opam.reportError,
-                        run: Setup.Opam.run
-                      }, folder) : (
-                    projectType.tag ? (
-                        projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : setupWithProgressIndicator({
-                                make: Setup.Bsb.make,
-                                onProgress: Setup.Bsb.onProgress,
-                                onEnd: Setup.Bsb.onEnd,
-                                onError: Setup.Bsb.onError,
-                                reportProgress: Setup.Bsb.reportProgress,
-                                reportEnd: Setup.Bsb.reportEnd,
-                                reportError: Setup.Bsb.reportError,
-                                run: Setup.Bsb.run
-                              }, folder)
-                      ) : (
-                        projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : setupWithProgressIndicator({
-                                make: Setup.Esy.make,
-                                onProgress: Setup.Esy.onProgress,
-                                onEnd: Setup.Esy.onEnd,
-                                onError: Setup.Esy.onError,
-                                reportProgress: Setup.Esy.reportProgress,
-                                reportEnd: Setup.Esy.reportEnd,
-                                reportError: Setup.Esy.reportError,
-                                run: Setup.Esy.run
-                              }, folder)
-                      )
-                  );
-                return setupPromise.then((function (r) {
-                              if (r.tag) {
-                                return Promise.resolve(/* Error */Block.__(1, [r[0]]));
-                              } else if (typeof projectType === "number") {
-                                if (process.platform === "win32") {
-                                  return Promise.resolve(/* Error */Block.__(1, ["Opam workflow for Windows is not supported yet"]));
-                                } else {
+  return ProjectType.detect(folder).then((function (param) {
+                if (param.tag) {
+                  return Promise.resolve(/* Error */Block.__(1, [ProjectType.E.toString(param[0])]));
+                } else {
+                  var projectType = param[0];
+                  var setupPromise;
+                  setupPromise = typeof projectType === "number" ? setupWithProgressIndicator({
+                          make: Setup.Opam.make,
+                          onProgress: Setup.Opam.onProgress,
+                          onEnd: Setup.Opam.onEnd,
+                          onError: Setup.Opam.onError,
+                          reportProgress: Setup.Opam.reportProgress,
+                          reportEnd: Setup.Opam.reportEnd,
+                          reportError: Setup.Opam.reportError,
+                          run: Setup.Opam.run
+                        }, folder) : (
+                      projectType.tag ? (
+                          projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : setupWithProgressIndicator({
+                                  make: Setup.Bsb.make,
+                                  onProgress: Setup.Bsb.onProgress,
+                                  onEnd: Setup.Bsb.onEnd,
+                                  onError: Setup.Bsb.onError,
+                                  reportProgress: Setup.Bsb.reportProgress,
+                                  reportEnd: Setup.Bsb.reportEnd,
+                                  reportError: Setup.Bsb.reportError,
+                                  run: Setup.Bsb.run
+                                }, folder)
+                        ) : (
+                          projectType[/* readyForDev */0] ? Promise.resolve(/* Ok */Block.__(0, [/* () */0])) : setupWithProgressIndicator({
+                                  make: Setup.Esy.make,
+                                  onProgress: Setup.Esy.onProgress,
+                                  onEnd: Setup.Esy.onEnd,
+                                  onError: Setup.Esy.onError,
+                                  reportProgress: Setup.Esy.reportProgress,
+                                  reportEnd: Setup.Esy.reportEnd,
+                                  reportError: Setup.Esy.reportError,
+                                  run: Setup.Esy.run
+                                }, folder)
+                        )
+                    );
+                  return setupPromise.then((function (r) {
+                                if (r.tag) {
+                                  return Promise.resolve(/* Error */Block.__(1, [r[0]]));
+                                } else if (typeof projectType === "number") {
+                                  if (process.platform === "win32") {
+                                    return Promise.resolve(/* Error */Block.__(1, ["Opam workflow for Windows is not supported yet"]));
+                                  } else {
+                                    return Promise.resolve(/* Ok */Block.__(0, [{
+                                                    command: "opam",
+                                                    args: /* array */[
+                                                      "exec",
+                                                      "ocamllsp"
+                                                    ],
+                                                    options: {
+                                                      env: process.env
+                                                    }
+                                                  }]));
+                                  }
+                                } else if (projectType.tag) {
+                                  var match = process.platform === "win32";
                                   return Promise.resolve(/* Ok */Block.__(0, [{
-                                                  command: "opam",
+                                                  command: match ? "esy.cmd" : "esy",
                                                   args: /* array */[
-                                                    "exec",
+                                                    "-P",
+                                                    Path.join(folder, ".vscode", "esy"),
+                                                    "ocamllsp"
+                                                  ],
+                                                  options: {
+                                                    env: process.env
+                                                  }
+                                                }]));
+                                } else {
+                                  var match$1 = process.platform === "win32";
+                                  return Promise.resolve(/* Ok */Block.__(0, [{
+                                                  command: match$1 ? "esy.cmd" : "esy",
+                                                  args: /* array */[
+                                                    "exec-command",
+                                                    "--include-current-env",
                                                     "ocamllsp"
                                                   ],
                                                   options: {
@@ -94,34 +125,8 @@ function make(folder) {
                                                   }
                                                 }]));
                                 }
-                              } else if (projectType.tag) {
-                                var match = process.platform === "win32";
-                                return Promise.resolve(/* Ok */Block.__(0, [{
-                                                command: match ? "esy.cmd" : "esy",
-                                                args: /* array */[
-                                                  "-P",
-                                                  Path.join(folder, ".vscode", "esy"),
-                                                  "ocamllsp"
-                                                ],
-                                                options: {
-                                                  env: process.env
-                                                }
-                                              }]));
-                              } else {
-                                var match$1 = process.platform === "win32";
-                                return Promise.resolve(/* Ok */Block.__(0, [{
-                                                command: match$1 ? "esy.cmd" : "esy",
-                                                args: /* array */[
-                                                  "exec-command",
-                                                  "--include-current-env",
-                                                  "ocamllsp"
-                                                ],
-                                                options: {
-                                                  env: process.env
-                                                }
-                                              }]));
-                              }
-                            }));
+                              }));
+                }
               }));
 }
 
@@ -149,9 +154,6 @@ var Client = {
   make: make$1
 };
 
-var LanguageClient = { };
-
 exports.Server = Server;
 exports.Client = Client;
-exports.LanguageClient = LanguageClient;
 /* path Not a pure module */

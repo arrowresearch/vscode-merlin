@@ -26,6 +26,8 @@ var $$Range = { };
 
 var TextEdit = { };
 
+var LanguageClient = { };
+
 exports.TextDocument = TextDocument;
 exports.Folder = Folder;
 exports.Workspace = Workspace;
@@ -35,4 +37,5 @@ exports.ExtensionContext = ExtensionContext;
 exports.Languages = Languages;
 exports.$$Range = $$Range;
 exports.TextEdit = TextEdit;
+exports.LanguageClient = LanguageClient;
 /* No side effect */
