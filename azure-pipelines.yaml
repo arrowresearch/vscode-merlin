@@ -4,7 +4,7 @@ trigger:
   - master
   - andreypopp/*
   - prometheansacrifice/*
-  - rustykey/*
+  - rusty-key/*
   - wokalski/*
 
 jobs:
@@ -26,7 +26,7 @@ jobs:
     parameters:
       platform: Windows
       vmImage: windows-2019
-      
+
   - job: Release
     displayName: Release
     dependsOn:
