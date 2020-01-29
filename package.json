@@ -100,7 +100,7 @@
     "test": "npm run test:unit && npm run test:esy && npm run test:opam && npm run test:bsb",
     "package": "vsce package",
     "refmt": "find ./src ./fixtures ./__tests__ -type f -name \"*.re\" | xargs bsrefmt --in-place",
-    "deploy": "vsce publish"
+    "publish": "vsce publish"
   },
   "devDependencies": {
     "@glennsl/bs-jest": "^0.4.9",

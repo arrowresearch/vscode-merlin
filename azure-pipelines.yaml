@@ -6,6 +6,7 @@ trigger:
   - prometheansacrifice/*
   - rustykey/*
   - wokalski/*
+  - refs/tags/*
 
 jobs:
   - template: .ci/build-platform.yml
@@ -26,7 +27,7 @@ jobs:
     parameters:
       platform: Windows
       vmImage: windows-2019
-      
+
   - job: Release
     displayName: Release
     dependsOn:
@@ -49,3 +50,12 @@ jobs:
         inputs:
           PathtoPublish: '.'
           ArtifactName: release
+
+      - task: PublishExtension
+        displayName: 'Publish Extension'
+        condition: and(succeeded(), startsWith(variables['Build.sourceBranch'], 'refs/tags/'))
+        bash: |
+          echo ">>> Publish"
+          npm run publish -p $(VSCODE_MARKETPLACE_TOKEN)
+
+
