@@ -51,11 +51,8 @@ jobs:
           PathtoPublish: '.'
           ArtifactName: release
 
-      - task: PublishExtension
-        displayName: 'Publish Extension'
-        condition: and(succeeded(), startsWith(variables['Build.sourceBranch'], 'refs/tags/'))
-        bash: |
+      - bash: |
           echo ">>> Publish"
           npm run publish -p $(VSCODE_MARKETPLACE_TOKEN)
-
-
+        displayName: 'Publish Extension'
+        condition: and(succeeded(), startsWith(variables['Build.sourceBranch'], 'refs/tags/'))
