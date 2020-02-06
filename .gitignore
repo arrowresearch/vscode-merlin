@@ -5,7 +5,6 @@
 *.vsix
 *~
 _esy/
-esy.lock/
 dist/
 lib/
 node_modules/
