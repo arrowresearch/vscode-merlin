@@ -80,6 +80,8 @@ module Fs = {
 
   module E = {
     type t =
+      | ExistsCheckFailed
+      | MakeDirectoryFailed
       | PathNotFound;
     let toString =
       fun
@@ -96,10 +98,17 @@ module Fs = {
   external readFile: string => Js.Promise.t(string) = "readFile";
 
   [@bs.module "./fs-stub.js"]
-  external mkdir': string => Js.Promise.t(result(unit, 'b)) = "mkdir";
+  external mkdir': string => Js.Promise.t(unit) = "mkdir";
 
   [@bs.module "./fs-stub.js"]
-  external exists: string => Js.Promise.t(result(bool, 'b)) = "exists";
+  external exists': string => Js.Promise.t(bool) = "exists";
+
+  let exists = p =>
+    Js.Promise.(
+      exists'(p)
+      |> then_(b => resolve(Ok(b)))
+      |> catch(_ => resolve(Error(E.ExistsCheckFailed)))
+    );
 
   [@bs.module "./fs-stub.js"]
   external open_: (string, string) => Js.Promise.t(fd) = "open";
@@ -125,8 +134,9 @@ module Fs = {
     Js.Promise.(
       if (forceCreate) {
         exists(path)
-        |> then_(doesExist => {
-             switch (doesExist) {
+        |> then_(
+             fun
+             | Error(e) => Error(e) |> resolve
              | Ok(doesExist) =>
                if (doesExist) {
                  resolve(Ok());
@@ -138,16 +148,21 @@ module Fs = {
                    mkdir(~p=true, Filename.dirname(path))
                    |> then_(
                         fun
-                        | Ok () => mkdir'(path)
-                        | Error(e) => Error(e) |> resolve,
+                        | Error(e) => resolve(Error(e))
+                        | Ok () =>
+                          mkdir'(path)
+                          |> then_(() => resolve(Ok()))
+                          |> catch(_ =>
+                               resolve(Error(E.MakeDirectoryFailed))
+                             ),
                       );
                  };
-               }
-             | Error(e) => resolve(Error(e))
-             }
-           });
+               },
+           );
       } else {
-        mkdir'(path);
+        mkdir'(path)
+        |> then_(() => resolve(Ok()))
+        |> catch(_ => resolve(Error(E.MakeDirectoryFailed)));
       }
     );
   };

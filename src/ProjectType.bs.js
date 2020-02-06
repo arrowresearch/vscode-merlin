@@ -5,18 +5,21 @@ var Esy = require("./command/Esy.bs.js");
 var $$Node = require("./bindings/Node.bs.js");
 var Path = require("path");
 var Block = require("bs-platform/lib/js/block.js");
+var Curry = require("bs-platform/lib/js/curry.js");
 var Utils = require("./Utils.bs.js");
 var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 function toString(param) {
   if (typeof param === "number") {
-    if (param !== 0) {
-      return "Weird invariant violation. Why would .vscode/esy exist but not be a valid esy project. TODO";
-    } else {
+    if (param === /* UnrecognisedProject */0) {
       return "Not a valid esy/opam/bsb project";
+    } else {
+      return "Weird invariant violation. Why would .vscode/esy exist but not be a valid esy project. TODO";
     }
-  } else {
+  } else if (param.tag) {
     return "Could not detect project type: esy status failed\nexitCode: " + (String(param[0]) + ("\nstdout: " + (String(param[1]) + ("\nstderr: " + (String(param[2]) + "\n")))));
+  } else {
+    return " Fs operation failed: " + (String(param[0]) + " ");
   }
 }
 
@@ -34,7 +37,7 @@ function detect(folder) {
                           Caml_builtin_exceptions.match_failure,
                           /* tuple */[
                             "ProjectType.re",
-                            31,
+                            33,
                             11
                           ]
                         ];
@@ -43,16 +46,16 @@ function detect(folder) {
                           Caml_builtin_exceptions.match_failure,
                           /* tuple */[
                             "ProjectType.re",
-                            31,
+                            33,
                             11
                           ]
                         ];
                   } else {
-                    tmp = /* Error */Block.__(1, [/* EsyStatusFailed */[
-                          -1,
-                          "<unknown exec failure>",
-                          "<unknown exec failure>"
-                        ]]);
+                    tmp = /* Error */Block.__(1, [/* EsyStatusFailed */Block.__(1, [
+                            -1,
+                            "<unknown exec failure>",
+                            "<unknown exec failure>"
+                          ])]);
                   }
                   return Promise.resolve(tmp);
                 } else {
@@ -74,7 +77,7 @@ function detect(folder) {
                                         var esyToolChainFolder = Path.join(folder, ".vscode", "esy");
                                         return $$Node.Fs.exists(esyToolChainFolder).then((function (param) {
                                                       if (param.tag) {
-                                                        return Promise.resolve(/* Error */Block.__(1, [param[0]]));
+                                                        return Promise.resolve(/* Error */Block.__(1, [/* FsOpFailed */Block.__(0, [Curry._1($$Node.Fs.E.toString, param[0])])]));
                                                       } else if (param[0]) {
                                                         return Esy.status(esyToolChainFolder).then((function (param) {
                                                                       return Utils.$less$less((function (prim) {
@@ -87,7 +90,7 @@ function detect(folder) {
                                                                                               Caml_builtin_exceptions.match_failure,
                                                                                               /* tuple */[
                                                                                                 "ProjectType.re",
-                                                                                                104,
+                                                                                                110,
                                                                                                 46
                                                                                               ]
                                                                                             ];
@@ -96,16 +99,16 @@ function detect(folder) {
                                                                                               Caml_builtin_exceptions.match_failure,
                                                                                               /* tuple */[
                                                                                                 "ProjectType.re",
-                                                                                                104,
+                                                                                                110,
                                                                                                 46
                                                                                               ]
                                                                                             ];
                                                                                       } else {
-                                                                                        return /* Error */Block.__(1, [/* EsyStatusFailed */[
-                                                                                                    -1,
-                                                                                                    "<unknown exec failure>",
-                                                                                                    "<unknown exec failure>"
-                                                                                                  ]]);
+                                                                                        return /* Error */Block.__(1, [/* EsyStatusFailed */Block.__(1, [
+                                                                                                      -1,
+                                                                                                      "<unknown exec failure>",
+                                                                                                      "<unknown exec failure>"
+                                                                                                    ])]);
                                                                                       }
                                                                                     } else {
                                                                                       var toolChainStatus = param[0];

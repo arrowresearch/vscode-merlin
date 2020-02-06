@@ -9,6 +9,7 @@ var Caml_sys = require("bs-platform/lib/js/caml_sys.js");
 var Filename = require("bs-platform/lib/js/filename.js");
 var FsStubJs = require("./fs-stub.js");
 var Child_process = require("child_process");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 
 var thisProjectsEsyJson = FsStubJs.thisProjectsEsyJson;
 
@@ -39,7 +40,18 @@ function StreamFunctor(S) {
 var Stream = { };
 
 function toString(param) {
-  return "mkdir(~p=true) received home path and it was not found";
+  if (param >= 2) {
+    return "mkdir(~p=true) received home path and it was not found";
+  } else {
+    throw [
+          Caml_builtin_exceptions.match_failure,
+          /* tuple */[
+            "Node.re",
+            87,
+            6
+          ]
+        ];
+  }
 }
 
 var E = {
@@ -58,8 +70,16 @@ function mkdir$prime(prim) {
   return FsStubJs.mkdir(prim);
 }
 
-function exists(prim) {
+function exists$prime(prim) {
   return FsStubJs.exists(prim);
+}
+
+function exists(p) {
+  return FsStubJs.exists(p).then((function (b) {
+                  return Promise.resolve(/* Ok */Block.__(0, [b]));
+                })).catch((function (param) {
+                return Promise.resolve(/* Error */Block.__(1, [/* ExistsCheckFailed */0]));
+              }));
 }
 
 function open_(prim, prim$1) {
@@ -81,28 +101,36 @@ function unlink(prim) {
 function mkdir(p, path) {
   var forceCreate = p !== undefined ? p : false;
   if (forceCreate) {
-    return FsStubJs.exists(path).then((function (doesExist) {
-                  if (doesExist.tag) {
-                    return Promise.resolve(/* Error */Block.__(1, [doesExist[0]]));
-                  } else if (doesExist[0]) {
+    return exists(path).then((function (param) {
+                  if (param.tag) {
+                    return Promise.resolve(/* Error */Block.__(1, [param[0]]));
+                  } else if (param[0]) {
                     return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
                   } else {
                     var homePath = Caml_sys.caml_sys_getenv(Sys.unix ? "HOME" : "USERPROFILE");
                     if (path === homePath) {
-                      return Promise.resolve(/* Error */Block.__(1, [/* PathNotFound */0]));
+                      return Promise.resolve(/* Error */Block.__(1, [/* PathNotFound */2]));
                     } else {
                       return mkdir(true, Curry._1(Filename.dirname, path)).then((function (param) {
                                     if (param.tag) {
                                       return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                     } else {
-                                      return FsStubJs.mkdir(path);
+                                      return FsStubJs.mkdir(path).then((function (param) {
+                                                      return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
+                                                    })).catch((function (param) {
+                                                    return Promise.resolve(/* Error */Block.__(1, [/* MakeDirectoryFailed */1]));
+                                                  }));
                                     }
                                   }));
                     }
                   }
                 }));
   } else {
-    return FsStubJs.mkdir(path);
+    return FsStubJs.mkdir(path).then((function (param) {
+                    return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
+                  })).catch((function (param) {
+                  return Promise.resolve(/* Error */Block.__(1, [/* MakeDirectoryFailed */1]));
+                }));
   }
 }
 
@@ -111,6 +139,7 @@ var Fs = {
   writeFile: writeFile,
   readFile: readFile,
   mkdir$prime: mkdir$prime,
+  exists$prime: exists$prime,
   exists: exists,
   open_: open_,
   write: write,

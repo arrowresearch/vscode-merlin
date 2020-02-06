@@ -17,6 +17,7 @@ var Bindings = require("./bindings/Bindings.bs.js");
 var Filename = require("bs-platform/lib/js/filename.js");
 var AzurePipelines = require("./AzurePipelines.bs.js");
 var RequestProgress = require("request-progress");
+var Caml_builtin_exceptions = require("bs-platform/lib/js/caml_builtin_exceptions.js");
 var CheckBucklescriptCompat = require("./CheckBucklescriptCompat.bs.js");
 
 function onProgress(t, cb) {
@@ -178,7 +179,19 @@ function run$2(eventEmitter, projectPath) {
                                                               }
                                                             })).then((function (param) {
                                                             if (param.tag) {
-                                                              return Promise.resolve(/* Error */Block.__(1, [/* InvalidPath */Block.__(3, [hiddenEsyRoot])]));
+                                                              if (param[0] >= 2) {
+                                                                console.log(">>>", Curry._1($$Node.Fs.E.toString, /* PathNotFound */2));
+                                                                return Promise.resolve(/* Error */Block.__(1, [/* InvalidPath */Block.__(3, [hiddenEsyRoot])]));
+                                                              } else {
+                                                                throw [
+                                                                      Caml_builtin_exceptions.match_failure,
+                                                                      /* tuple */[
+                                                                        "Setup.re",
+                                                                        133,
+                                                                        11
+                                                                      ]
+                                                                    ];
+                                                              }
                                                             } else {
                                                               return Esy.install(hiddenEsyRoot).then((function (param) {
                                                                             if (param.tag) {
@@ -203,6 +216,7 @@ function run$2(eventEmitter, projectPath) {
                                                             }
                                                           })).then((function (param) {
                                                           if (param.tag) {
+                                                            console.log(toString(param[0]));
                                                             return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, ["Couldn't compute downloadUrl"])]));
                                                           } else {
                                                             var downloadUrl = param[0];

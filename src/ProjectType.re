@@ -7,12 +7,14 @@ type t =
 
 module E = {
   type t =
+    | FsOpFailed(string)
     | UnrecognisedProject
     | WeirdInvariantViolation
     | EsyStatusFailed(int, string, string);
 
   let toString =
     fun
+    | FsOpFailed(m) => {j| Fs operation failed: $m |j}
     | UnrecognisedProject => "Not a valid esy/opam/bsb project"
     | WeirdInvariantViolation => "Weird invariant violation. Why would .vscode/esy exist but not be a valid esy project. TODO"
     | EsyStatusFailed(exitCode, stdout, stderr) => {j|Could not detect project type: esy status failed
@@ -92,7 +94,11 @@ let detect = folder => {
                             |> Fs.exists
                             |> then_(
                                  fun
-                                 | Error(e) => Error(e) |> resolve
+                                 | Error(e) =>
+                                   Error(
+                                     E.FsOpFailed(Bindings.Fs.E.toString(e)),
+                                   )
+                                   |> resolve
                                  | Ok(doesToolChainEsyManifestExist) =>
                                    if (doesToolChainEsyManifestExist) {
                                      Esy.status(esyToolChainFolder)

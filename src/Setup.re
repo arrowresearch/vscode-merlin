@@ -131,8 +131,10 @@ module Bsb = {
          )
       |> then_(
            fun
-           | Error(Fs.E.PathNotFound) =>
-             Error(E.InvalidPath(hiddenEsyRoot)) |> resolve
+           | Error(Fs.E.PathNotFound) => {
+               Js.log2(">>>", Fs.E.(toString(PathNotFound)));
+               Error(E.InvalidPath(hiddenEsyRoot)) |> resolve;
+             }
            | Ok () => {
                Command.Esy.install(~p=hiddenEsyRoot)
                |> then_(
@@ -199,8 +201,12 @@ module Bsb = {
                  )
                );
              }
-           | Error((_thisIsWhereCacheFailureCouldBeReported: E.t)) =>
-             resolve(Error(E.CacheFailure("Couldn't compute downloadUrl"))),
+           | Error((thisIsWhereCacheFailureCouldBeReported: E.t)) => {
+               Js.log(E.toString(thisIsWhereCacheFailureCouldBeReported));
+               resolve(
+                 Error(E.CacheFailure("Couldn't compute downloadUrl")),
+               );
+             },
          )
       |> then_(
            fun
