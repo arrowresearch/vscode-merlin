@@ -46,26 +46,52 @@ suite("Basic tests", () => {
     }
 
     await delay(500);
-    let diagnostics = await vscode.languages.getDiagnostics(
+    let reasonDiagnostics = await vscode.languages.getDiagnostics(
       Uri.file(path.join(projectPath, "bin", "SampleEsyApp.re"))
+    );
+    let ocamlDiagnostics = await vscode.languages.getDiagnostics(
+      Uri.file(path.join(projectPath, "bin", "CamlUtil.ml"))
     );
     if (process.platform != "win32" && process.platform != "win64") {
       assert.equal(
-        diagnostics.length,
+        reasonDiagnostics.length,
         1,
-        "There should only be one diagnostic"
+        "There should only be one diagnostic in the Reason source file"
       );
-      assert.equal(diagnostics[0].message, "Warning 26: unused variable foo.");
       assert.equal(
-        diagnostics[0].severity,
+        reasonDiagnostics[0].message,
+        "Warning 26: unused variable foo."
+      );
+      assert.equal(
+        reasonDiagnostics[0].severity,
         1,
         "Severity of this diagnostic should be 1 (Warning). It was " +
-          diagnostics[0].severity
+          reasonDiagnostics[0].severity
       );
-      assert.equal(diagnostics[0].range.start.line, 3);
-      assert.equal(diagnostics[0].range.start.character, 6);
-      assert.equal(diagnostics[0].range.end.line, 3);
-      assert.equal(diagnostics[0].range.end.character, 9);
+      assert.equal(reasonDiagnostics[0].range.start.line, 3);
+      assert.equal(reasonDiagnostics[0].range.start.character, 6);
+      assert.equal(reasonDiagnostics[0].range.end.line, 3);
+      assert.equal(reasonDiagnostics[0].range.end.character, 9);
+
+      assert.equal(
+        ocamlDiagnostics.length,
+        1,
+        "There should only be one diagnostic in the OCaml source file"
+      );
+      assert.equal(
+        ocamlDiagnostics[0].message,
+        "Warning 26: unused variable foo."
+      );
+      assert.equal(
+        ocamlDiagnostics[0].severity,
+        1,
+        "Severity of this diagnostic should be 1 (Warning). It was " +
+          ocamlDiagnostics[0].severity
+      );
+      assert.equal(ocamlDiagnostics[0].range.start.line, 3);
+      assert.equal(ocamlDiagnostics[0].range.start.character, 6);
+      assert.equal(ocamlDiagnostics[0].range.end.line, 3);
+      assert.equal(ocamlDiagnostics[0].range.end.character, 9);
     }
 
     // TODO: the plugin could support build related tasks

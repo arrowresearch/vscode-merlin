@@ -1,2 +1,4 @@
-(executable (name SampleEsyApp)
-    (public_name SampleEsyApp.exe))
+(executable
+ (flags -w +26)
+ (name SampleEsyApp)
+ (public_name SampleEsyApp.exe))
