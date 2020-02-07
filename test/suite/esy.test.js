@@ -80,7 +80,7 @@ suite("Basic tests", () => {
       );
       assert.equal(
         ocamlDiagnostics[0].message,
-        "Warning 26: unused variable foo."
+        "Warning 26: unused variable bar."
       );
       assert.equal(
         ocamlDiagnostics[0].severity,
