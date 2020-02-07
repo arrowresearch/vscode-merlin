@@ -12,7 +12,7 @@
   "dependencies": {
     "@opam/dune": "*",
     "@esy-ocaml/reason": "*",
-    "ocaml": "~4.9.0"
+    "ocaml": "4.6.x"
   },
   "devDependencies": {
     "@opam/merlin": "*",
