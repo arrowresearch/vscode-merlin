@@ -12,11 +12,10 @@
   "dependencies": {
     "@opam/dune": "*",
     "@esy-ocaml/reason": "*",
-    "ocaml": "~4.7.0"
+    "ocaml": "~4.9.0"
   },
   "devDependencies": {
     "@opam/merlin": "*",
-    "ocaml": "~4.7.0",
     "@opam/ocaml-lsp-server": "prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d"
   }
 }
