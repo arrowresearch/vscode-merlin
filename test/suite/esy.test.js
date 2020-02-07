@@ -88,10 +88,10 @@ suite("Basic tests", () => {
         "Severity of this diagnostic should be 1 (Warning). It was " +
           ocamlDiagnostics[0].severity
       );
-      assert.equal(ocamlDiagnostics[0].range.start.line, 3);
-      assert.equal(ocamlDiagnostics[0].range.start.character, 6);
-      assert.equal(ocamlDiagnostics[0].range.end.line, 3);
-      assert.equal(ocamlDiagnostics[0].range.end.character, 9);
+      assert.equal(ocamlDiagnostics[0].range.start.line, 0);
+      assert.equal(ocamlDiagnostics[0].range.start.character, 16);
+      assert.equal(ocamlDiagnostics[0].range.end.line, 0);
+      assert.equal(ocamlDiagnostics[0].range.end.character, 19);
     }
 
     // TODO: the plugin could support build related tasks
