@@ -1,5 +1,5 @@
 {
-  "checksum": "000d028f3ada5a632bab15aac93d0d35",
+  "checksum": "b8d5b3e1eadcb52fb4eab3edb0d60711",
   "root": "vscode-merlin@link-dev:./esy.json",
   "node": {
     "vscode-merlin@link-dev:./esy.json": {
@@ -427,20 +427,20 @@
         "ocaml@4.6.1000@d41d8cd9", "@opam/dune@opam:2.0.1@5dc56bd0"
       ]
     },
-    "@opam/odoc@opam:1.4.2@11b715bb": {
-      "id": "@opam/odoc@opam:1.4.2@11b715bb",
+    "@opam/odoc@opam:1.5.0@35218f5f": {
+      "id": "@opam/odoc@opam:1.5.0@35218f5f",
       "name": "@opam/odoc",
-      "version": "opam:1.4.2",
+      "version": "opam:1.5.0",
       "source": {
         "type": "install",
         "source": [
-          "archive:https://opam.ocaml.org/cache/md5/d7/d75ce63539040cd199d22203d46fc5f3#md5:d75ce63539040cd199d22203d46fc5f3",
-          "archive:https://github.com/ocaml/odoc/archive/1.4.2.tar.gz#md5:d75ce63539040cd199d22203d46fc5f3"
+          "archive:https://opam.ocaml.org/cache/sha256/85/857759be968070bfda208add3ae2c2bc87826ca2bfc39cebab1cc1e13db7a140#sha256:857759be968070bfda208add3ae2c2bc87826ca2bfc39cebab1cc1e13db7a140",
+          "archive:https://github.com/ocaml/odoc/releases/download/1.5.0/odoc-1.5.0.tbz#sha256:857759be968070bfda208add3ae2c2bc87826ca2bfc39cebab1cc1e13db7a140"
         ],
         "opam": {
           "name": "odoc",
-          "version": "1.4.2",
-          "path": "esy.lock/opam/odoc.1.4.2"
+          "version": "1.5.0",
+          "path": "esy.lock/opam/odoc.1.5.0"
         }
       },
       "overrides": [],
@@ -453,7 +453,11 @@
         "@esy-ocaml/substs@0.0.1@d41d8cd9"
       ],
       "devDependencies": [
-        "ocaml@4.6.1000@d41d8cd9", "@opam/dune@opam:2.0.1@5dc56bd0"
+        "ocaml@4.6.1000@d41d8cd9", "@opam/tyxml@opam:4.3.0@c1da25f1",
+        "@opam/result@opam:1.4@dc720aef", "@opam/fpath@opam:0.7.2@45477b93",
+        "@opam/dune@opam:2.0.1@5dc56bd0",
+        "@opam/cmdliner@opam:1.0.4@93208aac",
+        "@opam/astring@opam:0.8.3@4e5e17d5"
       ]
     },
     "@opam/ocamlformat@opam:0.12@4af14b8f": {
@@ -477,7 +481,7 @@
         "ocaml@4.6.1000@d41d8cd9", "@opam/uutf@opam:1.0.2@4440868f",
         "@opam/uuseg@opam:12.0.0@bf82c4c7",
         "@opam/stdio@opam:v0.13.0@eb59d879", "@opam/re@opam:1.9.0@d4d5e13d",
-        "@opam/odoc@opam:1.4.2@11b715bb",
+        "@opam/odoc@opam:1.5.0@35218f5f",
         "@opam/ocaml-migrate-parsetree@opam:1.5.0@3e319dbc",
         "@opam/fpath@opam:0.7.2@45477b93", "@opam/dune@opam:2.0.1@5dc56bd0",
         "@opam/cmdliner@opam:1.0.4@93208aac",
@@ -489,7 +493,7 @@
         "ocaml@4.6.1000@d41d8cd9", "@opam/uutf@opam:1.0.2@4440868f",
         "@opam/uuseg@opam:12.0.0@bf82c4c7",
         "@opam/stdio@opam:v0.13.0@eb59d879", "@opam/re@opam:1.9.0@d4d5e13d",
-        "@opam/odoc@opam:1.4.2@11b715bb",
+        "@opam/odoc@opam:1.5.0@35218f5f",
         "@opam/ocaml-migrate-parsetree@opam:1.5.0@3e319dbc",
         "@opam/fpath@opam:0.7.2@45477b93", "@opam/dune@opam:2.0.1@5dc56bd0",
         "@opam/cmdliner@opam:1.0.4@93208aac",
@@ -794,20 +798,20 @@
         "ocaml@4.6.1000@d41d8cd9", "@opam/dune@opam:2.0.1@5dc56bd0"
       ]
     },
-    "@opam/dune-configurator@opam:2.1.3@25ad9b47": {
-      "id": "@opam/dune-configurator@opam:2.1.3@25ad9b47",
+    "@opam/dune-configurator@opam:2.2.0@95249fb0": {
+      "id": "@opam/dune-configurator@opam:2.2.0@95249fb0",
       "name": "@opam/dune-configurator",
-      "version": "opam:2.1.3",
+      "version": "opam:2.2.0",
       "source": {
         "type": "install",
         "source": [
-          "archive:https://opam.ocaml.org/cache/sha256/1e/1e8e3b55a9fae02c4b8137e2134a6cc163df5cddcd1d52cdacf2343ac53baeb3#sha256:1e8e3b55a9fae02c4b8137e2134a6cc163df5cddcd1d52cdacf2343ac53baeb3",
-          "archive:https://github.com/ocaml/dune/releases/download/2.1.3/dune-2.1.3.tbz#sha256:1e8e3b55a9fae02c4b8137e2134a6cc163df5cddcd1d52cdacf2343ac53baeb3"
+          "archive:https://opam.ocaml.org/cache/sha256/ab/ab5eb970c21641a6f3034448218cdc1c138512b906c7d2f67fea41ecd98d8bf4#sha256:ab5eb970c21641a6f3034448218cdc1c138512b906c7d2f67fea41ecd98d8bf4",
+          "archive:https://github.com/ocaml/dune/releases/download/2.2.0/dune-2.2.0.tbz#sha256:ab5eb970c21641a6f3034448218cdc1c138512b906c7d2f67fea41ecd98d8bf4"
         ],
         "opam": {
           "name": "dune-configurator",
-          "version": "2.1.3",
-          "path": "esy.lock/opam/dune-configurator.2.1.3"
+          "version": "2.2.0",
+          "path": "esy.lock/opam/dune-configurator.2.2.0"
         }
       },
       "overrides": [],
@@ -1014,12 +1018,12 @@
       "overrides": [],
       "dependencies": [
         "ocaml@4.6.1000@d41d8cd9", "@opam/sexplib0@opam:v0.13.0@3f54c2be",
-        "@opam/dune-configurator@opam:2.1.3@25ad9b47",
+        "@opam/dune-configurator@opam:2.2.0@95249fb0",
         "@opam/dune@opam:2.0.1@5dc56bd0", "@esy-ocaml/substs@0.0.1@d41d8cd9"
       ],
       "devDependencies": [
         "ocaml@4.6.1000@d41d8cd9", "@opam/sexplib0@opam:v0.13.0@3f54c2be",
-        "@opam/dune-configurator@opam:2.1.3@25ad9b47",
+        "@opam/dune-configurator@opam:2.2.0@95249fb0",
         "@opam/dune@opam:2.0.1@5dc56bd0"
       ]
     },

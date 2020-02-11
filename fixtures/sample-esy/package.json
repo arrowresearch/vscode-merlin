@@ -10,12 +10,15 @@
     "test": "esy x RunSampleEsyTests.exe"
   },
   "dependencies": {
-    "@opam/dune": "2.1.3",
+    "@opam/dune": "*",
     "@esy-ocaml/reason": "*",
     "ocaml": "4.6.x"
   },
   "devDependencies": {
     "@opam/merlin": "*",
     "@opam/ocaml-lsp-server": "prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d"
+  },
+  "resolutions": {
+    "@opam/dune": "2.0.1"
   }
 }
