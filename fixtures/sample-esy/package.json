@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "@opam/merlin": "*",
-    "@opam/ocaml-lsp-server": "prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d"
+    "@opam/ocaml-lsp-server": "prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1"
   },
   "resolutions": {
     "@opam/dune": "2.0.1"

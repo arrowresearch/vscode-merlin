@@ -1,5 +1,5 @@
 {
-  "checksum": "b8d5b3e1eadcb52fb4eab3edb0d60711",
+  "checksum": "503e99af255177ef4ead25504c6c2cb9",
   "root": "vscode-merlin@link-dev:./esy.json",
   "node": {
     "vscode-merlin@link-dev:./esy.json": {
@@ -10,7 +10,7 @@
       "overrides": [],
       "dependencies": [
         "ocaml@4.6.1000@d41d8cd9", "@opam/ocamlformat@opam:0.12@4af14b8f",
-        "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d@d41d8cd9",
+        "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1@d41d8cd9",
         "@esy-ocaml/reason@3.5.2@d41d8cd9"
       ],
       "devDependencies": []
@@ -585,16 +585,16 @@
         "@opam/dune@opam:2.0.1@5dc56bd0"
       ]
     },
-    "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d@d41d8cd9": {
+    "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1@d41d8cd9": {
       "id":
-        "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d@d41d8cd9",
+        "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1@d41d8cd9",
       "name": "@opam/ocaml-lsp-server",
       "version":
-        "github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d",
+        "github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1",
       "source": {
         "type": "install",
         "source": [
-          "github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#924ac293be5d"
+          "github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1"
         ]
       },
       "overrides": [],
