@@ -10,7 +10,7 @@
     "test": "esy x RunSampleEsyTests.exe"
   },
   "dependencies": {
-    "@opam/dune": "*",
+    "@opam/dune": "2.1.3",
     "@esy-ocaml/reason": "*",
     "ocaml": "4.6.x"
   },
