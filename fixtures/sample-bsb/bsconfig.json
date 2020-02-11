@@ -5,7 +5,7 @@
     "subdirs": true
   },
   "warnings": {
-    "number": "-44-102",
+    "number": "-44-102+26",
     "error": "+5"
   }
 }

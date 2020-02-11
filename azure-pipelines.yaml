@@ -34,7 +34,7 @@ jobs:
       - macos
       - Windows
     pool:
-      vmImage: ubuntu-16.04
+      vmImage: ubuntu-18.04
 
     steps:
       - task: DownloadBuildArtifacts@0
