@@ -118,7 +118,7 @@ let detect = folder => {
                                                 Bsb({
                                                   readyForDev:
                                                     toolChainStatus.
-                                                      isProjectSolved,
+                                                      isProjectReadyForDev,
                                                 }),
                                               );
                                             }

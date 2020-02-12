@@ -108,7 +108,7 @@ function detect(folder) {
                                                                                     } else {
                                                                                       var toolChainStatus = param[0];
                                                                                       if (toolChainStatus.isProject) {
-                                                                                        return /* Ok */Block.__(0, [/* Bsb */Block.__(1, [/* readyForDev */toolChainStatus.isProjectSolved])]);
+                                                                                        return /* Ok */Block.__(0, [/* Bsb */Block.__(1, [/* readyForDev */toolChainStatus.isProjectReadyForDev])]);
                                                                                       } else {
                                                                                         return /* Error */Block.__(1, [/* WeirdInvariantViolation */1]);
                                                                                       }
