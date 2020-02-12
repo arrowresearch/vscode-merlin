@@ -72,10 +72,8 @@ function detect(folder) {
                                         return Promise.resolve(/* Ok */Block.__(0, [/* Esy */Block.__(0, [/* readyForDev */status.isProjectReadyForDev])]));
                                       } else {
                                         var esyToolChainFolder = Path.join(folder, ".vscode", "esy");
-                                        return $$Node.Fs.exists(esyToolChainFolder).then((function (param) {
-                                                      if (param.tag) {
-                                                        return Promise.resolve(/* Error */Block.__(1, [param[0]]));
-                                                      } else if (param[0]) {
+                                        return $$Node.Fs.exists(esyToolChainFolder).then((function (doesToolChainEsyManifestExist) {
+                                                      if (doesToolChainEsyManifestExist) {
                                                         return Esy.status(esyToolChainFolder).then((function (param) {
                                                                       return Utils.$less$less((function (prim) {
                                                                                     return Promise.resolve(prim);
@@ -87,8 +85,8 @@ function detect(folder) {
                                                                                               Caml_builtin_exceptions.match_failure,
                                                                                               /* tuple */[
                                                                                                 "ProjectType.re",
-                                                                                                104,
-                                                                                                46
+                                                                                                101,
+                                                                                                44
                                                                                               ]
                                                                                             ];
                                                                                       } else if (tmp.tag) {
@@ -96,8 +94,8 @@ function detect(folder) {
                                                                                               Caml_builtin_exceptions.match_failure,
                                                                                               /* tuple */[
                                                                                                 "ProjectType.re",
-                                                                                                104,
-                                                                                                46
+                                                                                                101,
+                                                                                                44
                                                                                               ]
                                                                                             ];
                                                                                       } else {
@@ -110,7 +108,7 @@ function detect(folder) {
                                                                                     } else {
                                                                                       var toolChainStatus = param[0];
                                                                                       if (toolChainStatus.isProject) {
-                                                                                        return /* Ok */Block.__(0, [/* Bsb */Block.__(1, [/* readyForDev */toolChainStatus.isProjectSolved])]);
+                                                                                        return /* Ok */Block.__(0, [/* Bsb */Block.__(1, [/* readyForDev */toolChainStatus.isProjectReadyForDev])]);
                                                                                       } else {
                                                                                         return /* Error */Block.__(1, [/* WeirdInvariantViolation */1]);
                                                                                       }

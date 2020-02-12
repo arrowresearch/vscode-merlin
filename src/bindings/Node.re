@@ -96,10 +96,10 @@ module Fs = {
   external readFile: string => Js.Promise.t(string) = "readFile";
 
   [@bs.module "./fs-stub.js"]
-  external mkdir': string => Js.Promise.t(result(unit, 'b)) = "mkdir";
+  external mkdir': string => Js.Promise.t(unit) = "mkdir";
 
   [@bs.module "./fs-stub.js"]
-  external exists: string => Js.Promise.t(result(bool, 'b)) = "exists";
+  external exists: string => Js.Promise.t(bool) = "exists";
 
   [@bs.module "./fs-stub.js"]
   external open_: (string, string) => Js.Promise.t(fd) = "open";
@@ -125,29 +125,25 @@ module Fs = {
     Js.Promise.(
       if (forceCreate) {
         exists(path)
-        |> then_(doesExist => {
-             switch (doesExist) {
-             | Ok(doesExist) =>
-               if (doesExist) {
-                 resolve(Ok());
+        |> then_(doesExist =>
+             if (doesExist) {
+               resolve(Ok());
+             } else {
+               let homePath = Sys.getenv(Sys.unix ? "HOME" : "USERPROFILE");
+               if (path == homePath) {
+                 resolve(Error(E.PathNotFound));
                } else {
-                 let homePath = Sys.getenv(Sys.unix ? "HOME" : "USERPROFILE");
-                 if (path == homePath) {
-                   resolve(Error(E.PathNotFound));
-                 } else {
-                   mkdir(~p=true, Filename.dirname(path))
-                   |> then_(
-                        fun
-                        | Ok () => mkdir'(path)
-                        | Error(e) => Error(e) |> resolve,
-                      );
-                 };
-               }
-             | Error(e) => resolve(Error(e))
+                 mkdir(~p=true, Filename.dirname(path))
+                 |> then_(
+                      fun
+                      | Ok () => mkdir'(path) |> then_(() => resolve(Ok()))
+                      | Error(e) => Error(e) |> resolve,
+                    );
+               };
              }
-           });
+           );
       } else {
-        mkdir'(path);
+        mkdir'(path) |> then_(() => resolve(Ok()));
       }
     );
   };

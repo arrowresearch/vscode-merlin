@@ -90,48 +90,43 @@ let detect = folder => {
                               Path.join([|folder, ".vscode", "esy"|]);
                             esyToolChainFolder
                             |> Fs.exists
-                            |> then_(
-                                 fun
-                                 | Error(e) => Error(e) |> resolve
-                                 | Ok(doesToolChainEsyManifestExist) =>
-                                   if (doesToolChainEsyManifestExist) {
-                                     Esy.status(esyToolChainFolder)
-                                     |> then_(
-                                          resolve
-                                          << (
-                                            fun
-                                            | Error(e) =>
-                                              switch (e) {
-                                              | Esy.E.CmdFailed(cmd) =>
-                                                Error(
-                                                  E.EsyStatusFailed(
-                                                    -1,
-                                                    "<unknown exec failure>",
-                                                    "<unknown exec failure>",
-                                                  ),
-                                                )
-                                              }
-                                            | Ok(
-                                                (toolChainStatus: Esy.status),
-                                              ) =>
-                                              if (!toolChainStatus.isProject) {
-                                                Error(
-                                                  E.WeirdInvariantViolation,
-                                                );
-                                              } else {
-                                                Ok(
-                                                  Bsb({
-                                                    readyForDev:
-                                                      toolChainStatus.
-                                                        isProjectSolved,
-                                                  }),
-                                                );
-                                              }
-                                          ),
-                                        );
-                                   } else {
-                                     Ok(Bsb({readyForDev: false})) |> resolve;
-                                   },
+                            |> then_(doesToolChainEsyManifestExist =>
+                                 if (doesToolChainEsyManifestExist) {
+                                   Esy.status(esyToolChainFolder)
+                                   |> then_(
+                                        resolve
+                                        << (
+                                          fun
+                                          | Error(e) =>
+                                            switch (e) {
+                                            | Esy.E.CmdFailed(cmd) =>
+                                              Error(
+                                                E.EsyStatusFailed(
+                                                  -1,
+                                                  "<unknown exec failure>",
+                                                  "<unknown exec failure>",
+                                                ),
+                                              )
+                                            }
+                                          | Ok((toolChainStatus: Esy.status)) =>
+                                            if (!toolChainStatus.isProject) {
+                                              Error(
+                                                E.WeirdInvariantViolation,
+                                              );
+                                            } else {
+                                              Ok(
+                                                Bsb({
+                                                  readyForDev:
+                                                    toolChainStatus.
+                                                      isProjectReadyForDev,
+                                                }),
+                                              );
+                                            }
+                                        ),
+                                      );
+                                 } else {
+                                   Ok(Bsb({readyForDev: false})) |> resolve;
+                                 }
                                );
                           };
                         }
