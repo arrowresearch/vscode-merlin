@@ -82,9 +82,7 @@ function mkdir(p, path) {
   var forceCreate = p !== undefined ? p : false;
   if (forceCreate) {
     return FsStubJs.exists(path).then((function (doesExist) {
-                  if (doesExist.tag) {
-                    return Promise.resolve(/* Error */Block.__(1, [doesExist[0]]));
-                  } else if (doesExist[0]) {
+                  if (doesExist) {
                     return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
                   } else {
                     var homePath = Caml_sys.caml_sys_getenv(Sys.unix ? "HOME" : "USERPROFILE");
@@ -95,14 +93,18 @@ function mkdir(p, path) {
                                     if (param.tag) {
                                       return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                     } else {
-                                      return FsStubJs.mkdir(path);
+                                      return FsStubJs.mkdir(path).then((function (param) {
+                                                    return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
+                                                  }));
                                     }
                                   }));
                     }
                   }
                 }));
   } else {
-    return FsStubJs.mkdir(path);
+    return FsStubJs.mkdir(path).then((function (param) {
+                  return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
+                }));
   }
 }
 
