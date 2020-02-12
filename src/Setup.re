@@ -63,6 +63,10 @@ module Opam = {
   };
 };
 
+let serialEsyImportDependencies = projectRoot => {
+  Command.Esy.importDependencies(~p=projectRoot);
+};
+
 module Bsb = {
   module E = {
     type t =
@@ -119,6 +123,7 @@ module Bsb = {
       /*     fun */
       /*     | Ok(x) => f(x) */
       /*     | Error(e) => Js.Promise.resolve(Error(e)); */
+      Js.log("Creating hidden esy root: " ++ hiddenEsyRoot);
       Fs.mkdir(~p=true, hiddenEsyRoot)
       |> then_(
            fun
@@ -126,7 +131,7 @@ module Bsb = {
            | Ok () => {
                Filename.concat(hiddenEsyRoot, "esy.json")
                |> dropAnEsyJSON
-               |> then_(() => resolve(Ok()));
+               |> then_(() =>{       Js.log("Created esy.json at " ++ hiddenEsyRoot); resolve(Ok()); });
              },
          )
       |> then_(
@@ -134,6 +139,7 @@ module Bsb = {
            | Error(Fs.E.PathNotFound) =>
              Error(E.InvalidPath(hiddenEsyRoot)) |> resolve
            | Ok () => {
+               Js.log("Running esy install");
                Command.Esy.install(~p=hiddenEsyRoot)
                |> then_(
                     fun
@@ -149,30 +155,20 @@ module Bsb = {
                       )
                       |> resolve
                     | Ok(_stdout) => {
+                        Js.log("Finished running 'esy install'. Initiating cache warmup");
+                        Js.log("Getting latest build ID..")
                         reportProgress(eventEmitter, 0.1);
                         AzurePipelines.getBuildID()
                         |> then_(
                              fun
-                             | Ok(id) => AzurePipelines.getDownloadURL(id)
+                             | Ok(id) => { Js.log("Got build ID: " ++ Js.Float.toString(id)); Js.log("Getting download URL..."); AzurePipelines.getDownloadURL(id); }
                              | Error(e) => Error(e) |> resolve,
                            )
                         |> then_(
                              fun
-                             | Ok(url) => Ok(url) |> resolve
+                             | Ok(url) => { Js.log("Got download URL: " ++ url); Ok(url) |> resolve }
                              | Error(e) =>
-                               AzurePipelines.E.(
-                                 switch (e) {
-                                 | DownloadFailure(_)
-                                 | UnsupportedOS
-                                 | InvalidJSONType(_)
-                                 | MissingField(_)
-                                 | InvalidFirstArrayElement
-                                 | Failure(_) =>
-                                   /* TODO: helpful message saying cache restoration
-                                      failed and long build times are to be expected */
-                                   resolve(Error(E.CacheFailure("<TODO>")))
-                                 }
-                               ),
+                               Error(E.CacheFailure(AzurePipelines.E.toString(e))) |> resolve
                            );
                       },
                   );
@@ -181,7 +177,7 @@ module Bsb = {
       |> then_(
            fun
            | Ok(downloadUrl) => {
-               Js.log2("download", downloadUrl);
+               Js.log2("Downloading", downloadUrl);
                let lastProgress = ref(0.0);
                Js.Promise.make((~resolve, ~reject as _) =>
                  download(
@@ -190,6 +186,7 @@ module Bsb = {
                    ~progress=
                      progressFraction => {
                        let percent = progressFraction *. 80.0;
+                       Js.log2("Download ", percent);
                        reportProgress(eventEmitter, percent -. lastProgress^);
                        lastProgress := percent;
                      },
@@ -199,13 +196,14 @@ module Bsb = {
                  )
                );
              }
-           | Error((_thisIsWhereCacheFailureCouldBeReported: E.t)) =>
-             resolve(Error(E.CacheFailure("Couldn't compute downloadUrl"))),
+           | Error((thisIsWhereCacheFailureCouldBeReported: E.t)) =>
+             resolve(Error(thisIsWhereCacheFailureCouldBeReported)),
          )
       |> then_(
            fun
            | Ok () => {
                reportProgress(eventEmitter, 93.33);
+               Js.log("Download complete. Unzipping...")
                Command.Unzip.run(~p=hiddenEsyRoot, "cache.zip")
                |> then_(
                     fun
@@ -222,8 +220,9 @@ module Bsb = {
       |> then_(
            fun
            | Ok () => {
+               Js.log("Importing cached builds...")
                reportProgress(eventEmitter, 96.66);
-               Command.Esy.importDependencies(~p=hiddenEsyRoot)
+               (Process.platform == "win32" || Process.platform == "win64" ? serialEsyImportDependencies(hiddenEsyRoot): Command.Esy.importDependencies(~p=hiddenEsyRoot))
                |> then_(
                     resolve
                     << (
@@ -239,6 +238,7 @@ module Bsb = {
            fun
            | Error(e) => Error(e) |> resolve
            | Ok () => {
+               Js.log("Imported. Running esy build...")
                reportProgress(eventEmitter, 99.99);
                Command.Esy.build(~p=hiddenEsyRoot)
                |> then_(
@@ -252,7 +252,7 @@ module Bsb = {
              },
          );
     };
-    Js.Promise.(
+    (
       {
         let folder = Filename.dirname(manifestPath);
         Fs.readFile(manifestPath)

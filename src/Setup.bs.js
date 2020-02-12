@@ -105,6 +105,10 @@ var Opam = {
   run: run$1
 };
 
+function serialEsyImportDependencies(projectRoot) {
+  return Esy.importDependencies(projectRoot);
+}
+
 function toString(param) {
   if (typeof param === "number") {
     switch (param) {
@@ -167,12 +171,14 @@ function run$2(eventEmitter, projectPath) {
                                     } else {
                                       var folder$1 = folder;
                                       var hiddenEsyRoot = Path.join(folder$1, ".vscode", "esy");
+                                      console.log("Creating hidden esy root: " + hiddenEsyRoot);
                                       return $$Node.Fs.mkdir(true, hiddenEsyRoot).then((function (param) {
                                                               if (param.tag) {
                                                                 return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                               } else {
                                                                 var path = Filename.concat(hiddenEsyRoot, "esy.json");
                                                                 return $$Node.Fs.writeFile(path, Bindings.thisProjectsEsyJson).then((function (param) {
+                                                                              console.log("Created esy.json at " + hiddenEsyRoot);
                                                                               return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
                                                                             }));
                                                               }
@@ -180,22 +186,30 @@ function run$2(eventEmitter, projectPath) {
                                                             if (param.tag) {
                                                               return Promise.resolve(/* Error */Block.__(1, [/* InvalidPath */Block.__(3, [hiddenEsyRoot])]));
                                                             } else {
+                                                              console.log("Running esy install");
                                                               return Esy.install(hiddenEsyRoot).then((function (param) {
                                                                             if (param.tag) {
                                                                               return Promise.resolve(/* Error */Block.__(1, [/* EsyInstallFailure */2]));
                                                                             } else {
+                                                                              console.log("Finished running 'esy install'. Initiating cache warmup");
+                                                                              console.log("Getting latest build ID..");
                                                                               reportProgress(eventEmitter, 0.1);
                                                                               return AzurePipelines.getBuildID(/* () */0).then((function (param) {
                                                                                               if (param.tag) {
                                                                                                 return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                                                               } else {
-                                                                                                return AzurePipelines.getDownloadURL(param[0]);
+                                                                                                var id = param[0];
+                                                                                                console.log("Got build ID: " + id.toString());
+                                                                                                console.log("Getting download URL...");
+                                                                                                return AzurePipelines.getDownloadURL(id);
                                                                                               }
                                                                                             })).then((function (param) {
                                                                                             if (param.tag) {
-                                                                                              return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, ["<TODO>"])]));
+                                                                                              return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, [AzurePipelines.E.toString(param[0])])]));
                                                                                             } else {
-                                                                                              return Promise.resolve(/* Ok */Block.__(0, [param[0]]));
+                                                                                              var url = param[0];
+                                                                                              console.log("Got download URL: " + url);
+                                                                                              return Promise.resolve(/* Ok */Block.__(0, [url]));
                                                                                             }
                                                                                           }));
                                                                             }
@@ -203,16 +217,17 @@ function run$2(eventEmitter, projectPath) {
                                                             }
                                                           })).then((function (param) {
                                                           if (param.tag) {
-                                                            return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, ["Couldn't compute downloadUrl"])]));
+                                                            return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                           } else {
                                                             var downloadUrl = param[0];
-                                                            console.log("download", downloadUrl);
+                                                            console.log("Downloading", downloadUrl);
                                                             var lastProgress = {
                                                               contents: 0.0
                                                             };
                                                             return new Promise((function (resolve, param) {
                                                                           return download(downloadUrl, Path.join(hiddenEsyRoot, "cache.zip"), (function (progressFraction) {
                                                                                         var percent = progressFraction * 80.0;
+                                                                                        console.log("Download ", percent);
                                                                                         reportProgress(eventEmitter, percent - lastProgress.contents);
                                                                                         lastProgress.contents = percent;
                                                                                         return /* () */0;
@@ -230,6 +245,7 @@ function run$2(eventEmitter, projectPath) {
                                                           return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                         } else {
                                                           reportProgress(eventEmitter, 93.33);
+                                                          console.log("Download complete. Unzipping...");
                                                           return Unzip.run(hiddenEsyRoot, "cache.zip").then((function (param) {
                                                                         if (param.tag) {
                                                                           return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, ["Failed to unzip downloaded cache"])]));
@@ -242,7 +258,9 @@ function run$2(eventEmitter, projectPath) {
                                                       if (param.tag) {
                                                         return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                       } else {
+                                                        console.log("Importing cached builds...");
                                                         reportProgress(eventEmitter, 96.66);
+                                                        process.platform === "win32" || process.platform === "win64";
                                                         return Esy.importDependencies(hiddenEsyRoot).then((function (param) {
                                                                       return Utils.$less$less((function (prim) {
                                                                                     return Promise.resolve(prim);
@@ -259,6 +277,7 @@ function run$2(eventEmitter, projectPath) {
                                                     if (param.tag) {
                                                       return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                     } else {
+                                                      console.log("Imported. Running esy build...");
                                                       reportProgress(eventEmitter, 99.99);
                                                       return Esy.build(hiddenEsyRoot).then((function (param) {
                                                                     return Utils.$less$less((function (prim) {
@@ -303,5 +322,6 @@ var Bsb = {
 exports.Internal = Internal;
 exports.Esy = Esy$1;
 exports.Opam = Opam;
+exports.serialEsyImportDependencies = serialEsyImportDependencies;
 exports.Bsb = Bsb;
 /* fs Not a pure module */

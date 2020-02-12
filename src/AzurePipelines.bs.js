@@ -103,6 +103,10 @@ function getDownloadURL(responseText) {
           }
         }
       } else {
+        console.log(">>>", responseText);
+        console.log("Got", (function (param) {
+                return JSON.stringify(json, null, param);
+              }));
         return /* Error */Block.__(1, [/* MissingField */Block.__(2, ["resource"])]);
       }
     }
@@ -134,7 +138,7 @@ switch (match) {
       os = "Linux";
       break;
   case "win32" :
-      os = "Windows";
+      os = "Windows_NT";
       break;
   default:
     os = undefined;

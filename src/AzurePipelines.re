@@ -61,7 +61,7 @@ module JSONResponse = {
       switch (Js.Json.classify(json)) {
       | JSONObject(dict) =>
         switch (Dict.get(dict, "resource")) {
-        | None => Error(E.MissingField("resource"))
+        | None => Js.log2(">>>", responseText); Js.log2("Got", Js.Json.stringifyWithSpace(json)); Error(E.MissingField("resource"))
         | Some(json) =>
           switch (Json.classify(json)) {
           | JSONObject(dict) =>
@@ -89,7 +89,7 @@ let os =
   switch (Process.platform) {
   | "darwin" => Some("Darwin")
   | "linux" => Some("Linux")
-  | "win32" => Some("Windows")
+  | "win32" => Some("Windows_NT")
   | _ => None
   };
 let artifactName = Option.(os >>| (os => {j|cache-$os-install|j}));
