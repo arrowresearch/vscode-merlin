@@ -1,11 +1,16 @@
 {
   "dependencies": {
-    "ocaml": "4.6.x",
+    "@prometheansacrifice/ocaml": "4.6.1001-alpha.2",
+    "@opam/seq": "*",
     "@esy-ocaml/reason": "*",
     "@opam/ocamlformat": "0.12",
     "@opam/ocaml-lsp-server": "prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1"
   },
   "resolutions": {
-    "@opam/dune": "2.0.1"
+    "@opam/dune": "2.0.1",
+    "@opam/menhir": "20200123",
+    "@opam/menhirSdk": "20200123",
+    "@opam/menhirLib": "20200123",
+    "@opam/dune-private-libs": "2.0.1"
   }
 }
