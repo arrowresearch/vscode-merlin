@@ -3,7 +3,7 @@
     "ocaml": "4.6.x",
     "@esy-ocaml/reason": "*",
     "@opam/ocamlformat": "0.12",
-    "@opam/ocaml-lsp-server": "prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1"
+    "@opam/ocaml-lsp-server": "ocaml/ocaml-lsp:ocaml-lsp-server.opam#0fc8955eb39"
   },
   "resolutions": {
     "@opam/dune": "2.0.1",

@@ -1,5 +1,5 @@
 {
-  "checksum": "bce88b33d219f89abc87a682d0197d70",
+  "checksum": "c81bd7c760b889aaaf87aa48242fd0d7",
   "root": "vscode-merlin@link-dev:./esy.json",
   "node": {
     "vscode-merlin@link-dev:./esy.json": {
@@ -10,7 +10,7 @@
       "overrides": [],
       "dependencies": [
         "ocaml@4.6.1000@d41d8cd9", "@opam/ocamlformat@opam:0.12@4af14b8f",
-        "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1@d41d8cd9",
+        "@opam/ocaml-lsp-server@github:ocaml/ocaml-lsp:ocaml-lsp-server.opam#0fc8955eb39@d41d8cd9",
         "@esy-ocaml/reason@3.5.2@d41d8cd9"
       ],
       "devDependencies": []
@@ -482,7 +482,7 @@
         "@opam/uuseg@opam:12.0.0@bf82c4c7",
         "@opam/stdio@opam:v0.13.0@eb59d879", "@opam/re@opam:1.9.0@d4d5e13d",
         "@opam/odoc@opam:1.5.0@35218f5f",
-        "@opam/ocaml-migrate-parsetree@opam:1.5.0@3e319dbc",
+        "@opam/ocaml-migrate-parsetree@opam:1.6.0@da2643e7",
         "@opam/fpath@opam:0.7.2@45477b93", "@opam/dune@opam:2.0.1@5dc56bd0",
         "@opam/cmdliner@opam:1.0.4@93208aac",
         "@opam/base-unix@opam:base@87d0b2eb",
@@ -494,7 +494,7 @@
         "@opam/uuseg@opam:12.0.0@bf82c4c7",
         "@opam/stdio@opam:v0.13.0@eb59d879", "@opam/re@opam:1.9.0@d4d5e13d",
         "@opam/odoc@opam:1.5.0@35218f5f",
-        "@opam/ocaml-migrate-parsetree@opam:1.5.0@3e319dbc",
+        "@opam/ocaml-migrate-parsetree@opam:1.6.0@da2643e7",
         "@opam/fpath@opam:0.7.2@45477b93", "@opam/dune@opam:2.0.1@5dc56bd0",
         "@opam/cmdliner@opam:1.0.4@93208aac",
         "@opam/base-unix@opam:base@87d0b2eb",
@@ -557,20 +557,20 @@
       ],
       "devDependencies": [ "ocaml@4.6.1000@d41d8cd9" ]
     },
-    "@opam/ocaml-migrate-parsetree@opam:1.5.0@3e319dbc": {
-      "id": "@opam/ocaml-migrate-parsetree@opam:1.5.0@3e319dbc",
+    "@opam/ocaml-migrate-parsetree@opam:1.6.0@da2643e7": {
+      "id": "@opam/ocaml-migrate-parsetree@opam:1.6.0@da2643e7",
       "name": "@opam/ocaml-migrate-parsetree",
-      "version": "opam:1.5.0",
+      "version": "opam:1.6.0",
       "source": {
         "type": "install",
         "source": [
-          "archive:https://opam.ocaml.org/cache/sha256/7f/7f56679c9561552762666de5b6b81c8e4cc2e9fd92272e2269878a2eb534e3c0#sha256:7f56679c9561552762666de5b6b81c8e4cc2e9fd92272e2269878a2eb534e3c0",
-          "archive:https://github.com/ocaml-ppx/ocaml-migrate-parsetree/releases/download/v1.5.0/ocaml-migrate-parsetree-v1.5.0.tbz#sha256:7f56679c9561552762666de5b6b81c8e4cc2e9fd92272e2269878a2eb534e3c0"
+          "archive:https://opam.ocaml.org/cache/sha256/9b/9b018e7d25114ce17fc0b82b7cd7c927b84ebb6b043aa987fa7731c2484de33f#sha256:9b018e7d25114ce17fc0b82b7cd7c927b84ebb6b043aa987fa7731c2484de33f",
+          "archive:https://github.com/ocaml-ppx/ocaml-migrate-parsetree/releases/download/v1.6.0/ocaml-migrate-parsetree-v1.6.0.tbz#sha256:9b018e7d25114ce17fc0b82b7cd7c927b84ebb6b043aa987fa7731c2484de33f"
         ],
         "opam": {
           "name": "ocaml-migrate-parsetree",
-          "version": "1.5.0",
-          "path": "esy.lock/opam/ocaml-migrate-parsetree.1.5.0"
+          "version": "1.6.0",
+          "path": "esy.lock/opam/ocaml-migrate-parsetree.1.6.0"
         }
       },
       "overrides": [],
@@ -585,16 +585,15 @@
         "@opam/dune@opam:2.0.1@5dc56bd0"
       ]
     },
-    "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1@d41d8cd9": {
+    "@opam/ocaml-lsp-server@github:ocaml/ocaml-lsp:ocaml-lsp-server.opam#0fc8955eb39@d41d8cd9": {
       "id":
-        "@opam/ocaml-lsp-server@github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1@d41d8cd9",
+        "@opam/ocaml-lsp-server@github:ocaml/ocaml-lsp:ocaml-lsp-server.opam#0fc8955eb39@d41d8cd9",
       "name": "@opam/ocaml-lsp-server",
-      "version":
-        "github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1",
+      "version": "github:ocaml/ocaml-lsp:ocaml-lsp-server.opam#0fc8955eb39",
       "source": {
         "type": "install",
         "source": [
-          "github:prometheansacrifice/ocaml-lsp:ocaml-lsp-server.opam#d555655b1ea2e1"
+          "github:ocaml/ocaml-lsp:ocaml-lsp-server.opam#0fc8955eb39"
         ]
       },
       "overrides": [],
@@ -1083,7 +1082,7 @@
       "dependencies": [
         "ocaml@4.6.1000@d41d8cd9", "@opam/result@opam:1.4@dc720aef",
         "@opam/ocamlfind@opam:1.8.1@ff07b0f9",
-        "@opam/ocaml-migrate-parsetree@opam:1.5.0@3e319dbc",
+        "@opam/ocaml-migrate-parsetree@opam:1.6.0@da2643e7",
         "@opam/merlin-extend@opam:0.5@a5dd7d4b",
         "@opam/menhir@opam:20200123@fdbafd0c",
         "@opam/dune@opam:2.0.1@5dc56bd0"
