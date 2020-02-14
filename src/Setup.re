@@ -66,6 +66,7 @@ module Opam = {
 module Bsb = {
   module E = {
     type t =
+      | RimrafFailed(string)
       | SetupChainFailure(string)
       | CacheFailure(string)
       | EsyBuildFailure
@@ -76,6 +77,7 @@ module Bsb = {
       | Failure(string);
     let toString =
       fun
+      | RimrafFailed(msg) => {j| Rimraf failed before the bsb toolchain setup: $msg |j}
       | SetupChainFailure(msg) => {j|Setup failed: $msg|j}
       | EsyBuildFailure => "'esy install' failed"
       | EsyImportDependenciesFailure => "'esy import-dependencies' failed"
@@ -119,7 +121,19 @@ module Bsb = {
       /*     fun */
       /*     | Ok(x) => f(x) */
       /*     | Error(e) => Js.Promise.resolve(Error(e)); */
-      Fs.mkdir(~p=true, hiddenEsyRoot)
+      Rimraf.run(hiddenEsyRoot)
+      |> then_(
+           fun
+           | Error () => Error(E.RimrafFailed(hiddenEsyRoot)) |> resolve
+           | Ok () =>
+             Fs.mkdir(~p=true, hiddenEsyRoot)
+             |> then_(
+                  fun
+                  | Ok () => resolve(Ok())
+                  | Error(Fs.E.PathNotFound) =>
+                    Error(E.InvalidPath(hiddenEsyRoot)) |> resolve,
+                ),
+         )
       |> then_(
            fun
            | Error(e) => Error(e) |> resolve
@@ -131,8 +145,7 @@ module Bsb = {
          )
       |> then_(
            fun
-           | Error(Fs.E.PathNotFound) =>
-             Error(E.InvalidPath(hiddenEsyRoot)) |> resolve
+           | Error(e) => Error(e) |> resolve
            | Ok () => {
                Command.Esy.install(~p=hiddenEsyRoot)
                |> then_(
