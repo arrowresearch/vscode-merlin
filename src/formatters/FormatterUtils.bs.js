@@ -18,8 +18,7 @@ function getFormatterPath(formatter) {
                 if (param.tag) {
                   return Promise.resolve(/* Error */Block.__(1, [ProjectType.E.toString(param[0])]));
                 } else {
-                  var match = process.platform === "win32";
-                  var esy = match ? "esy.cmd" : "esy";
+                  var esy = process.platform === "win32" ? "esy.cmd" : "esy";
                   var tmp = param[0];
                   if (typeof tmp === "number") {
                     return Promise.resolve(/* Ok */Block.__(0, ["opam exec -- " + (String(formatter) + "")]));
