@@ -190,7 +190,7 @@ function prepareCommand(a) {
 }
 
 function subcommand(c, p) {
-  var cmd = /* array */[
+  var cmd = [
       "esy install",
       prepareProjectPathArgs(p)
     ].join(" ");
