@@ -11,6 +11,7 @@ var Curry = require("bs-platform/lib/js/curry.js");
 var Unzip = require("./command/Unzip.bs.js");
 var Utils = require("./Utils.bs.js");
 var $$Option = require("./Option.bs.js");
+var Rimraf = require("./bindings/Rimraf.bs.js");
 var Events = require("events");
 var $$Request = require("request");
 var Bindings = require("./bindings/Bindings.bs.js");
@@ -117,16 +118,18 @@ function toString(param) {
     }
   } else {
     switch (param.tag | 0) {
-      case /* SetupChainFailure */0 :
+      case /* RimrafFailed */0 :
+          return " Rimraf failed before the bsb toolchain setup: " + (String(param[0]) + " ");
+      case /* SetupChainFailure */1 :
           return "Setup failed: " + (String(param[0]) + "");
-      case /* CacheFailure */1 :
+      case /* CacheFailure */2 :
           return " Azure artifacts cache failure: " + (String(param[0]) + " ");
-      case /* BucklescriptCompatFailure */2 :
+      case /* BucklescriptCompatFailure */3 :
           var msg = CheckBucklescriptCompat.E.toString(param[0]);
           return " BucklescriptCompatFailure: " + (String(msg) + " ");
-      case /* InvalidPath */3 :
+      case /* InvalidPath */4 :
           return " Setup failed with because of invalid path provided to it: " + (String(param[0]) + " ");
-      case /* Failure */4 :
+      case /* Failure */5 :
           return " Bsb setup failed. Reason: " + (String(param[0]) + " ");
       
     }
@@ -161,13 +164,25 @@ function run$2(eventEmitter, projectPath) {
   var manifestPath = Path.join(projectPath, "package.json");
   var folder = Curry._1(Filename.dirname, manifestPath);
   return $$Node.Fs.readFile(manifestPath).then((function (manifest) {
-                  return $$Option.toPromise(/* SetupChainFailure */Block.__(0, ["Failed to parse manifest file"]), $$Option.$great$great$pipe($$Option.$great$great$pipe(Json.parse(manifest), CheckBucklescriptCompat.run), (function (param) {
+                  return $$Option.toPromise(/* SetupChainFailure */Block.__(1, ["Failed to parse manifest file"]), $$Option.$great$great$pipe($$Option.$great$great$pipe(Json.parse(manifest), CheckBucklescriptCompat.run), (function (param) {
                                     if (param.tag) {
-                                      return Promise.resolve(/* Error */Block.__(1, [/* BucklescriptCompatFailure */Block.__(2, [param[0]])]));
+                                      return Promise.resolve(/* Error */Block.__(1, [/* BucklescriptCompatFailure */Block.__(3, [param[0]])]));
                                     } else {
                                       var folder$1 = folder;
                                       var hiddenEsyRoot = Path.join(folder$1, ".vscode", "esy");
-                                      return $$Node.Fs.mkdir(true, hiddenEsyRoot).then((function (param) {
+                                      return Rimraf.Rimraf.run(hiddenEsyRoot).then((function (param) {
+                                                                if (param.tag) {
+                                                                  return Promise.resolve(/* Error */Block.__(1, [/* RimrafFailed */Block.__(0, [hiddenEsyRoot])]));
+                                                                } else {
+                                                                  return $$Node.Fs.mkdir(true, hiddenEsyRoot).then((function (param) {
+                                                                                if (param.tag) {
+                                                                                  return Promise.resolve(/* Error */Block.__(1, [/* InvalidPath */Block.__(4, [hiddenEsyRoot])]));
+                                                                                } else {
+                                                                                  return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
+                                                                                }
+                                                                              }));
+                                                                }
+                                                              })).then((function (param) {
                                                               if (param.tag) {
                                                                 return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                               } else {
@@ -178,7 +193,7 @@ function run$2(eventEmitter, projectPath) {
                                                               }
                                                             })).then((function (param) {
                                                             if (param.tag) {
-                                                              return Promise.resolve(/* Error */Block.__(1, [/* InvalidPath */Block.__(3, [hiddenEsyRoot])]));
+                                                              return Promise.resolve(/* Error */Block.__(1, [param[0]]));
                                                             } else {
                                                               return Esy.install(hiddenEsyRoot).then((function (param) {
                                                                             if (param.tag) {
@@ -193,7 +208,7 @@ function run$2(eventEmitter, projectPath) {
                                                                                               }
                                                                                             })).then((function (param) {
                                                                                             if (param.tag) {
-                                                                                              return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, ["<TODO>"])]));
+                                                                                              return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(2, ["<TODO>"])]));
                                                                                             } else {
                                                                                               return Promise.resolve(/* Ok */Block.__(0, [param[0]]));
                                                                                             }
@@ -203,7 +218,7 @@ function run$2(eventEmitter, projectPath) {
                                                             }
                                                           })).then((function (param) {
                                                           if (param.tag) {
-                                                            return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, ["Couldn't compute downloadUrl"])]));
+                                                            return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(2, ["Couldn't compute downloadUrl"])]));
                                                           } else {
                                                             var downloadUrl = param[0];
                                                             console.log("download", downloadUrl);
@@ -219,7 +234,7 @@ function run$2(eventEmitter, projectPath) {
                                                                                       }), (function (param) {
                                                                                         return resolve(/* Ok */Block.__(0, [/* () */0]));
                                                                                       }), (function (e) {
-                                                                                        return resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, [e.message])]));
+                                                                                        return resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(2, [e.message])]));
                                                                                       }), (function (param) {
                                                                                         return /* () */0;
                                                                                       }));
@@ -232,7 +247,7 @@ function run$2(eventEmitter, projectPath) {
                                                           reportProgress(eventEmitter, 93.33);
                                                           return Unzip.run(hiddenEsyRoot, "cache.zip").then((function (param) {
                                                                         if (param.tag) {
-                                                                          return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(1, ["Failed to unzip downloaded cache"])]));
+                                                                          return Promise.resolve(/* Error */Block.__(1, [/* CacheFailure */Block.__(2, ["Failed to unzip downloaded cache"])]));
                                                                         } else {
                                                                           return Promise.resolve(/* Ok */Block.__(0, [/* () */0]));
                                                                         }

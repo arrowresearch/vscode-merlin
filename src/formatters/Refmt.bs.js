@@ -49,7 +49,7 @@ function register(param) {
                               } else {
                                 var textRange = FormatterUtils.getFullTextRange(textEditor.document);
                                 $$Node.Fs.unlink(tempFileName);
-                                return Promise.resolve(/* array */[Vscode.TextEdit.replace(textRange, param[0][1])]);
+                                return Promise.resolve([Vscode.TextEdit.replace(textRange, param[0][1])]);
                               }
                             })).catch((function (e) {
                             $$Node.Fs.unlink(tempFileName);
@@ -57,7 +57,7 @@ function register(param) {
                             return Promise.resolve(/* array */[]);
                           }));
             } else {
-              return Promise.resolve(/* array */[]);
+              return Promise.resolve([]);
             }
           })
       });

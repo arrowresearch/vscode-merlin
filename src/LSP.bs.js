@@ -89,7 +89,7 @@ function make(folder) {
                                   } else {
                                     return Promise.resolve(/* Ok */Block.__(0, [{
                                                     command: "opam",
-                                                    args: /* array */[
+                                                    args: [
                                                       "exec",
                                                       "ocamllsp"
                                                     ],
@@ -99,10 +99,9 @@ function make(folder) {
                                                   }]));
                                   }
                                 } else if (projectType.tag) {
-                                  var match = process.platform === "win32";
                                   return Promise.resolve(/* Ok */Block.__(0, [{
-                                                  command: match ? "esy.cmd" : "esy",
-                                                  args: /* array */[
+                                                  command: process.platform === "win32" ? "esy.cmd" : "esy",
+                                                  args: [
                                                     "-P",
                                                     Path.join(folder, ".vscode", "esy"),
                                                     "ocamllsp"
@@ -112,10 +111,9 @@ function make(folder) {
                                                   }
                                                 }]));
                                 } else {
-                                  var match$1 = process.platform === "win32";
                                   return Promise.resolve(/* Ok */Block.__(0, [{
-                                                  command: match$1 ? "esy.cmd" : "esy",
-                                                  args: /* array */[
+                                                  command: process.platform === "win32" ? "esy.cmd" : "esy",
+                                                  args: [
                                                     "exec-command",
                                                     "--include-current-env",
                                                     "ocamllsp"
@@ -137,7 +135,7 @@ var Server = {
 
 function make$1(param) {
   return {
-          documentSelector: /* array */[
+          documentSelector: [
             {
               scheme: "file",
               language: "ocaml"
