@@ -25,7 +25,9 @@ let register = () => {
                | Error(reason) =>
                  P.reject(Failure("Could not setup ocamlformat: " ++ reason))
                | Ok(formatterPath) => {
-                  Js.log({j|$formatterPath --enable-outside-detected-project --name=$filePath $tempFileName|j});
+                   Js.log(
+                     {j|$formatterPath --enable-outside-detected-project --name=$filePath $tempFileName|j},
+                   );
                    Node.ChildProcess.exec(
                      {j|$formatterPath --enable-outside-detected-project --name=$filePath $tempFileName|j},
                      Node.ChildProcess.Options.make(~cwd, ()),
@@ -52,7 +54,7 @@ let register = () => {
           |> P.catch(e => {
                Node.Fs.unlink(tempFileName) |> ignore;
                Vscode.Window.showErrorMessage({j|Error: $e|j}) |> ignore;
-               P.resolve([||])
+               P.resolve([||]);
              });
         };
       },
