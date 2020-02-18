@@ -33,7 +33,9 @@ function register(param) {
                                               "Could not setup ocamlformat: " + param[0]
                                             ]);
                                 } else {
-                                  return $$Node.ChildProcess.exec("" + (String(param[0]) + (" --enable-outside-detected-project --name=" + (String(filePath) + (" " + (String(tempFileName) + ""))))), {
+                                  var formatterPath = param[0];
+                                  console.log("" + (String(formatterPath) + (" --enable-outside-detected-project --name=" + (String(filePath) + (" " + (String(tempFileName) + ""))))));
+                                  return $$Node.ChildProcess.exec("" + (String(formatterPath) + (" --enable-outside-detected-project --name=" + (String(filePath) + (" " + (String(tempFileName) + ""))))), {
                                               cwd: cwd
                                             });
                                 }
@@ -50,8 +52,8 @@ function register(param) {
                               }
                             })).catch((function (e) {
                             $$Node.Fs.unlink(tempFileName);
-                            var message = $$Node.$$Error.ofPromiseError(e);
-                            return Vscode.window.showErrorMessage("Error: " + (String(message) + ""));
+                            Vscode.window.showErrorMessage("Error: " + (String(e) + ""));
+                            return Promise.resolve(/* array */[]);
                           }));
             } else {
               return Promise.resolve(/* array */[]);
