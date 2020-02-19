@@ -53,8 +53,8 @@ function register(param) {
                               }
                             })).catch((function (e) {
                             $$Node.Fs.unlink(tempFileName);
-                            var message = $$Node.$$Error.ofPromiseError(e);
-                            return Vscode.window.showErrorMessage("Error: " + (String(message) + ""));
+                            Vscode.window.showErrorMessage("Error: " + (String(e) + ""));
+                            return Promise.resolve(/* array */[]);
                           }));
             } else {
               return Promise.resolve([]);
